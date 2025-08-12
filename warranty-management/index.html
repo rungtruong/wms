@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý Bảo hành</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header__content">
+            <button class="btn btn--outline header__menu-btn" id="menuToggle">
+                <i data-feather="menu"></i>
+            </button>
+            <h1 class="header__title">Hệ thống Quản lý Bảo hành</h1>
+            <div class="header__actions">
+                <button class="btn btn--outline header__notification-btn" id="notificationBtn">
+                    <i data-feather="bell"></i>
+                    <span class="notification-badge" id="notificationCount">2</span>
+                </button>
+                <div class="header__user">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E" alt="User" class="header__avatar">
+                    <span class="header__username">Admin</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar__content">
+            <div class="sidebar__menu">
+                <a href="#dashboard" class="sidebar__item active" data-page="dashboard">
+                    <i data-feather="home"></i>
+                    <span>Tổng quan</span>
+                </a>
+                <a href="#contracts" class="sidebar__item" data-page="contracts">
+                    <i data-feather="file-text"></i>
+                    <span>Hợp đồng</span>
+                </a>
+                <a href="#serials" class="sidebar__item" data-page="serials">
+                    <i data-feather="hash"></i>
+                    <span>Serial sản phẩm</span>
+                </a>
+                <a href="#requests" class="sidebar__item" data-page="requests">
+                    <i data-feather="tool"></i>
+                    <span>Yêu cầu bảo hành</span>
+                </a>
+                <a href="#customer-portal" class="sidebar__item" data-page="customer-portal">
+                    <i data-feather="search"></i>
+                    <span>Tra cứu bảo hành</span>
+                </a>
+                <a href="#reports" class="sidebar__item" data-page="reports">
+                    <i data-feather="bar-chart-2"></i>
+                    <span>Báo cáo</span>
+                </a>
+                <a href="#notifications" class="sidebar__item" data-page="notifications">
+                    <i data-feather="bell"></i>
+                    <span>Thông báo</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main" id="mainContent">
+        <!-- Dashboard Page -->
+        <div class="page" id="dashboard-page">
+            <div class="page__header">
+                <h2>Tổng quan hệ thống</h2>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card__icon" style="background: var(--color-bg-1);">
+                        <i data-feather="file-text" style="color: var(--color-primary);"></i>
+                    </div>
+                    <div class="stat-card__content">
+                        <h3 id="totalContracts">156</h3>
+                        <p>Tổng hợp đồng</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__icon" style="background: var(--color-bg-3);">
+                        <i data-feather="check-circle" style="color: var(--color-success);"></i>
+                    </div>
+                    <div class="stat-card__content">
+                        <h3 id="activeContracts">142</h3>
+                        <p>Đang hiệu lực</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__icon" style="background: var(--color-bg-2);">
+                        <i data-feather="clock" style="color: var(--color-warning);"></i>
+                    </div>
+                    <div class="stat-card__content">
+                        <h3 id="expiringContracts">8</h3>
+                        <p>Sắp hết hạn</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__icon" style="background: var(--color-bg-4);">
+                        <i data-feather="tool" style="color: var(--color-error);"></i>
+                    </div>
+                    <div class="stat-card__content">
+                        <h3 id="pendingRequests">12</h3>
+                        <p>Yêu cầu chờ xử lý</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts and Tables -->
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card__body">
+                        <h3>Thống kê yêu cầu bảo hành</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="requestChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card__body">
+                        <h3>Sản phẩm lỗi nhiều nhất</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="failureChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="card">
+                <div class="card__body">
+                    <h3>Yêu cầu bảo hành gần đây</h3>
+                    <div class="table-container">
+                        <table class="table" id="recentRequestsTable">
+                            <thead>
+                                <tr>
+                                    <th>Mã yêu cầu</th>
+                                    <th>Khách hàng</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày tạo</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contracts Page -->
+        <div class="page hidden" id="contracts-page">
+            <div class="page__header">
+                <h2>Quản lý Hợp đồng Bảo hành</h2>
+                <button class="btn btn--primary" id="addContractBtn">
+                    <i data-feather="plus"></i>
+                    Thêm hợp đồng
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card__body">
+                    <div class="filters">
+                        <input type="text" class="form-control" placeholder="Tìm kiếm hợp đồng..." id="contractSearch">
+                        <select class="form-control" id="contractStatusFilter">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="active">Đang hiệu lực</option>
+                            <option value="expired">Hết hạn</option>
+                            <option value="suspended">Tạm dừng</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="contractsTable">
+                            <thead>
+                                <tr>
+                                    <th>Số hợp đồng</th>
+                                    <th>Khách hàng</th>
+                                    <th>Ngày bắt đầu</th>
+                                    <th>Ngày kết thúc</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Serials Page -->
+        <div class="page hidden" id="serials-page">
+            <div class="page__header">
+                <h2>Quản lý Serial Sản phẩm</h2>
+                <button class="btn btn--primary" id="addSerialBtn">
+                    <i data-feather="plus"></i>
+                    Thêm serial
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card__body">
+                    <div class="filters">
+                        <input type="text" class="form-control" placeholder="Tìm kiếm serial..." id="serialSearch">
+                        <select class="form-control" id="serialStatusFilter">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="active">Đang bảo hành</option>
+                            <option value="expired">Hết bảo hành</option>
+                            <option value="suspended">Tạm dừng</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="serialsTable">
+                            <thead>
+                                <tr>
+                                    <th>Serial Number</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Model</th>
+                                    <th>Bảo hành còn lại</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warranty Requests Page -->
+        <div class="page hidden" id="requests-page">
+            <div class="page__header">
+                <h2>Quản lý Yêu cầu Bảo hành</h2>
+                <button class="btn btn--primary" id="addRequestBtn">
+                    <i data-feather="plus"></i>
+                    Tạo yêu cầu
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card__body">
+                    <div class="filters">
+                        <input type="text" class="form-control" placeholder="Tìm kiếm yêu cầu..." id="requestSearch">
+                        <select class="form-control" id="requestStatusFilter">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="received">Tiếp nhận</option>
+                            <option value="validated">Đã kiểm tra</option>
+                            <option value="processing">Đang xử lý</option>
+                            <option value="completed">Hoàn thành</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="requestsTable">
+                            <thead>
+                                <tr>
+                                    <th>Mã yêu cầu</th>
+                                    <th>Khách hàng</th>
+                                    <th>Serial</th>
+                                    <th>Vấn đề</th>
+                                    <th>Mức độ</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Portal Page -->
+        <div class="page hidden" id="customer-portal-page">
+            <div class="page__header">
+                <h2>Tra cứu Thông tin Bảo hành</h2>
+            </div>
+
+            <div class="customer-portal">
+                <div class="portal-search">
+                    <div class="card">
+                        <div class="card__body">
+                            <h3>Nhập Serial Number để tra cứu</h3>
+                            <div class="portal-search__form">
+                                <input type="text" class="form-control portal-search__input" placeholder="Nhập serial number..." id="portalSerialInput">
+                                <button class="btn btn--primary" id="portalSearchBtn">
+                                    <i data-feather="search"></i>
+                                    Tra cứu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="portal-result hidden" id="portalResult">
+                    <div class="card">
+                        <div class="card__body">
+                            <h3>Thông tin Sản phẩm</h3>
+                            <div class="portal-info" id="portalInfo"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Page -->
+        <div class="page hidden" id="reports-page">
+            <div class="page__header">
+                <h2>Báo cáo và Thống kê</h2>
+            </div>
+
+            <div class="reports-grid">
+                <div class="card">
+                    <div class="card__body">
+                        <h3>Doanh thu bảo hành theo tháng</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card__body">
+                        <h3>Hiệu quả xử lý bảo hành</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="efficiencyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Page -->
+        <div class="page hidden" id="notifications-page">
+            <div class="page__header">
+                <h2>Thông báo hệ thống</h2>
+            </div>
+
+            <div class="notifications-list" id="notificationsList"></div>
+        </div>
+    </main>
+
+    <!-- Contract Modal -->
+    <div class="modal hidden" id="contractModal">
+        <div class="modal__backdrop"></div>
+        <div class="modal__content">
+            <div class="modal__header">
+                <h3 id="contractModalTitle">Thêm Hợp đồng Bảo hành</h3>
+                <button class="modal__close" id="closeContractModal">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal__body">
+                <form id="contractForm">
+                    <div class="form-group">
+                        <label class="form-label">Số hợp đồng</label>
+                        <input type="text" class="form-control" id="contractNumber" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tên khách hàng*</label>
+                        <input type="text" class="form-control" id="customerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Địa chỉ*</label>
+                        <textarea class="form-control" id="customerAddress" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Số điện thoại*</label>
+                        <input type="tel" class="form-control" id="customerPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email*</label>
+                        <input type="email" class="form-control" id="customerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ngày bắt đầu*</label>
+                        <input type="date" class="form-control" id="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ngày kết thúc*</label>
+                        <input type="date" class="form-control" id="endDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Điều khoản bảo hành</label>
+                        <textarea class="form-control" id="warrantyTerms" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal__footer">
+                <button type="button" class="btn btn--outline" id="cancelContract">Hủy</button>
+                <button type="submit" class="btn btn--primary" form="contractForm">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Serial Modal -->
+    <div class="modal hidden" id="serialModal">
+        <div class="modal__backdrop"></div>
+        <div class="modal__content">
+            <div class="modal__header">
+                <h3 id="serialModalTitle">Thêm Serial Sản phẩm</h3>
+                <button class="modal__close" id="closeSerialModal">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal__body">
+                <form id="serialForm">
+                    <div class="form-group">
+                        <label class="form-label">Serial Number*</label>
+                        <input type="text" class="form-control" id="serialNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tên sản phẩm*</label>
+                        <input type="text" class="form-control" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Model*</label>
+                        <input type="text" class="form-control" id="productModel" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ngày sản xuất</label>
+                        <input type="date" class="form-control" id="manufactureDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Hợp đồng bảo hành</label>
+                        <select class="form-control" id="contractSelect">
+                            <option value="">Chọn hợp đồng</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal__footer">
+                <button type="button" class="btn btn--outline" id="cancelSerial">Hủy</button>
+                <button type="submit" class="btn btn--primary" form="serialForm">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="app.js"></script>
+</body>
+</html>
