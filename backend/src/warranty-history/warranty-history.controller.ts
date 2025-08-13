@@ -33,9 +33,9 @@ export class WarrantyHistoryController {
     return this.warrantyHistoryService.findAll();
   }
 
-  @Get('serial/:serialId')
-  findBySerialId(@Param('serialId') serialId: string) {
-    return this.warrantyHistoryService.findBySerialId(serialId);
+  @Get('product-serial/:productSerialId')
+  findByProductSerialId(@Param('productSerialId') productSerialId: string) {
+    return this.warrantyHistoryService.findByProductSerialId(productSerialId);
   }
 
   @Get(':id')

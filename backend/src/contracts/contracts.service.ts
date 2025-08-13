@@ -15,7 +15,7 @@ export class ContractsService {
         ...contractData,
         contractProducts: {
           create: products?.map(product => ({
-            productId: product.productId,
+            productSerialId: product.productSerialId,
             quantity: product.quantity,
             unitPrice: product.unitPrice,
           })) || [],
@@ -24,7 +24,7 @@ export class ContractsService {
       include: {
         contractProducts: {
           include: {
-            product: true,
+            productSerial: true,
           },
         },
       },
@@ -36,7 +36,7 @@ export class ContractsService {
       include: {
         contractProducts: {
           include: {
-            product: true,
+            productSerial: true,
           },
         },
       },
@@ -52,7 +52,7 @@ export class ContractsService {
       include: {
         contractProducts: {
           include: {
-            product: true,
+            productSerial: true,
           },
         },
       },
@@ -71,7 +71,7 @@ export class ContractsService {
       include: {
         contractProducts: {
           include: {
-            product: true,
+            productSerial: true,
           },
         },
       },
@@ -97,7 +97,7 @@ export class ContractsService {
           contractProducts: {
             deleteMany: {},
             create: products.map(product => ({
-              productId: product.productId,
+              productSerialId: product.productSerialId,
               quantity: product.quantity,
               unitPrice: product.unitPrice,
             })),
@@ -107,9 +107,37 @@ export class ContractsService {
       include: {
         contractProducts: {
           include: {
-            product: true,
+            productSerial: true,
           },
         },
+      },
+    });
+  }
+
+  async findByCustomerEmail(customerEmail: string) {
+    return this.prisma.contract.findMany({
+      where: {
+        customerEmail: customerEmail,
+      },
+      include: {
+        contractProducts: {
+          include: {
+            productSerial: true,
+          },
+        },
+        productSerials: {
+          include: {
+            tickets: {
+              include: {
+                comments: true,
+              },
+            },
+            warrantyHistory: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
   }
@@ -122,7 +150,7 @@ export class ContractsService {
       include: {
         contractProducts: {
           include: {
-            product: true,
+            productSerial: true,
           },
         },
       },

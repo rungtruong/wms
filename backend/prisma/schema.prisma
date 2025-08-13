@@ -10,21 +10,21 @@ datasource db {
 enum UserRole {
   admin
   manager
-  employee
+  technician
   customer
 }
 
 enum ContractStatus {
   active
   expired
-  suspended
   cancelled
+  pending
 }
 
 enum WarrantyStatus {
-  active
+  valid
   expired
-  void
+  voided
 }
 
 enum TicketPriority {
@@ -35,18 +35,24 @@ enum TicketPriority {
 }
 
 enum TicketStatus {
-  new
+  open
   in_progress
-  pending
   resolved
   closed
 }
 
 enum ActionType {
-  repair
-  replacement
-  inspection
-  maintenance
+  created
+  updated
+  status_changed
+  comment_added
+}
+
+enum NotificationType {
+  warning
+  info
+  error
+  success
 }
 
 model User {
@@ -54,7 +60,7 @@ model User {
   email        String   @unique @db.VarChar(255)
   passwordHash String   @map("password_hash") @db.VarChar(255)
   fullName     String   @map("full_name") @db.VarChar(100)
-  role         UserRole @default(employee)
+  role         UserRole @default(technician)
   isActive     Boolean  @default(true) @map("is_active")
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -63,6 +69,7 @@ model User {
   assignedTickets  Ticket[]         @relation("TicketAssignee")
   ticketComments   TicketComment[]
   warrantyHistory  WarrantyHistory[]
+  notifications    Notification[]
 
   @@index([email])
   @@index([role])
@@ -88,7 +95,7 @@ model Contract {
 
   creator          User?              @relation("ContractCreator", fields: [createdBy], references: [id])
   contractProducts ContractProduct[]
-  serials          Serial[]
+  productSerials   ProductSerial[]
 
   @@index([contractNumber])
   @@index([customerEmail])
@@ -97,85 +104,72 @@ model Contract {
   @@map("contracts")
 }
 
-model Product {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String    @db.VarChar(200)
-  model          String    @db.VarChar(100)
-  category       String?   @db.VarChar(50)
-  description    String?
-  warrantyMonths Int       @default(12) @map("warranty_months")
-  isActive       Boolean   @default(true) @map("is_active")
-  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-
-  contractProducts ContractProduct[]
-  serials          Serial[]
-
-  @@index([name])
-  @@index([model])
-  @@index([category])
-  @@map("products")
-}
-
-model ContractProduct {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  contractId String  @map("contract_id") @db.Uuid
-  productId  String  @map("product_id") @db.Uuid
-  quantity   Int
-  unitPrice  Decimal @map("unit_price") @db.Decimal(10, 2)
-  notes      String?
-
-  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@map("contract_products")
-}
-
-model Serial {
+model ProductSerial {
   id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   serialNumber    String          @unique @map("serial_number") @db.VarChar(100)
-  productId       String          @map("product_id") @db.Uuid
-  contractId      String          @map("contract_id") @db.Uuid
+  name            String          @db.VarChar(200)
+  model           String          @db.VarChar(100)
+  category        String?         @db.VarChar(50)
+  description     String?
+  warrantyMonths  Int             @default(12) @map("warranty_months")
+  contractId      String?         @map("contract_id") @db.Uuid
   manufactureDate DateTime?       @map("manufacture_date") @db.Date
   purchaseDate    DateTime?       @map("purchase_date") @db.Date
-  warrantyStatus  WarrantyStatus  @default(active) @map("warranty_status")
+  warrantyStatus  WarrantyStatus  @default(valid) @map("warranty_status")
+  isActive        Boolean         @default(true) @map("is_active")
   notes           String?
   createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  product         Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
-  contract        Contract          @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  tickets         Ticket[]
-  warrantyHistory WarrantyHistory[]
+  contract         Contract?         @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractProducts ContractProduct[]
+  tickets          Ticket[]
+  warrantyHistory  WarrantyHistory[]
 
   @@index([serialNumber])
-  @@index([productId])
+  @@index([name])
+  @@index([model])
+  @@index([category])
   @@index([contractId])
   @@index([warrantyStatus])
-  @@map("serials")
+  @@map("product_serials")
+}
+
+model ContractProduct {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contractId      String        @map("contract_id") @db.Uuid
+  productSerialId String        @map("product_serial_id") @db.Uuid
+  quantity        Int
+  unitPrice       Decimal       @map("unit_price") @db.Decimal(10, 2)
+  notes           String?
+
+  contract      Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  productSerial ProductSerial @relation(fields: [productSerialId], references: [id], onDelete: Cascade)
+
+  @@map("contract_products")
 }
 
 model Ticket {
   id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   ticketNumber     String         @unique @map("ticket_number") @db.VarChar(50)
-  serialId         String         @map("serial_id") @db.Uuid
+  productSerialId  String         @map("product_serial_id") @db.Uuid
   customerName     String         @map("customer_name") @db.VarChar(100)
   customerEmail    String?        @map("customer_email") @db.VarChar(255)
   customerPhone    String?        @map("customer_phone") @db.VarChar(20)
   issueDescription String         @map("issue_description")
   priority         TicketPriority @default(medium)
-  status           TicketStatus   @default(new)
+  status           TicketStatus   @default(open)
   assignedTo       String?        @map("assigned_to") @db.Uuid
   createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   resolvedAt       DateTime?      @map("resolved_at") @db.Timestamptz(6)
 
-  serial   Serial          @relation(fields: [serialId], references: [id], onDelete: Cascade)
-  assignee User?           @relation("TicketAssignee", fields: [assignedTo], references: [id])
-  comments TicketComment[]
+  productSerial ProductSerial   @relation(fields: [productSerialId], references: [id], onDelete: Cascade)
+  assignee      User?           @relation("TicketAssignee", fields: [assignedTo], references: [id])
+  comments      TicketComment[]
 
   @@index([ticketNumber])
-  @@index([serialId])
+  @@index([productSerialId])
   @@index([status])
   @@index([priority])
   @@index([assignedTo])
@@ -197,16 +191,33 @@ model TicketComment {
 }
 
 model WarrantyHistory {
-  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  serialId    String     @map("serial_id") @db.Uuid
-  actionType  ActionType @map("action_type")
-  description String
-  cost        Decimal?   @db.Decimal(10, 2)
-  performedBy String     @map("performed_by") @db.Uuid
-  performedAt DateTime   @default(now()) @map("performed_at") @db.Timestamptz(6)
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productSerialId String        @map("product_serial_id") @db.Uuid
+  actionType      ActionType    @map("action_type")
+  description     String
+  cost            Decimal?      @db.Decimal(10, 2)
+  performedBy     String        @map("performed_by") @db.Uuid
+  performedAt     DateTime      @default(now()) @map("performed_at") @db.Timestamptz(6)
 
-  serial    Serial @relation(fields: [serialId], references: [id], onDelete: Cascade)
-  performer User   @relation(fields: [performedBy], references: [id], onDelete: Cascade)
+  productSerial ProductSerial @relation(fields: [productSerialId], references: [id], onDelete: Cascade)
+  performer     User          @relation(fields: [performedBy], references: [id], onDelete: Cascade)
 
   @@map("warranty_history")
+}
+
+model Notification {
+  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type      NotificationType
+  title     String           @db.VarChar(200)
+  message   String
+  userId    String?          @map("user_id") @db.Uuid
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+  @@map("notifications")
 }

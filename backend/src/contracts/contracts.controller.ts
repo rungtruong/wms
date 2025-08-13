@@ -38,6 +38,11 @@ export class ContractsController {
     return this.contractsService.findByContractNumber(contractNumber);
   }
 
+  @Get('customer/:customerEmail')
+  findByCustomer(@Param('customerEmail') customerEmail: string) {
+    return this.contractsService.findByCustomerEmail(customerEmail);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateContractDto: UpdateContractDto) {
     return this.contractsService.update(id, updateContractDto);

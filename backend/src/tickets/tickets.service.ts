@@ -13,9 +13,8 @@ export class TicketsService {
     return this.prisma.ticket.create({
       data: createTicketDto,
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -27,9 +26,8 @@ export class TicketsService {
   async findAll() {
     return this.prisma.ticket.findMany({
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -45,9 +43,8 @@ export class TicketsService {
     const ticket = await this.prisma.ticket.findUnique({
       where: { id },
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -70,9 +67,8 @@ export class TicketsService {
     return this.prisma.ticket.findMany({
       where: { status },
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -88,9 +84,8 @@ export class TicketsService {
     return this.prisma.ticket.findMany({
       where: { priority },
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -109,9 +104,8 @@ export class TicketsService {
       where: { id },
       data: updateTicketDto,
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -148,9 +142,8 @@ export class TicketsService {
     return this.prisma.ticket.delete({
       where: { id },
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },

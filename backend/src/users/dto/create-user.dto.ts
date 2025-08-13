@@ -17,7 +17,7 @@ export class CreateUserDto {
 
   @IsEnum(UserRole)
   @IsOptional()
-  role?: UserRole = UserRole.employee;
+  role?: UserRole = UserRole.technician;
 
   @IsOptional()
   isActive?: boolean = true;

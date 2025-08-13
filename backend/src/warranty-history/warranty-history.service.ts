@@ -12,9 +12,8 @@ export class WarrantyHistoryService {
     return this.prisma.warrantyHistory.create({
       data: createWarrantyHistoryDto,
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -25,9 +24,8 @@ export class WarrantyHistoryService {
   async findAll() {
     return this.prisma.warrantyHistory.findMany({
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -42,9 +40,8 @@ export class WarrantyHistoryService {
     const warrantyHistory = await this.prisma.warrantyHistory.findUnique({
       where: { id },
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -58,13 +55,12 @@ export class WarrantyHistoryService {
     return warrantyHistory;
   }
 
-  async findBySerialId(serialId: string) {
+  async findByProductSerialId(productSerialId: string) {
     return this.prisma.warrantyHistory.findMany({
-      where: { serialId },
+      where: { productSerialId },
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -79,9 +75,8 @@ export class WarrantyHistoryService {
     return this.prisma.warrantyHistory.findMany({
       where: { actionType },
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -99,9 +94,8 @@ export class WarrantyHistoryService {
       where: { id },
       data: updateWarrantyHistoryDto,
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },
@@ -115,9 +109,8 @@ export class WarrantyHistoryService {
     return this.prisma.warrantyHistory.delete({
       where: { id },
       include: {
-        serial: {
+        productSerial: {
           include: {
-            product: true,
             contract: true,
           },
         },

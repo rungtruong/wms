@@ -15,7 +15,7 @@ import { ContractStatus } from '@prisma/client';
 class ContractProductDto {
   @IsString()
   @IsNotEmpty()
-  productId: string;
+  productSerialId: string;
 
   @IsNumber()
   @IsPositive()

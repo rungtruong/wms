@@ -7,9 +7,12 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ContractsModule } from './contracts/contracts.module';
 import { ProductsModule } from './products/products.module';
-import { SerialsModule } from './serials/serials.module';
+
 import { TicketsModule } from './tickets/tickets.module';
 import { WarrantyHistoryModule } from './warranty-history/warranty-history.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { CustomerPortalModule } from './customer-portal/customer-portal.module';
 
 @Module({
   imports: [
@@ -21,9 +24,11 @@ import { WarrantyHistoryModule } from './warranty-history/warranty-history.modul
     UsersModule,
     ContractsModule,
     ProductsModule,
-    SerialsModule,
     TicketsModule,
     WarrantyHistoryModule,
+    DashboardModule,
+    NotificationsModule,
+    CustomerPortalModule,
   ],
   controllers: [AppController],
   providers: [AppService],

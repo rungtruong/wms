@@ -11,7 +11,7 @@ import { ActionType } from '@prisma/client';
 
 export class CreateWarrantyHistoryDto {
   @IsUUID()
-  serialId: string;
+  productSerialId: string;
 
   @IsEnum(ActionType)
   actionType: ActionType;
