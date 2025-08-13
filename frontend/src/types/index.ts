@@ -110,16 +110,17 @@ export interface WarrantyRequest {
     fullName: string;
     role: "admin" | "manager" | "technician";
   };
-  comments: {
+  history: {
     id: string;
-    comment: string;
-    isInternal: boolean;
-    createdAt: string;
-    user: {
+    actionType: string;
+    description: string;
+    oldValue?: string;
+    newValue?: string;
+    performedBy?: {
       id: string;
       fullName: string;
-      email: string;
     };
+    createdAt: string;
   }[];
 }
 

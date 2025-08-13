@@ -51,7 +51,11 @@ export class ProductsService {
         },
         tickets: {
           include: {
-            comments: true,
+            history: {
+          include: {
+            performer: true,
+          },
+        },
           },
         },
         warrantyHistory: {
@@ -163,7 +167,11 @@ export class ProductsService {
         contract: true,
         tickets: {
           include: {
-            comments: true,
+            history: {
+          include: {
+            performer: true,
+          },
+        },
           },
         },
         warrantyHistory: {
@@ -188,7 +196,11 @@ export class ProductsService {
         contract: true,
         tickets: {
           include: {
-            comments: true,
+            history: {
+              include: {
+                performer: true,
+              },
+            },
           },
         },
         warrantyHistory: true,
@@ -213,7 +225,11 @@ export class ProductsService {
         contract: true,
         tickets: {
           include: {
-            comments: true,
+            history: {
+              include: {
+                performer: true,
+              },
+            },
           },
         },
         warrantyHistory: true,
@@ -235,7 +251,10 @@ export class ProductsService {
         },
         tickets: {
           include: {
-            comments: {
+            history: {
+              include: {
+                performer: true,
+              },
               orderBy: {
                 createdAt: 'desc',
               },
@@ -284,7 +303,7 @@ export class ProductsService {
           performedBy: history.performedBy,
         })),
       },
-      contract: {
+      contract: productSerial.contract ? {
         contractNumber: productSerial.contract.contractNumber,
         customer: {
           name: productSerial.contract.customerName,
@@ -296,7 +315,7 @@ export class ProductsService {
         endDate: productSerial.contract.endDate,
         terms: productSerial.contract.termsConditions,
         status: productSerial.contract.status,
-      },
+      } : null,
       warranty: {
         isValid,
         status: productSerial.warrantyStatus,
@@ -339,7 +358,11 @@ export class ProductsService {
             contract: true,
           },
         },
-        comments: true,
+        history: {
+          include: {
+            performer: true,
+          },
+        },
       },
     });
 

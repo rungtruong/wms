@@ -213,36 +213,42 @@ async function main() {
 
   console.log(`Created ${tickets.length} tickets`);
 
-  // Create ticket comments
-  console.log('Creating ticket comments...');
+  // Create ticket history
+  console.log('Creating ticket history...');
   await Promise.all([
-    prisma.ticketComment.create({
+    prisma.ticketHistory.create({
       data: {
         ticketId: tickets[0].id,
-        userId: users[2].id,
-        comment: 'Đã kiểm tra máy in, phát hiện giấy bị kẹt trong khay số 2',
-        isInternal: false,
+        performedBy: users[2].id,
+        actionType: 'updated',
+        description: 'Đã kiểm tra máy in, phát hiện giấy bị kẹt trong khay số 2',
+        oldValue: null,
+        newValue: null,
       },
     }),
-    prisma.ticketComment.create({
+    prisma.ticketHistory.create({
       data: {
         ticketId: tickets[1].id,
-        userId: users[2].id,
-        comment: 'Đang kiểm tra nguồn điện và RAM của laptop',
-        isInternal: true,
+        performedBy: users[2].id,
+        actionType: 'status_changed',
+        description: 'Chuyển trạng thái từ open sang in_progress',
+        oldValue: 'open',
+        newValue: 'in_progress',
       },
     }),
-    prisma.ticketComment.create({
+    prisma.ticketHistory.create({
       data: {
         ticketId: tickets[2].id,
-        userId: users[2].id,
-        comment: 'Đã thay mực mới và vệ sinh máy, hoạt động bình thường',
-        isInternal: false,
+        performedBy: users[2].id,
+        actionType: 'status_changed',
+        description: 'Đã thay mực mới và vệ sinh máy, hoạt động bình thường',
+        oldValue: 'in_progress',
+        newValue: 'resolved',
       },
     }),
   ]);
 
-  console.log('Created ticket comments');
+  console.log('Created ticket history');
 
   // Create warranty history
   console.log('Creating warranty history...');

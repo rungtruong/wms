@@ -12,7 +12,7 @@ import {
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { CreateTicketCommentDto } from './dto/create-ticket-comment.dto';
+
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TicketStatus, TicketPriority } from '@prisma/client';
 
@@ -50,17 +50,9 @@ export class TicketsController {
     return this.ticketsService.update(id, updateTicketDto);
   }
 
-  @Post(':id/comments')
-  addComment(
-    @Param('id') id: string,
-    @Body() createCommentDto: CreateTicketCommentDto,
-  ) {
-    return this.ticketsService.addComment(id, createCommentDto);
-  }
-
-  @Get(':id/comments')
-  getComments(@Param('id') id: string) {
-    return this.ticketsService.getComments(id);
+  @Get(':id/history')
+  getHistory(@Param('id') id: string) {
+    return this.ticketsService.getHistory(id);
   }
 
   @Delete(':id')

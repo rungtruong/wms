@@ -1,116 +1,147 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { ArrowLeft, Calendar, User, AlertCircle, Clock, CheckCircle, FileText, Phone, Mail, MapPin, UserPlus } from 'lucide-react'
-import Layout from '@/components/Layout'
-import { WarrantyRequest } from '@/types'
-import { showToast } from '@/lib/toast'
-import { ticketsService } from '@/lib/services/tickets'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  Calendar,
+  User,
+  AlertCircle,
+  Clock,
+  CheckCircle,
+  FileText,
+  Phone,
+  Mail,
+  MapPin,
+  UserPlus,
+} from "lucide-react";
+import Layout from "@/components/Layout";
+import { WarrantyRequest } from "@/types";
+import { showToast } from "@/lib/toast";
+import { ticketsService } from "@/lib/services/tickets";
 
 interface RequestDetailPageProps {
   params: {
-    id: string
-  }
+    id: string;
+  };
 }
 
 export default function RequestDetailPage({ params }: RequestDetailPageProps) {
-  const router = useRouter()
-  const [request, setRequest] = useState<WarrantyRequest | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
-  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
-  const [selectedStatus, setSelectedStatus] = useState('')
-  const [statusNote, setStatusNote] = useState('')
+  const router = useRouter();
+  const [request, setRequest] = useState<WarrantyRequest | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [statusNote, setStatusNote] = useState("");
 
   useEffect(() => {
     const fetchRequest = async () => {
       try {
-        setLoading(true)
-        const requestData = await ticketsService.getById(params.id)
-        console.log('Request data:', requestData)
-        console.log('Product Serial:', requestData.productSerial)
-        console.log('Serial Number:', requestData.productSerial?.serialNumber)
-        setRequest(requestData)
+        setLoading(true);
+        const requestData = await ticketsService.getById(params.id);
+        console.log("Request data:", requestData);
+        console.log("Product Serial:", requestData.productSerial);
+        console.log("Serial Number:", requestData.productSerial?.serialNumber);
+        setRequest(requestData);
       } catch (error) {
-        console.error('Error fetching request:', error)
-        setError('Không thể tải thông tin yêu cầu')
-        setRequest(null)
+        console.error("Error fetching request:", error);
+        setError("Không thể tải thông tin yêu cầu");
+        setRequest(null);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchRequest()
-  }, [params.id])
+    fetchRequest();
+  }, [params.id]);
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
-      open: 'status-badge status-received',
-      in_progress: 'status-badge status-processing',
-      resolved: 'status-badge status-completed',
-      closed: 'status-badge status-completed',
-    }
-    return statusClasses[status as keyof typeof statusClasses] || 'status-badge'
-  }
+      open: "status-badge status-received",
+      in_progress: "status-badge status-processing",
+      resolved: "status-badge status-completed",
+      closed: "status-badge status-completed",
+    };
+    return (
+      statusClasses[status as keyof typeof statusClasses] || "status-badge"
+    );
+  };
 
   const getStatusText = (status: string) => {
     const statusTexts = {
-      open: 'Tiếp nhận',
-      in_progress: 'Đang xử lý',
-      resolved: 'Đã giải quyết',
-      closed: 'Đã đóng',
-    }
-    return statusTexts[status as keyof typeof statusTexts] || status
-  }
+      open: "Tiếp nhận",
+      in_progress: "Đang xử lý",
+      resolved: "Đã giải quyết",
+      closed: "Đã đóng",
+    };
+    return statusTexts[status as keyof typeof statusTexts] || status;
+  };
+
+  const getStatusDisplayValue = (value: string) => {
+    const statusMapping = {
+      open: "Tiếp nhận",
+      in_progress: "Đang xử lý",
+      resolved: "Đã giải quyết",
+      closed: "Đã đóng",
+      low: "Thấp",
+      medium: "Trung bình",
+      high: "Cao",
+      urgent: "Khẩn cấp",
+    };
+    return statusMapping[value as keyof typeof statusMapping] || value;
+  };
 
   const getPriorityBadge = (priority: string) => {
     const priorityClasses = {
-      urgent: 'status-badge priority-urgent',
-      high: 'status-badge priority-high',
-      medium: 'status-badge priority-medium',
-      low: 'status-badge priority-low',
-    }
-    return priorityClasses[priority as keyof typeof priorityClasses] || 'status-badge'
-  }
+      urgent: "status-badge priority-urgent",
+      high: "status-badge priority-high",
+      medium: "status-badge priority-medium",
+      low: "status-badge priority-low",
+    };
+    return (
+      priorityClasses[priority as keyof typeof priorityClasses] ||
+      "status-badge"
+    );
+  };
 
   const getPriorityText = (priority: string) => {
     const priorityTexts = {
-      urgent: 'Khẩn cấp',
-      high: 'Cao',
-      medium: 'Trung bình',
-      low: 'Thấp',
-    }
-    return priorityTexts[priority as keyof typeof priorityTexts] || priority
-  }
+      urgent: "Khẩn cấp",
+      high: "Cao",
+      medium: "Trung bình",
+      low: "Thấp",
+    };
+    return priorityTexts[priority as keyof typeof priorityTexts] || priority;
+  };
 
   const calculateDaysRemaining = (dateString: string) => {
-    const today = new Date()
-    const created = new Date(dateString)
-    const diffTime = today.getTime() - created.getTime()
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays
-  }
+    const today = new Date();
+    const created = new Date(dateString);
+    const diffTime = today.getTime() - created.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
 
-  const daysRemaining = calculateDaysRemaining(request?.createdAt || '')
+  const daysRemaining = calculateDaysRemaining(request?.createdAt || "");
 
   const handleUpdateStatus = () => {
-    setIsStatusModalOpen(true)
-  }
+    setIsStatusModalOpen(true);
+  };
 
   const handleAssignTechnician = () => {
-    setIsAssignModalOpen(true)
-  }
+    setIsAssignModalOpen(true);
+  };
 
   const handleSendEmail = () => {
     // TODO: Integrate with email API later
-    showToast.success('Đã gửi email thông báo đến khách hàng!')
-  }
+    showToast.success("Đã gửi email thông báo đến khách hàng!");
+  };
 
   const handlePrintReport = () => {
-    const printWindow = window.open('', '_blank')
-    if (!printWindow) return
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
 
     const printContent = `
       <!DOCTYPE html>
@@ -136,7 +167,9 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
         <body>
           <div class="header">
             <div class="report-title">BÁO CÁO YÊU CẦU BẢO HÀNH</div>
-            <div class="ticket-number">Mã yêu cầu: ${request!.ticketNumber}</div>
+            <div class="ticket-number">Mã yêu cầu: ${
+              request!.ticketNumber
+            }</div>
           </div>
 
           <div class="section">
@@ -144,26 +177,38 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
             <div class="info-grid">
               <div class="info-row">
                 <div class="info-cell">
-                  <span class="info-label">Mã yêu cầu:</span> <span class="info-value">${request!.ticketNumber}</span>
+                  <span class="info-label">Mã yêu cầu:</span> <span class="info-value">${
+                    request!.ticketNumber
+                  }</span>
                 </div>
                 <div class="info-cell">
-                  <span class="info-label">Serial Number:</span> <span class="info-value">${request!.productSerial?.serialNumber}</span>
-                </div>
-              </div>
-              <div class="info-row">
-                <div class="info-cell">
-                  <span class="info-label">Khách hàng:</span> <span class="info-value">${request!.customerName}</span>
-                </div>
-                <div class="info-cell">
-                  <span class="info-label">Kỹ thuật viên:</span> <span class="info-value">${request!.assignedTo}</span>
+                  <span class="info-label">Serial Number:</span> <span class="info-value">${
+                    request!.productSerial?.serialNumber
+                  }</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="info-cell">
-                  <span class="info-label">Trạng thái:</span> <span class="info-value">${getStatusText(request!.status)}</span>
+                  <span class="info-label">Khách hàng:</span> <span class="info-value">${
+                    request!.customerName
+                  }</span>
                 </div>
                 <div class="info-cell">
-                  <span class="info-label">Ưu tiên:</span> <span class="info-value">${getPriorityText(request!.priority)}</span>
+                  <span class="info-label">Kỹ thuật viên:</span> <span class="info-value">${
+                    request!.assignedTo
+                  }</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-cell">
+                  <span class="info-label">Trạng thái:</span> <span class="info-value">${getStatusText(
+                    request!.status
+                  )}</span>
+                </div>
+                <div class="info-cell">
+                  <span class="info-label">Ưu tiên:</span> <span class="info-value">${getPriorityText(
+                    request!.priority
+                  )}</span>
                 </div>
               </div>
             </div>
@@ -175,56 +220,71 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
           </div>
 
           <div class="section">
-            <div class="section-title">Timeline xử lý</div>
-            ${request!.timeline.map(item => `
+            <div class="section-title">Lịch sử xử lý</div>
+            ${request!.history
+              .map(
+                (item) => `
               <div class="timeline-item">
-                <div><strong>${getStatusText(item.status)}</strong> - ${formatDate(item.date)}</div>
-                <div>${item.note}</div>
+                <div><strong>${item.description}</strong> - ${formatDate(
+                  item.createdAt
+                )}</div>
+                <div>Thực hiện bởi: ${
+                  item.performedBy?.fullName || "Hệ thống"
+                }</div>
+                ${
+                  item.oldValue && item.newValue
+                    ? `<div>Từ: ${item.oldValue} → ${item.newValue}</div>`
+                    : ""
+                }
               </div>
-            `).join('')}
+            `
+              )
+              .join("")}
           </div>
 
           <div class="footer">
-            <p>Báo cáo được tạo vào ngày: ${new Date().toLocaleDateString('vi-VN')}</p>
+            <p>Báo cáo được tạo vào ngày: ${new Date().toLocaleDateString(
+              "vi-VN"
+            )}</p>
             <p>© ${new Date().getFullYear()} - Hệ thống quản lý bảo hành</p>
           </div>
         </body>
       </html>
-    `
+    `;
 
-    printWindow.document.write(printContent)
-    printWindow.document.close()
-    printWindow.focus()
-    printWindow.print()
-    printWindow.close()
-    
-    showToast.success('Đang chuẩn bị in báo cáo...')
-  }
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+
+    showToast.success("Đang chuẩn bị in báo cáo...");
+  };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+    return new Date(dateString).toLocaleString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'received':
-        return <FileText className="h-4 w-4" />
-      case 'validated':
-        return <CheckCircle className="h-4 w-4" />
-      case 'processing':
-        return <Clock className="h-4 w-4" />
-      case 'completed':
-        return <CheckCircle className="h-4 w-4" />
+      case "received":
+        return <FileText className="h-4 w-4" />;
+      case "validated":
+        return <CheckCircle className="h-4 w-4" />;
+      case "processing":
+        return <Clock className="h-4 w-4" />;
+      case "completed":
+        return <CheckCircle className="h-4 w-4" />;
       default:
-        return <AlertCircle className="h-4 w-4" />
+        return <AlertCircle className="h-4 w-4" />;
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -233,7 +293,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
         </div>
       </Layout>
-    )
+    );
   }
 
   if (error || !request) {
@@ -241,18 +301,19 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       <Layout title="Chi tiết yêu cầu bảo hành">
         <div className="text-center py-12">
           <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Không tìm thấy yêu cầu</h2>
-          <p className="text-gray-600 mb-6">Yêu cầu bảo hành không tồn tại hoặc đã bị xóa.</p>
-          <button
-            onClick={() => router.back()}
-            className="btn btn--primary"
-          >
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Không tìm thấy yêu cầu
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Yêu cầu bảo hành không tồn tại hoặc đã bị xóa.
+          </p>
+          <button onClick={() => router.back()} className="btn btn--primary">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Quay lại
           </button>
         </div>
       </Layout>
-    )
+    );
   }
 
   return (
@@ -260,15 +321,16 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       <div className="space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
-            <button
-              onClick={() => router.back()}
-              className="btn btn-secondary"
-            >
+            <button onClick={() => router.back()} className="btn btn-secondary">
               <ArrowLeft className="h-4 w-4" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Chi tiết yêu cầu bảo hành</h1>
-              <p className="text-gray-600 mt-1">Mã yêu cầu: {request.ticketNumber}</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Chi tiết yêu cầu bảo hành
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Mã yêu cầu: {request.ticketNumber}
+              </p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -284,8 +346,10 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <div className="card">
-              <div className="card-header" >
-                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">Thông tin yêu cầu</h2>
+              <div className="card-header">
+                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">
+                  Thông tin yêu cầu
+                </h2>
               </div>
               <div className="card-content space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -293,40 +357,53 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Mã yêu cầu
                     </label>
-                    <p className="text-sm text-gray-900 font-mono">{request.ticketNumber}</p>
+                    <p className="text-sm text-gray-900 font-mono">
+                      {request.ticketNumber}
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Serial sản phẩm
                     </label>
-                    <p className="text-sm text-gray-900 font-mono">{request.productSerial?.serialNumber || 'Chưa có thông tin'}</p>
+                    <p className="text-sm text-gray-900 font-mono">
+                      {request.productSerial?.serialNumber ||
+                        "Chưa có thông tin"}
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Khách hàng
                     </label>
-                    <p className="text-sm text-gray-900">{request.customerName}</p>
+                    <p className="text-sm text-gray-900">
+                      {request.customerName}
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Người phụ trách
                     </label>
-                    <p className="text-sm text-gray-900">{request.assignee?.fullName || 'Chưa phân công'}</p>
+                    <p className="text-sm text-gray-900">
+                      {request.assignee?.fullName || "Chưa phân công"}
+                    </p>
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Vấn đề
                   </label>
-                  <p className="text-sm text-gray-900 font-medium">{request.issueTitle || 'Chưa có tiêu đề'}</p>
+                  <p className="text-sm text-gray-900 font-medium">
+                    {request.issueTitle || "Chưa có tiêu đề"}
+                  </p>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Mô tả chi tiết
                   </label>
-                  <p className="text-sm text-gray-600 leading-relaxed">{request.issueDescription}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {request.issueDescription}
+                  </p>
                 </div>
 
                 {request.productSerial && (
@@ -334,7 +411,10 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Thông tin sản phẩm
                     </label>
-                    <p className="text-sm text-gray-900">{request.productSerial.name} - {request.productSerial.model}</p>
+                    <p className="text-sm text-gray-900">
+                      {request.productSerial.name} -{" "}
+                      {request.productSerial.model}
+                    </p>
                   </div>
                 )}
 
@@ -343,43 +423,73 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Ngày tạo
                     </label>
-                    <p className="text-sm text-gray-900">{formatDate(request.createdAt)}</p>
+                    <p className="text-sm text-gray-900">
+                      {formatDate(request.createdAt)}
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Cập nhật lần cuối
                     </label>
-                    <p className="text-sm text-gray-900">{formatDate(request.updatedAt)}</p>
+                    <p className="text-sm text-gray-900">
+                      {formatDate(request.updatedAt)}
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="card">
-              <div className="card-header" >
-                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">Bình luận</h2>
+              <div className="card-header">
+                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">
+                  Lịch sử xử lý
+                </h2>
               </div>
               <div className="card-content">
                 <div className="space-y-4">
-                  {request.comments && request.comments.length > 0 ? (
-                    request.comments.map((comment) => (
-                      <div key={comment.id} className="border-l-4 border-blue-500 pl-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <p className="text-sm font-medium text-gray-900">{comment.user?.fullName}</p>
-                            {comment.isInternal && (
-                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                Nội bộ
-                              </span>
+                  {request.history && request.history.length > 0 ? (
+                    request.history.map((historyItem, index) => (
+                      <div key={historyItem.id} className="relative">
+                        {index !== request.history.length - 1 && (
+                          <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-200"></div>
+                        )}
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <p className="text-sm font-medium text-gray-900">
+                                {historyItem.performedBy?.fullName ||
+                                  "Hệ thống"}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {formatDate(historyItem.createdAt)}
+                              </p>
+                            </div>
+                            <p className="text-sm text-gray-700 mb-1">
+                              {historyItem.description}
+                            </p>
+                            {historyItem.oldValue && historyItem.newValue && (
+                              <p className="text-xs text-gray-500">
+                                Từ:{" "}
+                                <span className="font-medium">
+                                  {getStatusDisplayValue(historyItem.oldValue)}
+                                </span>{" "}
+                                →
+                                <span className="font-medium">
+                                  {getStatusDisplayValue(historyItem.newValue)}
+                                </span>
+                              </p>
                             )}
                           </div>
-                          <p className="text-sm text-gray-500">{formatDate(comment.createdAt)}</p>
                         </div>
-                        <p className="text-sm text-gray-700">{comment.comment}</p>
                       </div>
                     ))
                   ) : (
-                    <p className="text-gray-500 text-center py-4">Chưa có bình luận nào</p>
+                    <p className="text-gray-500 text-center py-4">
+                      Chưa có lịch sử xử lý nào
+                    </p>
                   )}
                 </div>
               </div>
@@ -388,66 +498,90 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
           <div className="space-y-6">
             <div className="card">
-              <div className="card-header" >
-                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">Thông tin khách hàng</h2>
+              <div className="card-header">
+                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">
+                  Thông tin khách hàng
+                </h2>
               </div>
               <div className="card-content space-y-3">
                 <div className="flex items-center space-x-3">
                   <User className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-900">{request.customerName}</span>
+                  <span className="text-sm text-gray-900">
+                    {request.customerName}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-600">{request.customerPhone || 'Chưa có thông tin'}</span>
+                  <span className="text-sm text-gray-600">
+                    {request.customerPhone || "Chưa có thông tin"}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Mail className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-600">{request.customerEmail || 'Chưa có thông tin'}</span>
+                  <span className="text-sm text-gray-600">
+                    {request.customerEmail || "Chưa có thông tin"}
+                  </span>
                 </div>
                 <div className="flex items-start space-x-3">
-                   <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
-                   <span className="text-sm text-gray-600">{request.productSerial?.contract?.customerAddress || 'Chưa có thông tin'}</span>
-                 </div>
+                  <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <span className="text-sm text-gray-600">
+                    {request.productSerial?.contract?.customerAddress ||
+                      "Chưa có thông tin"}
+                  </span>
+                </div>
               </div>
             </div>
 
             <div className="card">
-              <div className="card-header" >
-                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">Thao tác</h2>
+              <div className="card-header">
+                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">
+                  Thao tác
+                </h2>
               </div>
               <div className="card-content space-y-3">
-                <button 
+                <button
                   onClick={handleUpdateStatus}
                   className="w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors"
-                  style={{backgroundColor: '#21808D', color: '#FCFCF9'}}
+                  style={{ backgroundColor: "#21808D", color: "#FCFCF9" }}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Cập nhật trạng thái
                 </button>
-                <button 
+                <button
                   onClick={handleAssignTechnician}
                   className="w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors"
-                  style={{backgroundColor: '#3B82F6', color: '#FCFCF9'}}
+                  style={{ backgroundColor: "#3B82F6", color: "#FCFCF9" }}
                 >
                   <UserPlus className="h-4 w-4 mr-2" />
                   Phân công kỹ thuật viên
                 </button>
-                <button 
+                <button
                   onClick={handleSendEmail}
-                  disabled={request?.status !== 'resolved' && request?.status !== 'closed'}
+                  disabled={
+                    request?.status !== "resolved" &&
+                    request?.status !== "closed"
+                  }
                   className="w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{
-                    backgroundColor: request?.status === 'resolved' || request?.status === 'closed' ? '#10B981' : '#9CA3AF', 
-                    color: '#FCFCF9'
+                    backgroundColor:
+                      request?.status === "resolved" ||
+                      request?.status === "closed"
+                        ? "#10B981"
+                        : "#9CA3AF",
+                    color: "#FCFCF9",
                   }}
                 >
                   <Mail className="h-4 w-4 mr-2" />
                   Gửi email cho khách hàng
                 </button>
-                <button 
+                <button
                   onClick={handlePrintReport}
                   className="w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors border"
-                  style={{backgroundColor: 'transparent', color: '#133437', borderColor: '#A7A9A9'}}
+                  style={{
+                    backgroundColor: "transparent",
+                    color: "#133437",
+                    borderColor: "#A7A9A9",
+                  }}
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   In báo cáo
@@ -462,13 +596,15 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       {isStatusModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Cập nhật trạng thái</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Cập nhật trạng thái
+            </h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Trạng thái mới
                 </label>
-                <select 
+                <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
                   className="form-input"
@@ -484,7 +620,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Ghi chú
                 </label>
-                <textarea 
+                <textarea
                   value={statusNote}
                   onChange={(e) => setStatusNote(e.target.value)}
                   className="form-input"
@@ -506,22 +642,30 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                     // Update the request status in state
                     const updatedRequest = {
                       ...request,
-                      status: selectedStatus as 'open' | 'in_progress' | 'resolved' | 'closed',
+                      status: selectedStatus as
+                        | "open"
+                        | "in_progress"
+                        | "resolved"
+                        | "closed",
                       updatedAt: new Date().toISOString(),
-                      timeline: [
-                        ...request.timeline,
+                      history: [
+                        ...request.history,
                         {
-                          date: new Date().toISOString(),
-                          status: selectedStatus,
-                          note: statusNote || `Cập nhật trạng thái thành ${selectedStatus}`
-                        }
-                      ]
-                    }
-                    setRequest(updatedRequest)
-                    setIsStatusModalOpen(false)
-                    setSelectedStatus('')
-                    setStatusNote('')
-                    showToast.success('Cập nhật trạng thái thành công!')
+                          id: Date.now().toString(),
+                          actionType: "status_update",
+                          description: `Cập nhật trạng thái thành ${selectedStatus}`,
+                          oldValue: request.status,
+                          newValue: selectedStatus,
+                          performedBy: null,
+                          createdAt: new Date().toISOString(),
+                        },
+                      ],
+                    };
+                    setRequest(updatedRequest);
+                    setIsStatusModalOpen(false);
+                    setSelectedStatus("");
+                    setStatusNote("");
+                    showToast.success("Cập nhật trạng thái thành công!");
                   }
                 }}
                 disabled={!selectedStatus}
@@ -538,15 +682,15 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       {isAssignModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Phân công kỹ thuật viên</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Phân công kỹ thuật viên
+            </h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Chọn kỹ thuật viên
                 </label>
-                <select 
-                  className="form-input"
-                >
+                <select className="form-input">
                   <option value="">-- Chọn kỹ thuật viên --</option>
                   <option value="Nguyễn Văn Tâm">Nguyễn Văn Tâm</option>
                   <option value="Trần Thị Hoa">Trần Thị Hoa</option>
@@ -558,7 +702,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Ghi chú
                 </label>
-                <textarea 
+                <textarea
                   className="form-input"
                   rows={3}
                   placeholder="Ghi chú về việc phân công..."
@@ -574,8 +718,8 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
               </button>
               <button
                 onClick={() => {
-                  setIsAssignModalOpen(false)
-                  showToast.success('Phân công kỹ thuật viên thành công!')
+                  setIsAssignModalOpen(false);
+                  showToast.success("Phân công kỹ thuật viên thành công!");
                 }}
                 className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
               >
@@ -585,8 +729,6 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
           </div>
         </div>
       )}
-
-
     </Layout>
-  )
+  );
 }

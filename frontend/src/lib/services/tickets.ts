@@ -17,16 +17,16 @@ interface UpdateTicketRequest {
   description?: string;
 }
 
-interface CreateTicketCommentRequest {
-  content: string;
-  authorId: string;
-}
-
-interface TicketComment {
+interface TicketHistory {
   id: string;
-  content: string;
-  authorId: string;
-  authorName: string;
+  actionType: string;
+  description: string;
+  oldValue?: string;
+  newValue?: string;
+  performedBy?: {
+    id: string;
+    fullName: string;
+  };
   createdAt: string;
 }
 
@@ -55,12 +55,8 @@ class TicketsService {
     return apiClient.delete<void>(`/tickets/${id}`);
   }
 
-  async addComment(id: string, data: CreateTicketCommentRequest): Promise<TicketComment> {
-    return apiClient.post<TicketComment>(`/tickets/${id}/comments`, data);
-  }
-
-  async getComments(id: string): Promise<TicketComment[]> {
-    return apiClient.get<TicketComment[]>(`/tickets/${id}/comments`);
+  async getHistory(id: string): Promise<TicketHistory[]> {
+    return apiClient.get<TicketHistory[]>(`/tickets/${id}/history`);
   }
 
   async getByStatus(status: 'open' | 'in_progress' | 'resolved' | 'closed'): Promise<WarrantyRequest[]> {
@@ -76,6 +72,5 @@ export const ticketsService = new TicketsService();
 export type {
   CreateTicketRequest,
   UpdateTicketRequest,
-  CreateTicketCommentRequest,
-  TicketComment
+  TicketHistory
 };

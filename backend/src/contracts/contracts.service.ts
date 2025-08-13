@@ -129,7 +129,11 @@ export class ContractsService {
           include: {
             tickets: {
               include: {
-                comments: true,
+                history: {
+                  include: {
+                    performer: true,
+                  },
+                },
               },
             },
             warrantyHistory: true,

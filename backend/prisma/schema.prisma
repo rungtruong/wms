@@ -44,7 +44,11 @@ enum ActionType {
   created
   updated
   status_changed
-  comment_added
+  assigned
+  priority_changed
+  resolved
+  closed
+  reopened
 }
 
 enum NotificationType {
@@ -66,7 +70,7 @@ model User {
 
   createdContracts Contract[]       @relation("ContractCreator")
   assignedTickets  Ticket[]         @relation("TicketAssignee")
-  ticketComments   TicketComment[]
+  ticketHistory    TicketHistory[]  @relation("TicketHistoryPerformer")
   warrantyHistory  WarrantyHistory[]
   notifications    Notification[]
 
@@ -166,7 +170,7 @@ model Ticket {
 
   productSerial ProductSerial   @relation(fields: [productSerialId], references: [id], onDelete: Cascade)
   assignee      User?           @relation("TicketAssignee", fields: [assignedTo], references: [id])
-  comments      TicketComment[]
+  history       TicketHistory[]
 
   @@index([ticketNumber])
   @@index([productSerialId])
@@ -176,18 +180,23 @@ model Ticket {
   @@map("tickets")
 }
 
-model TicketComment {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  ticketId   String   @map("ticket_id") @db.Uuid
-  userId     String   @map("user_id") @db.Uuid
-  comment    String
-  isInternal Boolean  @default(false) @map("is_internal")
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+model TicketHistory {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ticketId    String     @map("ticket_id") @db.Uuid
+  actionType  ActionType @map("action_type")
+  description String
+  oldValue    String?    @map("old_value")
+  newValue    String?    @map("new_value")
+  performedBy String?    @map("performed_by") @db.Uuid
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticket    Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  performer User?  @relation("TicketHistoryPerformer", fields: [performedBy], references: [id])
 
-  @@map("ticket_comments")
+  @@index([ticketId])
+  @@index([actionType])
+  @@index([createdAt])
+  @@map("ticket_history")
 }
 
 model WarrantyHistory {

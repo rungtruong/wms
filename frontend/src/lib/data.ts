@@ -343,75 +343,126 @@ export const mockData = {
     {
       id: "WR001",
       ticketNumber: "YC-BH-2024-001",
-      serialNumber: "DL15-2024-001234",
+      productSerialId: "S001",
       customerName: "Nguyễn Văn An",
-      issue: "Laptop không khởi động được",
-      description: "Laptop bị đen màn hình khi bật nguồn, đã thử reset BIOS nhưng không được",
+      issueTitle: "Laptop không khởi động được",
+      issueDescription: "Laptop bị đen màn hình khi bật nguồn, đã thử reset BIOS nhưng không được",
       status: "in_progress" as const, 
       priority: "high" as const,
       assignedTo: "Nguyễn Văn Tâm",
       createdAt: "2024-12-01T10:15:00Z",
       updatedAt: "2024-12-02T09:30:00Z",
-      timeline: [
+      productSerial: {
+        id: "S001",
+        serialNumber: "DL15-2024-001234",
+        name: "Dell Inspiron 15",
+        model: "3520",
+        warrantyMonths: 24,
+        warrantyStatus: "valid" as const,
+        isActive: true
+      },
+      history: [
         {
-          date: "2024-12-01T10:15:00Z",
-          status: "open",
-          note: "Tiếp nhận yêu cầu bảo hành"
+          id: "H001",
+          actionType: "created",
+          description: "Tiếp nhận yêu cầu bảo hành",
+          oldValue: undefined,
+          newValue: "open",
+          performedBy: { id: "U001", fullName: "Hệ thống" },
+          createdAt: "2024-12-01T10:15:00Z"
         },
         {
-          date: "2024-12-02T09:30:00Z",
-          status: "in_progress", 
-          note: "Đang chẩn đoán lỗi phần cứng"
+          id: "H002",
+          actionType: "status_update",
+          description: "Đang chẩn đoán lỗi phần cứng",
+          oldValue: "open",
+          newValue: "in_progress",
+          performedBy: { id: "U002", fullName: "Nguyễn Văn Tâm" },
+          createdAt: "2024-12-02T09:30:00Z"
         }
       ]
     },
     {
       id: "WR002",
       ticketNumber: "YC-BH-2024-002", 
-      serialNumber: "IP15-2024-005678",
+      productSerialId: "S002",
       customerName: "Trần Thị Bình",
-      issue: "Màn hình bị vỡ góc",
-      description: "Màn hình iPhone bị nứt ở góc trên bên phải, cảm ứng vẫn hoạt động bình thường",
+      issueTitle: "Màn hình bị vỡ góc",
+      issueDescription: "Màn hình iPhone bị nứt ở góc trên bên phải, cảm ứng vẫn hoạt động bình thường",
       status: "resolved" as const,
       priority: "medium" as const, 
       assignedTo: "Lê Văn Đức",
       createdAt: "2024-11-20T16:45:00Z",
       updatedAt: "2024-11-25T11:00:00Z",
-      timeline: [
+      productSerial: {
+        id: "S002",
+        serialNumber: "IP15-2024-005678",
+        name: "iPhone 15",
+        model: "A2846",
+        warrantyMonths: 12,
+        warrantyStatus: "valid" as const,
+        isActive: true
+      },
+      history: [
         {
-          date: "2024-11-20T16:45:00Z",
-          status: "open", 
-          note: "Tiếp nhận yêu cầu bảo hành"
+          id: "H003",
+          actionType: "created",
+          description: "Tiếp nhận yêu cầu bảo hành",
+          oldValue: undefined,
+          newValue: "open",
+          performedBy: { id: "U001", fullName: "Hệ thống" },
+          createdAt: "2024-11-20T16:45:00Z"
         },
         {
-          date: "2024-11-22T10:00:00Z",
-          status: "in_progress",
-          note: "Đặt hàng màn hình thay thế"
+          id: "H004",
+          actionType: "status_update",
+          description: "Đặt hàng màn hình thay thế",
+          oldValue: "open",
+          newValue: "in_progress",
+          performedBy: { id: "U003", fullName: "Lê Văn Đức" },
+          createdAt: "2024-11-22T10:00:00Z"
         },
         {
-          date: "2024-11-25T11:00:00Z",
-          status: "resolved",
-          note: "Thay màn hình mới hoàn tất, test OK"
+          id: "H005",
+          actionType: "status_update",
+          description: "Thay màn hình mới hoàn tất, test OK",
+          oldValue: "in_progress",
+          newValue: "resolved",
+          performedBy: { id: "U003", fullName: "Lê Văn Đức" },
+          createdAt: "2024-11-25T11:00:00Z"
         }
       ]
     },
     {
       id: "WR003",
       ticketNumber: "YC-BH-2024-003",
-      serialNumber: "SG24-2024-009876",
+      productSerialId: "S003",
       customerName: "Lê Văn Cường",
-      issue: "Pin chai nhanh",
-      description: "Điện thoại chỉ dùng được 4-5 tiếng là hết pin, trước đây dùng cả ngày",
+      issueTitle: "Pin chai nhanh",
+      issueDescription: "Điện thoại chỉ dùng được 4-5 tiếng là hết pin, trước đây dùng cả ngày",
       status: "open" as const,
       priority: "urgent" as const,
       assignedTo: "Trần Văn Minh",
       createdAt: "2024-12-05T14:20:00Z",
       updatedAt: "2024-12-05T14:20:00Z",
-      timeline: [
+      productSerial: {
+        id: "S003",
+        serialNumber: "SG24-2024-009876",
+        name: "Samsung Galaxy S24",
+        model: "SM-S921B",
+        warrantyMonths: 24,
+        warrantyStatus: "valid" as const,
+        isActive: true
+      },
+      history: [
         {
-          date: "2024-12-05T14:20:00Z",
-          status: "open",
-          note: "Tiếp nhận yêu cầu bảo hành"
+          id: "H006",
+          actionType: "created",
+          description: "Tiếp nhận yêu cầu bảo hành",
+          oldValue: undefined,
+          newValue: "open",
+          performedBy: { id: "U001", fullName: "Hệ thống" },
+          createdAt: "2024-12-05T14:20:00Z"
         }
       ]
     }

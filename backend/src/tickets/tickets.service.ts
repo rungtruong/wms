@@ -2,8 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { CreateTicketCommentDto } from './dto/create-ticket-comment.dto';
-import { TicketStatus, TicketPriority } from '@prisma/client';
+import { TicketStatus, TicketPriority, ActionType } from '@prisma/client';
 import { TicketsTransformer } from './tickets.transformer';
 
 @Injectable()
@@ -20,9 +19,27 @@ export class TicketsService {
           },
         },
         assignee: true,
-        comments: true,
+        history: {
+          include: {
+            performer: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
     });
+
+    // Tạo history entry cho việc tạo ticket
+    await this.createHistoryEntry(
+      ticket.id,
+      ActionType.created,
+      'Ticket được tạo',
+      null,
+      null,
+      createTicketDto.assignedTo
+    );
+
     return TicketsTransformer.transformTicket(ticket);
   }
 
@@ -35,7 +52,14 @@ export class TicketsService {
           },
         },
         assignee: true,
-        comments: true,
+        history: {
+          include: {
+            performer: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -54,9 +78,9 @@ export class TicketsService {
           },
         },
         assignee: true,
-        comments: {
+        history: {
           include: {
-            user: true,
+            performer: true,
           },
           orderBy: {
             createdAt: 'asc',
@@ -82,7 +106,14 @@ export class TicketsService {
           },
         },
         assignee: true,
-        comments: true,
+        history: {
+          include: {
+            performer: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -101,7 +132,14 @@ export class TicketsService {
           },
         },
         assignee: true,
-        comments: true,
+        history: {
+          include: {
+            performer: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -111,7 +149,7 @@ export class TicketsService {
   }
 
   async update(id: string, updateTicketDto: UpdateTicketDto) {
-    await this.findById(id);
+    const existingTicket = await this.findById(id);
     
     const ticket = await this.prisma.ticket.update({
       where: { id },
@@ -123,28 +161,31 @@ export class TicketsService {
           },
         },
         assignee: true,
-        comments: true,
+        history: {
+          include: {
+            performer: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
     });
+
+    // Tạo history entries cho các thay đổi
+    await this.trackChanges(existingTicket, updateTicketDto, updateTicketDto.assignedTo || 'system');
+
     return TicketsTransformer.transformTicket(ticket);
   }
 
-  async addComment(ticketId: string, createCommentDto: CreateTicketCommentDto) {
+  async getHistory(ticketId: string) {
     await this.findById(ticketId);
     
-    return this.prisma.ticketComment.create({
-      data: {
-        ...createCommentDto,
-        ticketId,
-      },
-    });
-  }
-
-  async getComments(ticketId: string) {
-    await this.findById(ticketId);
-    
-    return this.prisma.ticketComment.findMany({
+    return this.prisma.ticketHistory.findMany({
       where: { ticketId },
+      include: {
+        performer: true,
+      },
       orderBy: {
         createdAt: 'asc',
       },
@@ -163,9 +204,96 @@ export class TicketsService {
           },
         },
         assignee: true,
-        comments: true,
+        history: {
+          include: {
+          performer: true,
+        },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
     });
     return TicketsTransformer.transformTicket(ticket);
+  }
+
+  private async createHistoryEntry(
+    ticketId: string,
+    actionType: ActionType,
+    description: string,
+    oldValue: string | null,
+    newValue: string | null,
+    performedBy: string
+  ) {
+    return this.prisma.ticketHistory.create({
+      data: {
+        ticketId,
+        actionType,
+        description,
+        oldValue,
+        newValue,
+        performedBy,
+      },
+    });
+  }
+
+  private async trackChanges(existingTicket: any, updateDto: UpdateTicketDto, performedBy: string) {
+    if (updateDto.status && updateDto.status !== existingTicket.status) {
+      let actionType: ActionType;
+      let description: string;
+
+      switch (updateDto.status) {
+        case TicketStatus.in_progress:
+          actionType = ActionType.assigned;
+          description = 'Ticket được tiếp nhận và bắt đầu xử lý';
+          break;
+        case TicketStatus.resolved:
+          actionType = ActionType.resolved;
+          description = 'Ticket đã được giải quyết';
+          break;
+        case TicketStatus.closed:
+          actionType = ActionType.closed;
+          description = 'Ticket đã được đóng';
+          break;
+        case TicketStatus.open:
+          actionType = ActionType.reopened;
+          description = 'Ticket đã được mở lại';
+          break;
+        default:
+          actionType = ActionType.status_changed;
+          description = `Trạng thái ticket đã thay đổi từ ${existingTicket.status} thành ${updateDto.status}`;
+      }
+
+      await this.createHistoryEntry(
+        existingTicket.id,
+        actionType,
+        description,
+        existingTicket.status,
+        updateDto.status,
+        performedBy
+      );
+    }
+
+    if (updateDto.priority && updateDto.priority !== existingTicket.priority) {
+      await this.createHistoryEntry(
+        existingTicket.id,
+        ActionType.priority_changed,
+        `Độ ưu tiên đã thay đổi từ ${existingTicket.priority} thành ${updateDto.priority}`,
+        existingTicket.priority,
+        updateDto.priority,
+        performedBy
+      );
+    }
+
+    if (updateDto.assignedTo && updateDto.assignedTo !== existingTicket.assignedTo) {
+      await this.createHistoryEntry(
+        existingTicket.id,
+        ActionType.assigned,
+        'Ticket đã được gán cho nhân viên khác',
+        existingTicket.assignedTo,
+        updateDto.assignedTo,
+        performedBy
+      );
+    }
   }
 }

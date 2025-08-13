@@ -41,4 +41,8 @@ export class CreateTicketDto {
   @IsString()
   @IsOptional()
   customerPhone?: string;
+
+  @IsUUID()
+  @IsOptional()
+  assignedTo?: string;
 }

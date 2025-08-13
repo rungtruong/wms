@@ -88,6 +88,16 @@ export default function Dashboard() {
     );
   };
 
+  const getStatusText = (status: string) => {
+    const statusTexts = {
+      open: "Tiếp nhận",
+      in_progress: "Đang xử lý",
+      resolved: "Đã giải quyết",
+      closed: "Đã đóng",
+    };
+    return statusTexts[status as keyof typeof statusTexts] || status;
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN");
   };
@@ -186,10 +196,7 @@ export default function Dashboard() {
               header: "Trạng thái",
               render: (status) => (
                 <span className={getStatusBadge(status)}>
-                  {status === "open" && "Mở"}
-                  {status === "in_progress" && "Đang xử lý"}
-                  {status === "resolved" && "Đã giải quyết"}
-                  {status === "closed" && "Đã đóng"}
+                  {getStatusText(status)}
                 </span>
               ),
             },
