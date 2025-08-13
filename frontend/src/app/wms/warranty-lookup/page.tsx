@@ -2,35 +2,36 @@
 
 import { useState } from 'react'
 import Layout from '@/components/Layout'
-import { mockData } from '@/lib/data'
+import { productsService } from '@/lib/services/products'
 import { Search, HelpCircle, CheckCircle, Clock, AlertCircle, Phone, Mail } from 'lucide-react'
+import { showToast } from '@/lib/toast'
 
 export default function CustomerPortalPage() {
   const [serialInput, setSerialInput] = useState('')
   const [searchResult, setSearchResult] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!serialInput.trim()) return
 
     setIsLoading(true)
     
-    // Simulate API call
-    setTimeout(() => {
-      const serial = mockData.serials.find(s => s.serialNumber === serialInput.trim())
-      const contract = serial ? mockData.contracts.find(c => c.id === serial.contractId) : null
+    try {
+      const warrantyInfo = await productsService.checkWarranty(serialInput.trim())
       
-      if (serial && contract) {
-        setSearchResult({
-          serial,
-          contract,
-          product: contract.products.find(p => p.serial === serial.serialNumber)
-        })
+      if (warrantyInfo) {
+        setSearchResult(warrantyInfo)
       } else {
         setSearchResult(null)
+        showToast.error('Không tìm thấy thông tin bảo hành cho serial này')
       }
+    } catch (error) {
+      console.error('Error checking warranty:', error)
+      setSearchResult(null)
+      showToast.error('Lỗi khi tra cứu thông tin bảo hành')
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   const formatDate = (dateString: string) => {

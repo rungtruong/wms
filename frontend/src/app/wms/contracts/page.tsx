@@ -1,23 +1,41 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, Filter, Plus, Edit, Trash2, Eye } from 'lucide-react'
 import Layout from '@/components/Layout'
 import ContractForm from '@/components/ContractForm'
 import Table from '@/components/Table'
-import { mockData } from '@/lib/data'
+import { contractsService } from '@/lib/services/contracts'
 import { showToast } from '@/lib/toast'
 
 export default function ContractsPage() {
   const router = useRouter()
-  const [contracts, setContracts] = useState(mockData.contracts)
+  const [contracts, setContracts] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingContract, setEditingContract] = useState(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedContract, setSelectedContract] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    fetchContracts()
+  }, [])
+
+  const fetchContracts = async () => {
+    try {
+      setIsLoading(true)
+      const data = await contractsService.getAll()
+      setContracts(data)
+    } catch (error) {
+      console.error('Error fetching contracts:', error)
+      showToast.error('Lỗi khi tải danh sách hợp đồng')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const filteredContracts = contracts.filter(contract => {
     const matchesSearch = contract.contractNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -69,12 +87,18 @@ export default function ContractsPage() {
     }
   }
 
-  const confirmDeleteContract = () => {
+  const confirmDeleteContract = async () => {
     if (selectedContract) {
-      setContracts(contracts.filter(c => c.id !== selectedContract.id))
-      setIsDeleteModalOpen(false)
-      setSelectedContract(null)
-      showToast.success('Xóa hợp đồng thành công!')
+      try {
+        await contractsService.delete(selectedContract.id)
+        setContracts(contracts.filter(c => c.id !== selectedContract.id))
+        setIsDeleteModalOpen(false)
+        setSelectedContract(null)
+        showToast.success('Xóa hợp đồng thành công!')
+      } catch (error) {
+        console.error('Error deleting contract:', error)
+        showToast.error('Lỗi khi xóa hợp đồng')
+      }
     }
   }
 
@@ -82,49 +106,60 @@ export default function ContractsPage() {
     router.push(`/contracts/${id}`)
   }
 
-  const handleFormSubmit = (formData: any) => {
-    if (editingContract) {
-      // Update existing contract
-      setContracts(contracts.map(contract => 
-        contract.id === editingContract.id 
-          ? {
-              ...contract,
-              contractNumber: formData.contractNumber,
-              customer: {
-                name: formData.customerName,
-                address: formData.customerAddress,
-                phone: formData.customerPhone,
-                email: formData.customerEmail
-              },
-              startDate: formData.startDate,
-              endDate: formData.endDate,
-              terms: formData.warrantyTerms
-            }
-          : contract
-      ))
-      showToast.success('Cập nhật hợp đồng thành công!')
-    } else {
-      // Add new contract
-      const newContract = {
-        id: `WC${String(Date.now()).slice(-3)}`,
-        contractNumber: formData.contractNumber,
-        customer: {
-          name: formData.customerName,
-          address: formData.customerAddress,
-          phone: formData.customerPhone,
-          email: formData.customerEmail
-        },
-        products: [],
-        startDate: formData.startDate,
-        endDate: formData.endDate,
-        terms: formData.warrantyTerms,
-        status: 'active' as const,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+  const handleFormSubmit = async (formData: any) => {
+    try {
+      if (editingContract) {
+        // Update existing contract
+        const updatedContract = await contractsService.update(editingContract.id, {
+          contractNumber: formData.contractNumber,
+          customer: {
+            name: formData.customerName,
+            address: formData.customerAddress,
+            phone: formData.customerPhone,
+            email: formData.customerEmail
+          },
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          terms: formData.warrantyTerms
+        })
+        setContracts(contracts.map(contract => 
+          contract.id === editingContract.id ? updatedContract : contract
+        ))
+        showToast.success('Cập nhật hợp đồng thành công!')
+      } else {
+        // Add new contract
+        const newContract = await contractsService.create({
+          contractNumber: formData.contractNumber,
+          customer: {
+            name: formData.customerName,
+            address: formData.customerAddress,
+            phone: formData.customerPhone,
+            email: formData.customerEmail
+          },
+          products: [],
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          terms: formData.warrantyTerms
+        })
+        setContracts([...contracts, newContract])
+        showToast.success('Thêm hợp đồng thành công!')
       }
-      setContracts([...contracts, newContract])
-      showToast.success('Thêm hợp đồng thành công!')
+      setIsFormOpen(false)
+      setEditingContract(null)
+    } catch (error) {
+      console.error('Error saving contract:', error)
+      showToast.error('Lỗi khi lưu hợp đồng')
     }
+  }
+
+  if (isLoading) {
+    return (
+      <Layout title="Quản lý Hợp đồng Bảo hành" notificationCount={2}>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+        </div>
+      </Layout>
+    )
   }
 
   return (

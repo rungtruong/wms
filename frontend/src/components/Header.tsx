@@ -22,7 +22,7 @@ export default function Header({
 
   // Use auth user data
   const currentUser = {
-    fullName: user?.name || "User",
+    fullName: user?.fullName || "User",
     email: user?.email || "",
     role: user?.role || "user",
     avatar: null

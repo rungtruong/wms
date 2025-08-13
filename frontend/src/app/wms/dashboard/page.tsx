@@ -8,43 +8,65 @@ import {
   ProductFailuresChart,
 } from "@/components/Charts";
 import Table from "@/components/Table";
-import { mockData } from "@/lib/data";
+import { dashboardService } from "@/lib/services/dashboard";
+import { ticketsService } from "@/lib/services/tickets";
 
 export default function Dashboard() {
-  const [data, setData] = useState(mockData);
+  const [statistics, setStatistics] = useState(null);
+  const [recentRequests, setRecentRequests] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const stats = [
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        const [statsData, requestsData] = await Promise.all([
+          dashboardService.getStatistics(),
+          ticketsService.getAll()
+        ]);
+        
+        setStatistics(statsData);
+        setRecentRequests(requestsData.slice(0, 5));
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const stats = statistics ? [
     {
       name: "Tổng hợp đồng",
-      value: data.statistics.totalContracts,
+      value: statistics.totalContracts,
       icon: FileText,
-      color: "text-teal-500", // --color-primary
+      color: "text-teal-500",
       bgColor: "bg-bg-1",
     },
     {
       name: "Đang hiệu lực",
-      value: data.statistics.activeContracts,
+      value: statistics.activeContracts,
       icon: CheckCircle,
-      color: "text-teal-500", // --color-success
+      color: "text-teal-500",
       bgColor: "bg-bg-3",
     },
     {
       name: "Sắp hết hạn",
-      value: data.statistics.expiringThisMonth,
+      value: statistics.expiringThisMonth,
       icon: Clock,
-      color: "text-orange-500", // --color-warning
+      color: "text-orange-500",
       bgColor: "bg-bg-2",
     },
     {
       name: "Yêu cầu chờ xử lý",
-      value: data.statistics.pendingRequests,
+      value: statistics.pendingRequests,
       icon: Wrench,
-      color: "text-red-500", // --color-error
+      color: "text-red-500",
       bgColor: "bg-bg-4",
     },
-  ];
-
-  const recentRequests = data.warrantyRequests.slice(0, 5);
+  ] : [];
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
@@ -61,6 +83,16 @@ export default function Dashboard() {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN");
   };
+
+  if (isLoading) {
+    return (
+      <Layout title="Tổng quan hệ thống">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Tổng quan hệ thống">
@@ -110,7 +142,7 @@ export default function Dashboard() {
             Sản phẩm lỗi nhiều nhất
           </h3>
           <div className="h-64">
-            <ProductFailuresChart data={data.statistics.topFailingProducts} />
+            <ProductFailuresChart data={statistics?.topFailingProducts || []} />
           </div>
         </div>
       </div>

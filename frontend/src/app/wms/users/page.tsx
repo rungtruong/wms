@@ -1,16 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Filter, Plus, Edit, Trash2, Eye, Shield, Users, UserCheck } from 'lucide-react'
 import Layout from '@/components/Layout'
 import UserForm from '@/components/UserForm'
 import Table from '@/components/Table'
-import { mockData } from '@/lib/data'
+import { usersService } from '@/lib/services/users'
 import { showToast } from '@/lib/toast'
 import { User } from '@/types'
 
 export default function UsersPage() {
-  const [users, setUsers] = useState(mockData.users)
+  const [users, setUsers] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -18,6 +18,24 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
+  const fetchUsers = async () => {
+    try {
+      setIsLoading(true)
+      const data = await usersService.getAll()
+      setUsers(data)
+    } catch (error) {
+      console.error('Error fetching users:', error)
+      showToast.error('Lỗi khi tải danh sách người dùng')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -76,46 +94,59 @@ export default function UsersPage() {
     }
   }
 
-  const confirmDeleteUser = () => {
+  const confirmDeleteUser = async () => {
     if (selectedUser) {
-      setUsers(users.filter(u => u.id !== selectedUser.id))
-      setIsDeleteModalOpen(false)
-      setSelectedUser(null)
-      showToast.success('Xóa người dùng thành công!')
+      try {
+        await usersService.delete(selectedUser.id)
+        setUsers(users.filter(u => u.id !== selectedUser.id))
+        setIsDeleteModalOpen(false)
+        setSelectedUser(null)
+        showToast.success('Xóa người dùng thành công!')
+      } catch (error) {
+        console.error('Error deleting user:', error)
+        showToast.error('Lỗi khi xóa người dùng')
+      }
     }
   }
 
-  const handleFormSubmit = (formData: any) => {
-    if (editingUser) {
-      setUsers(users.map(user => 
-        user.id === editingUser.id 
-          ? {
-              ...user,
-              email: formData.email,
-              fullName: formData.fullName,
-              role: formData.role,
-              isActive: formData.isActive,
-              updatedAt: new Date().toISOString()
-            }
-          : user
-      ))
-      showToast.success('Cập nhật người dùng thành công!')
-    } else {
-      const newUser = {
-        id: `550e8400-e29b-41d4-a716-${String(Date.now()).slice(-12)}`,
-        email: formData.email,
-        passwordHash: '$2b$10$...',
-        fullName: formData.fullName,
-        role: formData.role,
-        isActive: formData.isActive,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+  const handleFormSubmit = async (formData: any) => {
+    try {
+      if (editingUser) {
+        const updatedUser = await usersService.update(editingUser.id, {
+          email: formData.email,
+          fullName: formData.fullName,
+          role: formData.role
+        })
+        setUsers(users.map(user => 
+          user.id === editingUser.id ? updatedUser : user
+        ))
+        showToast.success('Cập nhật người dùng thành công!')
+      } else {
+        const newUser = await usersService.create({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+          role: formData.role
+        })
+        setUsers([...users, newUser])
+        showToast.success('Thêm người dùng thành công!')
       }
-      setUsers([...users, newUser])
-      showToast.success('Thêm người dùng thành công!')
+      setIsFormOpen(false)
+      setEditingUser(null)
+    } catch (error) {
+      console.error('Error saving user:', error)
+      showToast.error('Lỗi khi lưu thông tin người dùng')
     }
-    setIsFormOpen(false)
-    setEditingUser(null)
+  }
+
+  if (isLoading) {
+    return (
+      <Layout title="Quản lý Người dùng">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+        </div>
+      </Layout>
+    )
   }
 
   const columns = [

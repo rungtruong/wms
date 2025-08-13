@@ -109,7 +109,9 @@ export default function SerialsPage() {
         contractId: formData.contractId,
         warrantyRemaining: '24 tháng',
         status: 'active' as const,
-        repairHistory: []
+        repairHistory: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
       setSerials([...serials, newSerial])
       showToast.success('Thêm serial thành công!')

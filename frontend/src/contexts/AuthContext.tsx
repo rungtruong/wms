@@ -2,13 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-
-interface User {
-  id: string
-  email: string
-  name: string
-  role: string
-}
+import { authService } from '@/lib/services/auth'
+import type { User } from '@/types'
 
 interface AuthContextType {
   user: User | null
@@ -43,16 +38,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = () => {
     try {
-      const token = localStorage.getItem('authToken')
-      const userData = localStorage.getItem('user')
+      const token = authService.getToken()
+      const userData = authService.getCurrentUser()
       
       if (token && userData) {
-        setUser(JSON.parse(userData))
+        setUser(userData)
       }
     } catch (error) {
       console.error('Error checking auth:', error)
-      localStorage.removeItem('authToken')
-      localStorage.removeItem('user')
+      authService.setCurrentUser(null)
     } finally {
       setIsLoading(false)
     }
@@ -60,18 +54,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Simple validation - in real app, this would be API call
-      if (email === 'admin@company.com' && password === 'admin123') {
-        const userData = {
-          id: '1',
-          email,
-          name: 'Administrator',
-          role: 'admin'
-        }
-        
-        localStorage.setItem('authToken', 'mock-jwt-token')
-        localStorage.setItem('user', JSON.stringify(userData))
-        setUser(userData)
+      const response = await authService.login({ email, password })
+      
+      if (response.access_token && response.user) {
+        authService.setCurrentUser(response.user)
+        setUser(response.user)
         return true
       }
       return false
@@ -82,10 +69,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = () => {
-    localStorage.removeItem('authToken')
-    localStorage.removeItem('user')
+    authService.logout()
     setUser(null)
-    router.push('/login')
   }
 
   const value = {
