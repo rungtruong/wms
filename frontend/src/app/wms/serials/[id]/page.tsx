@@ -174,15 +174,15 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                   <span class="info-label">Mã hợp đồng:</span> <span class="info-value">${contract.contractNumber}</span>
                 </div>
                 <div class="info-cell">
-                  <span class="info-label">Khách hàng:</span> <span class="info-value">${contract.customer.name}</span>
+                  <span class="info-label">Khách hàng:</span> <span class="info-value">${contract.customerName || 'N/A'}</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="info-cell">
-                  <span class="info-label">Điện thoại:</span> <span class="info-value">${contract.customer.phone}</span>
+                  <span class="info-label">Điện thoại:</span> <span class="info-value">${contract.customerPhone || 'N/A'}</span>
                 </div>
                 <div class="info-cell">
-                  <span class="info-label">Email:</span> <span class="info-value">${contract.customer.email}</span>
+                  <span class="info-label">Email:</span> <span class="info-value">${contract.customerEmail || 'N/A'}</span>
                 </div>
               </div>
             </div>
@@ -403,7 +403,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                         Khách hàng
                       </label>
                       <p className="text-sm text-gray-900">
-                        {contract.customer.name}
+                        {contract.customerName || 'N/A'}
                       </p>
                     </div>
                     <div>
@@ -411,7 +411,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                         Điện thoại
                       </label>
                       <p className="text-sm text-gray-900">
-                        {contract.customer.phone}
+                        {contract.customerPhone || 'N/A'}
                       </p>
                     </div>
                     <div>
@@ -419,7 +419,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                         Email
                       </label>
                       <p className="text-sm text-gray-900">
-                        {contract.customer.email}
+                        {contract.customerEmail || 'N/A'}
                       </p>
                     </div>
                   </div>

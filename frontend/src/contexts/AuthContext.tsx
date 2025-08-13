@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await authService.login({ email, password })
       
-      if (response.access_token && response.user) {
+      if (response.token && response.user) {
         authService.setCurrentUser(response.user)
         setUser(response.user)
         return true

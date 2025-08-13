@@ -79,7 +79,7 @@ export default function SerialsPage() {
   }
 
   const handleViewSerial = (id: string) => {
-    router.push(`/serials/${id}`)
+    router.push(`/wms/serials/${id}`)
   }
 
   const handleFormSubmit = (formData: any) => {

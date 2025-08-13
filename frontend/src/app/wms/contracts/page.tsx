@@ -39,7 +39,7 @@ export default function ContractsPage() {
 
   const filteredContracts = contracts.filter(contract => {
     const matchesSearch = contract.contractNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contract.customer.name.toLowerCase().includes(searchTerm.toLowerCase())
+                         contract.customerName?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === '' || contract.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -103,7 +103,7 @@ export default function ContractsPage() {
   }
 
   const handleViewContract = (id: string) => {
-    router.push(`/contracts/${id}`)
+    router.push(`/wms/contracts/${id}`)
   }
 
   const handleFormSubmit = async (formData: any) => {
@@ -213,8 +213,8 @@ export default function ContractsPage() {
                   header: 'Khách hàng',
                   render: (_, contract) => (
                     <div>
-                      <div className="font-medium text-gray-900">{contract.customer.name}</div>
-                      <div className="text-sm text-gray-500">{contract.customer.email}</div>
+                      <div className="font-medium text-gray-900">{contract.customerName || 'N/A'}</div>
+                      <div className="text-sm text-gray-500">{contract.customerEmail || 'N/A'}</div>
                     </div>
                   )
                 },
@@ -309,7 +309,7 @@ export default function ContractsPage() {
                   {selectedContract && (
                     <div className="bg-gray-50 p-3 rounded-md">
                       <p className="text-sm"><strong>Số hợp đồng:</strong> {selectedContract.contractNumber}</p>
-                      <p className="text-sm"><strong>Khách hàng:</strong> {selectedContract.customer.name}</p>
+                      <p className="text-sm"><strong>Khách hàng:</strong> {selectedContract.customerName || 'N/A'}</p>
                       <p className="text-sm"><strong>Thời hạn:</strong> {formatDate(selectedContract.startDate)} - {formatDate(selectedContract.endDate)}</p>
                     </div>
                   )}

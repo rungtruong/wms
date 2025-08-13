@@ -153,7 +153,7 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
               <option value="">Chọn hợp đồng</option>
               {contracts.map((contract) => (
                 <option key={contract.id} value={contract.id}>
-                  {contract.contractNumber} - {contract.customer.name}
+                  {contract.contractNumber} - {contract.customerName || 'N/A'}
                 </option>
               ))}
             </select>

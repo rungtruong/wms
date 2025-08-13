@@ -51,7 +51,7 @@ export default function Header({
   };
 
   const handleProfile = () => {
-    window.location.href = '/profile';
+    window.location.href = '/wms/profile';
     setIsProfileOpen(false);
   };
 

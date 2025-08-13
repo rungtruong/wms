@@ -219,7 +219,7 @@ export default function CustomerPortalPage() {
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Khách hàng</label>
-                            <p className="text-gray-900">{lookupResult.contract.customer.name}</p>
+                            <p className="text-gray-900">{lookupResult.contract.customerName || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Ngày bắt đầu</label>

@@ -47,9 +47,9 @@ export default function NotificationsPage() {
 
   const handleDetailClick = (notification: any) => {
     if (notification.title.includes('Hợp đồng')) {
-      router.push('/contracts')
+      router.push('/wms/contracts')
     } else if (notification.title.includes('Yêu cầu bảo hành')) {
-      router.push('/requests')
+      router.push('/wms/requests')
     }
   }
 

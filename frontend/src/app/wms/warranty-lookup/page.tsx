@@ -155,15 +155,15 @@ export default function CustomerPortalPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="form-label">Tên khách hàng</label>
-                        <p className="text-lg font-medium text-gray-900">{searchResult.contract.customer.name}</p>
+                        <p className="text-lg font-medium text-gray-900">{searchResult.contract.customerName || 'N/A'}</p>
                       </div>
                       <div>
                         <label className="form-label">Số điện thoại</label>
-                        <p className="text-lg font-medium text-gray-900">{searchResult.contract.customer.phone}</p>
+                        <p className="text-lg font-medium text-gray-900">{searchResult.contract.customerPhone || 'N/A'}</p>
                       </div>
                       <div className="md:col-span-2">
                         <label className="form-label">Địa chỉ</label>
-                        <p className="text-gray-900">{searchResult.contract.customer.address}</p>
+                        <p className="text-gray-900">{searchResult.contract.customerAddress || 'N/A'}</p>
                       </div>
                     </div>
                   </div>

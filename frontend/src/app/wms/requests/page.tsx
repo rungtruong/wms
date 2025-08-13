@@ -144,7 +144,7 @@ export default function RequestsPage() {
   }
 
   const handleViewRequest = (id: string) => {
-    router.push(`/requests/${id}`)
+    router.push(`/wms/requests/${id}`)
   }
 
   const handleCreateRequest = () => {

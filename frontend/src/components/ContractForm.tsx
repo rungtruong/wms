@@ -25,10 +25,10 @@ export default function ContractForm({ isOpen, onClose, onSubmit, editingContrac
     if (editingContract) {
       setFormData({
         contractNumber: editingContract.contractNumber,
-        customerName: editingContract.customer.name,
-        customerAddress: editingContract.customer.address,
-        customerPhone: editingContract.customer.phone,
-        customerEmail: editingContract.customer.email,
+        customerName: editingContract.customerName || '',
+    customerAddress: editingContract.customerAddress || '',
+    customerPhone: editingContract.customerPhone || '',
+    customerEmail: editingContract.customerEmail || '',
         startDate: editingContract.startDate,
         endDate: editingContract.endDate,
         warrantyTerms: editingContract.terms || ''

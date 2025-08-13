@@ -181,21 +181,21 @@ export default function ContractDetailPage({
             <div class="info-grid">
               <div class="info-row">
                 <div class="info-cell">
-                  <span class="info-label">Tên khách hàng:</span> <span class="info-value">${contract!.customer.name}</span>
+                  <span class="info-label">Tên khách hàng:</span> <span class="info-value">${contract!.customerName || 'N/A'}</span>
                 </div>
                 <div class="info-cell">
-                  <span class="info-label">Số điện thoại:</span> <span class="info-value">${contract!.customer.phone}</span>
+                  <span class="info-label">Số điện thoại:</span> <span class="info-value">${contract!.customerPhone || 'N/A'}</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="info-cell">
-                  <span class="info-label">Email:</span> <span class="info-value">${contract!.customer.email}</span>
+                  <span class="info-label">Email:</span> <span class="info-value">${contract!.customerEmail || 'N/A'}</span>
                 </div>
                 <div class="info-cell"></div>
               </div>
               <div class="info-row">
                 <div class="info-cell" style="width: 100%;" colspan="2">
-                  <span class="info-label">Địa chỉ:</span> <span class="info-value">${contract!.customer.address}</span>
+                  <span class="info-label">Địa chỉ:</span> <span class="info-value">${contract!.customerAddress || 'N/A'}</span>
                 </div>
               </div>
             </div>
@@ -409,25 +409,25 @@ export default function ContractDetailPage({
                 <div className="flex items-center space-x-3">
                   <User className="h-4 w-4 text-gray-400" />
                   <span className="text-sm text-gray-900">
-                    {contract.customer.name}
+                    {contract.customerName || 'N/A'}
                   </span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="h-4 w-4 text-gray-400" />
                   <span className="text-sm text-gray-600">
-                    {contract.customer.phone}
+                    {contract.customerPhone || 'N/A'}
                   </span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Mail className="h-4 w-4 text-gray-400" />
                   <span className="text-sm text-gray-600">
-                    {contract.customer.email}
+                    {contract.customerEmail || 'N/A'}
                   </span>
                 </div>
                 <div className="flex items-start space-x-3">
                   <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
                   <span className="text-sm text-gray-600">
-                    {contract.customer.address}
+                    {contract.customerAddress || 'N/A'}
                   </span>
                 </div>
               </div>
