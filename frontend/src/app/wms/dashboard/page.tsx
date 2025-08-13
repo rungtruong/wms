@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { FileText, CheckCircle, Clock, Wrench } from "lucide-react";
 import Layout from "@/components/Layout";
 import {
@@ -12,6 +13,7 @@ import { dashboardService, type ProductFailuresChartData, type WarrantyRequestsC
 import { ticketsService } from "@/lib/services/tickets";
 
 export default function Dashboard() {
+  const router = useRouter();
   const [statistics, setStatistics] = useState(null);
   const [warrantyRequestsData, setWarrantyRequestsData] = useState(null);
   const [productFailuresData, setProductFailuresData] = useState<ProductFailuresChartData[] | null>(null);
@@ -88,6 +90,10 @@ export default function Dashboard() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN");
+  };
+
+  const handleRowClick = (ticket: any) => {
+    router.push(`/wms/requests/${ticket.id}`);
   };
 
   if (isLoading) {
@@ -194,6 +200,7 @@ export default function Dashboard() {
             },
           ]}
           data={recentRequests}
+          onRowClick={handleRowClick}
           emptyMessage="Không có yêu cầu bảo hành nào."
         />
       </div>

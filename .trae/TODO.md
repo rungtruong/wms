@@ -1,6 +1,5 @@
 # TODO:
 
-- [x] analyze-chart-data-mismatch: Phân tích sự không khớp giữa format data từ backend và frontend cho charts (priority: High)
-- [x] fix-warranty-requests-chart-data: Sửa backend getWarrantyRequestsChart để trả về {pendingRequests, processingRequests, completedRequests} thay vì {labels, data} (priority: High)
-- [x] fix-product-failures-chart-data: Sửa backend getProductFailuresChart để trả về array of {name, failures} objects thay vì {labels, data} (priority: High)
-- [x] test-charts-display: Test lại dashboard để đảm bảo charts hiển thị data đúng (priority: Medium)
+- [x] add-row-click-handler: Thêm onRowClick handler cho Table component trong dashboard page (priority: High)
+- [x] implement-navigation: Implement navigation đến trang chi tiết ticket khi click vào hàng (priority: High)
+- [x] test-row-click-functionality: Test chức năng click vào hàng để đảm bảo navigation hoạt động đúng (priority: Medium)
