@@ -1,57 +1,59 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, LogIn } from 'lucide-react'
-import { WMSLogo } from '@/components/Logo'
-import { showToast } from '@/lib/toast'
-import { useAuth } from '@/contexts/AuthContext'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, LogIn } from "lucide-react";
+import { WMSLogo } from "@/components/Logo";
+import { showToast } from "@/lib/toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const { login } = useAuth()
+  const router = useRouter();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+    email: "",
+    password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!formData.email || !formData.password) {
-      showToast.error('Vui lòng điền đầy đủ thông tin')
-      return
+      showToast.error("Vui lòng điền đầy đủ thông tin");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      const success = await login(formData.email, formData.password)
-      
+      const success = await login(formData.email, formData.password);
+
       if (success) {
-        showToast.success('Đăng nhập thành công!')
-        
+        showToast.success("Đăng nhập thành công!");
+
         // Redirect to dashboard
-        const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/wms/dashboard'
-        router.push(redirectTo)
+        const redirectTo =
+          new URLSearchParams(window.location.search).get("redirect") ||
+          "/wms/dashboard";
+        router.push(redirectTo);
       } else {
-        showToast.error('Email hoặc mật khẩu không chính xác')
+        showToast.error("Email hoặc mật khẩu không chính xác");
       }
     } catch (error) {
-      showToast.error('Có lỗi xảy ra khi đăng nhập')
+      showToast.error("Có lỗi xảy ra khi đăng nhập");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
+      [e.target.name]: e.target.value,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -71,7 +73,10 @@ export default function LoginPage() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email
               </label>
               <div className="mt-1">
@@ -84,20 +89,23 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={handleInputChange}
                   className="form-input w-full"
-                  placeholder="admin@company.com"
+                  placeholder="Nhập e-mail"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Mật khẩu
               </label>
               <div className="mt-1 relative">
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   required
                   value={formData.password}
@@ -146,15 +154,21 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Demo credentials</span>
+                <span className="px-2 bg-white text-gray-500">
+                  Demo credentials
+                </span>
               </div>
             </div>
-            
+
             <div className="mt-4 text-center">
               <div className="text-sm text-gray-600 bg-gray-50 rounded-md p-3">
                 <p className="font-medium">Thông tin đăng nhập demo:</p>
-                <p className="mt-1">Email: <span className="font-mono">admin@company.com</span></p>
-                <p>Mật khẩu: <span className="font-mono">admin123</span></p>
+                <p className="mt-1">
+                  Email: <span className="font-mono">admin@wms.com</span>
+                </p>
+                <p>
+                  Mật khẩu: <span className="font-mono">password123</span>
+                </p>
               </div>
             </div>
           </div>
@@ -162,7 +176,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center">
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push("/")}
             className="text-sm text-teal-600 hover:text-teal-500"
           >
             ← Quay lại trang tra cứu bảo hành
@@ -170,5 +184,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
