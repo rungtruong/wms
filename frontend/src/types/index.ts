@@ -19,7 +19,7 @@ export interface Contract {
   startDate: string;
   endDate: string;
   terms: string;
-  status: 'active' | 'expired' | 'suspended';
+  status: "active" | "expired" | "suspended";
   createdAt: string;
   updatedAt: string;
 }
@@ -39,7 +39,7 @@ export interface Serial {
   manufactureDate: string;
   contractId: string;
   warrantyRemaining: string;
-  status: 'active' | 'expired' | 'suspended';
+  status: "active" | "expired" | "suspended";
   repairHistory: RepairHistory[];
   createdAt: string;
   updatedAt: string;
@@ -56,7 +56,7 @@ export interface User {
   email: string;
   passwordHash: string;
   fullName: string;
-  role: 'admin' | 'manager' | 'technician';
+  role: "admin" | "manager" | "technician";
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -65,16 +65,62 @@ export interface User {
 export interface WarrantyRequest {
   id: string;
   ticketNumber: string;
-  serialNumber: string;
+  productSerialId: string;
   customerName: string;
-  issue: string;
-  description: string;
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  assignedTo: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  issueTitle: string;
+  issueDescription: string;
+  status: "open" | "in_progress" | "resolved" | "closed";
+  priority: "low" | "medium" | "high" | "urgent";
+  assignedTo?: string;
   createdAt: string;
   updatedAt: string;
-  timeline: TimelineEntry[];
+  resolvedAt?: string;
+  productSerial: {
+    id: string;
+    serialNumber: string;
+    name: string;
+    model: string;
+    category?: string;
+    description?: string;
+    warrantyMonths: number;
+    contractId?: string;
+    manufactureDate?: string;
+    purchaseDate?: string;
+    warrantyStatus: "valid" | "expired" | "voided";
+    isActive: boolean;
+    notes?: string;
+    contract?: {
+      id: string;
+      contractNumber: string;
+      customerName: string;
+      customerEmail?: string;
+      customerPhone?: string;
+      customerAddress?: string;
+      startDate: string;
+      endDate: string;
+      termsConditions?: string;
+      status: "active" | "expired" | "suspended";
+    };
+  };
+  assignee?: {
+    id: string;
+    email: string;
+    fullName: string;
+    role: "admin" | "manager" | "technician";
+  };
+  comments: {
+    id: string;
+    comment: string;
+    isInternal: boolean;
+    createdAt: string;
+    user: {
+      id: string;
+      fullName: string;
+      email: string;
+    };
+  }[];
 }
 
 export interface Statistics {
@@ -92,7 +138,7 @@ export interface Statistics {
 
 export interface Notification {
   id: string;
-  type: 'warning' | 'info' | 'error' | 'success';
+  type: "warning" | "info" | "error" | "success";
   title: string;
   message: string;
   date: string;

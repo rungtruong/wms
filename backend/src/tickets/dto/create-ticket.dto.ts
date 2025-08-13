@@ -16,6 +16,10 @@ export class CreateTicketDto {
   @IsNotEmpty()
   issueDescription: string;
 
+  @IsString()
+  @IsOptional()
+  issueTitle?: string;
+
   @IsEnum(TicketPriority)
   priority: TicketPriority;
 

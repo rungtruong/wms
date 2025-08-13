@@ -4,13 +4,14 @@ import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { CreateTicketCommentDto } from './dto/create-ticket-comment.dto';
 import { TicketStatus, TicketPriority } from '@prisma/client';
+import { TicketsTransformer } from './tickets.transformer';
 
 @Injectable()
 export class TicketsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createTicketDto: CreateTicketDto) {
-    return this.prisma.ticket.create({
+    const ticket = await this.prisma.ticket.create({
       data: createTicketDto,
       include: {
         productSerial: {
@@ -18,25 +19,29 @@ export class TicketsService {
             contract: true,
           },
         },
+        assignee: true,
         comments: true,
       },
     });
+    return TicketsTransformer.transformTicket(ticket);
   }
 
   async findAll() {
-    return this.prisma.ticket.findMany({
+    const tickets = await this.prisma.ticket.findMany({
       include: {
         productSerial: {
           include: {
             contract: true,
           },
         },
+        assignee: true,
         comments: true,
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
+    return TicketsTransformer.transformTickets(tickets);
   }
 
   async findById(id: string) {
@@ -48,7 +53,11 @@ export class TicketsService {
             contract: true,
           },
         },
+        assignee: true,
         comments: {
+          include: {
+            user: true,
+          },
           orderBy: {
             createdAt: 'asc',
           },
@@ -60,11 +69,11 @@ export class TicketsService {
       throw new NotFoundException(`Ticket with ID ${id} not found`);
     }
 
-    return ticket;
+    return TicketsTransformer.transformTicket(ticket);
   }
 
   async findByStatus(status: TicketStatus) {
-    return this.prisma.ticket.findMany({
+    const tickets = await this.prisma.ticket.findMany({
       where: { status },
       include: {
         productSerial: {
@@ -72,16 +81,18 @@ export class TicketsService {
             contract: true,
           },
         },
+        assignee: true,
         comments: true,
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
+    return TicketsTransformer.transformTickets(tickets);
   }
 
   async findByPriority(priority: TicketPriority) {
-    return this.prisma.ticket.findMany({
+    const tickets = await this.prisma.ticket.findMany({
       where: { priority },
       include: {
         productSerial: {
@@ -89,18 +100,20 @@ export class TicketsService {
             contract: true,
           },
         },
+        assignee: true,
         comments: true,
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
+    return TicketsTransformer.transformTickets(tickets);
   }
 
   async update(id: string, updateTicketDto: UpdateTicketDto) {
     await this.findById(id);
     
-    return this.prisma.ticket.update({
+    const ticket = await this.prisma.ticket.update({
       where: { id },
       data: updateTicketDto,
       include: {
@@ -109,9 +122,11 @@ export class TicketsService {
             contract: true,
           },
         },
+        assignee: true,
         comments: true,
       },
     });
+    return TicketsTransformer.transformTicket(ticket);
   }
 
   async addComment(ticketId: string, createCommentDto: CreateTicketCommentDto) {
@@ -139,7 +154,7 @@ export class TicketsService {
   async remove(id: string) {
     await this.findById(id);
     
-    return this.prisma.ticket.delete({
+    const ticket = await this.prisma.ticket.delete({
       where: { id },
       include: {
         productSerial: {
@@ -147,8 +162,10 @@ export class TicketsService {
             contract: true,
           },
         },
+        assignee: true,
         comments: true,
       },
     });
+    return TicketsTransformer.transformTicket(ticket);
   }
 }

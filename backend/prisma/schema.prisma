@@ -156,6 +156,7 @@ model Ticket {
   customerEmail    String?        @map("customer_email") @db.VarChar(255)
   customerPhone    String?        @map("customer_phone") @db.VarChar(20)
   issueDescription String         @map("issue_description")
+  issueTitle       String?        @map("issue_title") @db.VarChar(200)
   priority         TicketPriority @default(medium)
   status           TicketStatus   @default(open)
   assignedTo       String?        @map("assigned_to") @db.Uuid

@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Calendar, User, AlertCircle, Clock, CheckCircle, FileText, Phone, Mail, MapPin, UserPlus } from 'lucide-react'
 import Layout from '@/components/Layout'
-import { mockData } from '@/lib/data'
 import { WarrantyRequest } from '@/types'
 import { showToast } from '@/lib/toast'
+import { ticketsService } from '@/lib/services/tickets'
 
 interface RequestDetailPageProps {
   params: {
@@ -18,15 +18,31 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
   const router = useRouter()
   const [request, setRequest] = useState<WarrantyRequest | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState('')
   const [statusNote, setStatusNote] = useState('')
 
   useEffect(() => {
-    const foundRequest = mockData.warrantyRequests.find(r => r.id === params.id)
-    setRequest(foundRequest || null)
-    setLoading(false)
+    const fetchRequest = async () => {
+      try {
+        setLoading(true)
+        const requestData = await ticketsService.getById(params.id)
+        console.log('Request data:', requestData)
+        console.log('Product Serial:', requestData.productSerial)
+        console.log('Serial Number:', requestData.productSerial?.serialNumber)
+        setRequest(requestData)
+      } catch (error) {
+        console.error('Error fetching request:', error)
+        setError('Không thể tải thông tin yêu cầu')
+        setRequest(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchRequest()
   }, [params.id])
 
   const getStatusBadge = (status: string) => {
@@ -131,7 +147,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                   <span class="info-label">Mã yêu cầu:</span> <span class="info-value">${request!.ticketNumber}</span>
                 </div>
                 <div class="info-cell">
-                  <span class="info-label">Serial Number:</span> <span class="info-value">${request!.serialNumber}</span>
+                  <span class="info-label">Serial Number:</span> <span class="info-value">${request!.productSerial?.serialNumber}</span>
                 </div>
               </div>
               <div class="info-row">
@@ -155,8 +171,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
           <div class="section">
             <div class="section-title">Mô tả vấn đề</div>
-            <p><strong>Vấn đề:</strong> ${request!.issue}</p>
-            <p><strong>Mô tả chi tiết:</strong> ${request!.description}</p>
+            <p><strong>Mô tả vấn đề:</strong> ${request!.issueDescription}</p>
           </div>
 
           <div class="section">
@@ -221,7 +236,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
     )
   }
 
-  if (!request) {
+  if (error || !request) {
     return (
       <Layout title="Chi tiết yêu cầu bảo hành">
         <div className="text-center py-12">
@@ -284,7 +299,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Serial sản phẩm
                     </label>
-                    <p className="text-sm text-gray-900 font-mono">{request.serialNumber}</p>
+                    <p className="text-sm text-gray-900 font-mono">{request.productSerial?.serialNumber || 'Chưa có thông tin'}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -296,7 +311,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Người phụ trách
                     </label>
-                    <p className="text-sm text-gray-900">{request.assignedTo}</p>
+                    <p className="text-sm text-gray-900">{request.assignee?.fullName || 'Chưa phân công'}</p>
                   </div>
                 </div>
                 
@@ -304,15 +319,24 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Vấn đề
                   </label>
-                  <p className="text-sm text-gray-900 font-medium">{request.issue}</p>
+                  <p className="text-sm text-gray-900 font-medium">{request.issueTitle || 'Chưa có tiêu đề'}</p>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Mô tả chi tiết
                   </label>
-                  <p className="text-sm text-gray-600 leading-relaxed">{request.description}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed">{request.issueDescription}</p>
                 </div>
+
+                {request.productSerial && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Thông tin sản phẩm
+                    </label>
+                    <p className="text-sm text-gray-900">{request.productSerial.name} - {request.productSerial.model}</p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                   <div>
@@ -333,28 +357,30 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
             <div className="card">
               <div className="card-header" >
-                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">Lịch sử xử lý</h2>
+                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">Bình luận</h2>
               </div>
               <div className="card-content">
                 <div className="space-y-4">
-                  {request.timeline.map((item, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${getStatusBadge(item.status)}`}>
-                        {getStatusIcon(item.status)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-gray-900">
-                            {getStatusText(item.status)}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {formatDate(item.date)}
-                          </p>
+                  {request.comments && request.comments.length > 0 ? (
+                    request.comments.map((comment) => (
+                      <div key={comment.id} className="border-l-4 border-blue-500 pl-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <p className="text-sm font-medium text-gray-900">{comment.user?.fullName}</p>
+                            {comment.isInternal && (
+                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                Nội bộ
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500">{formatDate(comment.createdAt)}</p>
                         </div>
-                        <p className="text-sm text-gray-600 mt-1">{item.note}</p>
+                        <p className="text-sm text-gray-700">{comment.comment}</p>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-center py-4">Chưa có bình luận nào</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -372,16 +398,16 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-600">Chưa có thông tin</span>
+                  <span className="text-sm text-gray-600">{request.customerPhone || 'Chưa có thông tin'}</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Mail className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-600">Chưa có thông tin</span>
+                  <span className="text-sm text-gray-600">{request.customerEmail || 'Chưa có thông tin'}</span>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
-                  <span className="text-sm text-gray-600">Chưa có thông tin</span>
-                </div>
+                   <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
+                   <span className="text-sm text-gray-600">{request.productSerial?.contract?.customerAddress || 'Chưa có thông tin'}</span>
+                 </div>
               </div>
             </div>
 
