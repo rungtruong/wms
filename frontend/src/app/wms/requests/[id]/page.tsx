@@ -35,6 +35,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [statusNote, setStatusNote] = useState("");
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -637,41 +638,36 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                 Hủy
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (selectedStatus && request) {
-                    // Update the request status in state
-                    const updatedRequest = {
-                      ...request,
-                      status: selectedStatus as
-                        | "open"
-                        | "in_progress"
-                        | "resolved"
-                        | "closed",
-                      updatedAt: new Date().toISOString(),
-                      history: [
-                        ...request.history,
-                        {
-                          id: Date.now().toString(),
-                          actionType: "status_update",
-                          description: `Cập nhật trạng thái thành ${selectedStatus}`,
-                          oldValue: request.status,
-                          newValue: selectedStatus,
-                          performedBy: null,
-                          createdAt: new Date().toISOString(),
-                        },
-                      ],
-                    };
-                    setRequest(updatedRequest);
-                    setIsStatusModalOpen(false);
-                    setSelectedStatus("");
-                    setStatusNote("");
-                    showToast.success("Cập nhật trạng thái thành công!");
+                    try {
+                      setIsUpdatingStatus(true);
+                      await ticketsService.updateStatus(
+                        request.id,
+                        selectedStatus as "open" | "in_progress" | "resolved" | "closed",
+                        statusNote || undefined
+                      );
+                      
+                      // Reload request data to get updated info and history
+                      const updatedRequest = await ticketsService.getById(params.id);
+                      setRequest(updatedRequest);
+                      
+                      setIsStatusModalOpen(false);
+                      setSelectedStatus("");
+                      setStatusNote("");
+                      showToast.success("Cập nhật trạng thái thành công!");
+                    } catch (error) {
+                      console.error("Error updating status:", error);
+                      showToast.error("Có lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại.");
+                    } finally {
+                      setIsUpdatingStatus(false);
+                    }
                   }
                 }}
-                disabled={!selectedStatus}
+                disabled={!selectedStatus || isUpdatingStatus}
                 className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Cập nhật
+                {isUpdatingStatus ? "Đang cập nhật..." : "Cập nhật"}
               </button>
             </div>
           </div>

@@ -66,6 +66,14 @@ class TicketsService {
   async getByPriority(priority: 'low' | 'medium' | 'high' | 'urgent'): Promise<WarrantyRequest[]> {
     return this.getAll(undefined, priority);
   }
+
+  async updateStatus(id: string, status: 'open' | 'in_progress' | 'resolved' | 'closed', note?: string): Promise<WarrantyRequest> {
+    const updateData: any = { status };
+    if (note) {
+      updateData.note = note;
+    }
+    return apiClient.patch<WarrantyRequest>(`/tickets/${id}/status`, updateData);
+  }
 }
 
 export const ticketsService = new TicketsService();

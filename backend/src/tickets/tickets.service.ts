@@ -148,7 +148,7 @@ export class TicketsService {
     return TicketsTransformer.transformTickets(tickets);
   }
 
-  async update(id: string, updateTicketDto: UpdateTicketDto) {
+  async update(id: string, updateTicketDto: UpdateTicketDto, userId: string) {
     const existingTicket = await this.findById(id);
     
     const ticket = await this.prisma.ticket.update({
@@ -173,7 +173,37 @@ export class TicketsService {
     });
 
     // Tạo history entries cho các thay đổi
-    await this.trackChanges(existingTicket, updateTicketDto, updateTicketDto.assignedTo || 'system');
+    await this.trackChanges(existingTicket, updateTicketDto, userId);
+
+    return TicketsTransformer.transformTicket(ticket);
+  }
+
+  async updateStatus(id: string, status: TicketStatus, note: string | null, userId: string) {
+    const existingTicket = await this.findById(id);
+    
+    const ticket = await this.prisma.ticket.update({
+      where: { id },
+      data: { status },
+      include: {
+        productSerial: {
+          include: {
+            contract: true,
+          },
+        },
+        assignee: true,
+        history: {
+          include: {
+            performer: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      },
+    });
+
+    // Tạo history entry với note làm description
+    await this.trackStatusChange(existingTicket, status, note, userId);
 
     return TicketsTransformer.transformTicket(ticket);
   }
@@ -235,6 +265,49 @@ export class TicketsService {
         performedBy,
       },
     });
+  }
+
+  private async trackStatusChange(existingTicket: any, newStatus: TicketStatus, note: string | null, performedBy: string) {
+    if (newStatus !== existingTicket.status) {
+      let actionType: ActionType;
+      let description: string;
+
+      if (note) {
+        description = note;
+        actionType = ActionType.status_changed;
+      } else {
+        switch (newStatus) {
+          case TicketStatus.in_progress:
+            actionType = ActionType.assigned;
+            description = 'Ticket được tiếp nhận và bắt đầu xử lý';
+            break;
+          case TicketStatus.resolved:
+            actionType = ActionType.resolved;
+            description = 'Ticket đã được giải quyết';
+            break;
+          case TicketStatus.closed:
+            actionType = ActionType.closed;
+            description = 'Ticket đã được đóng';
+            break;
+          case TicketStatus.open:
+            actionType = ActionType.reopened;
+            description = 'Ticket đã được mở lại';
+            break;
+          default:
+            actionType = ActionType.status_changed;
+            description = `Trạng thái ticket đã thay đổi từ ${existingTicket.status} thành ${newStatus}`;
+        }
+      }
+
+      await this.createHistoryEntry(
+        existingTicket.id,
+        actionType,
+        description,
+        existingTicket.status,
+        newStatus,
+        performedBy
+      );
+    }
   }
 
   private async trackChanges(existingTicket: any, updateDto: UpdateTicketDto, performedBy: string) {

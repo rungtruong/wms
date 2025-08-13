@@ -1,8 +1,5 @@
 # TODO:
 
-- [x] update-tickets-service: Cập nhật tickets service để tự động tạo history entry khi ticket được tạo hoặc cập nhật (priority: High)
-- [x] create-ticket-history-model: Tạo model TicketHistory trong Prisma schema để lưu lịch sử thay đổi trạng thái (priority: High)
-- [x] create-migration: Tạo migration để thêm bảng ticket_history vào database (priority: High)
-- [x] create-history-endpoints: Tạo API endpoints để lấy lịch sử xử lý của ticket (priority: Medium)
-- [x] update-frontend-ui: Thay đổi UI frontend từ hiển thị comments sang hiển thị timeline lịch sử xử lý (priority: Medium)
-- [x] remove-comments-system: Loại bỏ hệ thống comments cũ khỏi codebase (priority: Low)
+- [x] fix-history-logic: Sửa logic tạo history để không cập nhật issueDescription của ticket, chỉ tạo history entry với note làm description (priority: High)
+- [x] update-frontend-service: Cập nhật frontend service để chỉ gửi status, không gửi issueDescription (priority: Medium)
+- [ ] test-correct-behavior: Test để đảm bảo ticket không bị thay đổi issueDescription và history được tạo đúng (**IN PROGRESS**) (priority: Medium)

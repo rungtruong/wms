@@ -12,7 +12,8 @@ import {
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-
+import { UpdateStatusDto } from './dto/update-status.dto';
+import { User } from '../auth/user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TicketStatus, TicketPriority } from '@prisma/client';
 
@@ -46,8 +47,21 @@ export class TicketsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTicketDto: UpdateTicketDto) {
-    return this.ticketsService.update(id, updateTicketDto);
+  update(
+    @Param('id') id: string, 
+    @Body() updateTicketDto: UpdateTicketDto,
+    @User() user: any
+  ) {
+    return this.ticketsService.update(id, updateTicketDto, user.id);
+  }
+
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateStatusDto: UpdateStatusDto,
+    @User() user: any
+  ) {
+    return this.ticketsService.updateStatus(id, updateStatusDto.status, updateStatusDto.note || null, user.id);
   }
 
   @Get(':id/history')
