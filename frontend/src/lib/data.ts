@@ -461,7 +461,7 @@ export const mockData = {
           description: "Tiếp nhận yêu cầu bảo hành",
           oldValue: undefined,
           newValue: "open",
-          performedBy: { id: "U001", fullName: "Hệ thống" },
+          performer: { id: "U001", fullName: "Hệ thống" },
           createdAt: "2024-12-05T14:20:00Z"
         }
       ]

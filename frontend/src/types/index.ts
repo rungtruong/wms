@@ -116,7 +116,7 @@ export interface WarrantyRequest {
     description: string;
     oldValue?: string;
     newValue?: string;
-    performedBy?: {
+    performer?: {
       id: string;
       fullName: string;
     };
