@@ -1,18 +1,23 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Search, Filter, Plus, Edit, Trash2, Eye } from 'lucide-react'
 import Layout from '@/components/Layout'
 import SerialForm from '@/components/SerialForm'
 import Table from '@/components/Table'
 import { mockData } from '@/lib/data'
+import { showToast } from '@/lib/toast'
 
 export default function SerialsPage() {
+  const router = useRouter()
   const [serials, setSerials] = useState(mockData.serials)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [editingSerial, setEditingSerial] = useState(null)
+  const [selectedSerial, setSelectedSerial] = useState<any>(null)
 
   const filteredSerials = serials.filter(serial => {
     const matchesSearch = serial.serialNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -20,6 +25,10 @@ export default function SerialsPage() {
     const matchesStatus = statusFilter === '' || serial.status === statusFilter
     return matchesSearch && matchesStatus
   })
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('vi-VN')
+  }
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
@@ -53,17 +62,24 @@ export default function SerialsPage() {
   }
 
   const handleDeleteSerial = (id: string) => {
-    if (confirm('Bạn có chắc chắn muốn xóa serial này?')) {
-      setSerials(serials.filter(s => s.id !== id))
-      alert('Xóa serial thành công!')
+    const serial = serials.find(s => s.id === id)
+    if (serial) {
+      setSelectedSerial(serial)
+      setIsDeleteModalOpen(true)
+    }
+  }
+
+  const confirmDeleteSerial = () => {
+    if (selectedSerial) {
+      setSerials(serials.filter(s => s.id !== selectedSerial.id))
+      setIsDeleteModalOpen(false)
+      setSelectedSerial(null)
+      showToast.success('Xóa serial thành công!')
     }
   }
 
   const handleViewSerial = (id: string) => {
-    const serial = serials.find(s => s.id === id)
-    if (serial) {
-      alert(`Serial: ${serial.serialNumber}\nSản phẩm: ${serial.productName}\nModel: ${serial.model}\nTrạng thái: ${getStatusText(serial.status)}\nBảo hành còn lại: ${serial.warrantyRemaining}`)
-    }
+    router.push(`/serials/${id}`)
   }
 
   const handleFormSubmit = (formData: any) => {
@@ -81,7 +97,7 @@ export default function SerialsPage() {
             }
           : serial
       ))
-      alert('Cập nhật serial thành công!')
+      showToast.success('Cập nhật serial thành công!')
     } else {
       // Add new serial
       const newSerial = {
@@ -96,7 +112,7 @@ export default function SerialsPage() {
         repairHistory: []
       }
       setSerials([...serials, newSerial])
-      alert('Thêm serial thành công!')
+      showToast.success('Thêm serial thành công!')
     }
   }
 
@@ -167,6 +183,16 @@ export default function SerialsPage() {
                   )
                 },
                 {
+                  key: 'createdAt',
+                  header: 'Ngày tạo',
+                  render: (_, serial) => formatDate(serial.createdAt)
+                },
+                {
+                  key: 'updatedAt',
+                  header: 'Ngày cập nhật',
+                  render: (_, serial) => formatDate(serial.updatedAt)
+                },
+                {
                   key: 'actions',
                   header: 'Thao tác',
                   render: (_, serial) => (
@@ -217,6 +243,47 @@ export default function SerialsPage() {
             editingSerial={editingSerial}
             contracts={mockData.contracts}
           />
+
+          {/* Delete Confirmation Modal */}
+          {isDeleteModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Xác nhận xóa</h3>
+                
+                <div className="mb-6">
+                  <p className="text-gray-600 mb-2">Bạn có chắc chắn muốn xóa serial này?</p>
+                  {selectedSerial && (
+                    <div className="bg-gray-50 p-3 rounded-md">
+                      <p className="text-sm"><strong>Serial Number:</strong> {selectedSerial.serialNumber}</p>
+                      <p className="text-sm"><strong>Sản phẩm:</strong> {selectedSerial.productName}</p>
+                      <p className="text-sm"><strong>Model:</strong> {selectedSerial.model}</p>
+                    </div>
+                  )}
+                  <p className="text-red-600 text-sm mt-2">
+                    <strong>Lưu ý:</strong> Hành động này không thể hoàn tác.
+                  </p>
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      setIsDeleteModalOpen(false)
+                      setSelectedSerial(null)
+                    }}
+                    className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    onClick={confirmDeleteSerial}
+                    className="flex-1 px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    Xóa serial
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
     </Layout>
   )
 }

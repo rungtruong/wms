@@ -428,6 +428,12 @@
     background-color: rgba(98, 108, 113, 0.15);
   }
 
+  .priority-urgent {
+    @apply text-red-900;
+    background-color: rgba(192, 21, 47, 0.25);
+    border: 1px solid rgba(192, 21, 47, 0.3);
+  }
+
   .priority-high {
     @apply text-red-800;
     background-color: rgba(192, 21, 47, 0.15);

@@ -22,6 +22,7 @@ const navigation = [
   { name: 'Hợp đồng', href: '/contracts', icon: FileText },
   { name: 'Serial sản phẩm', href: '/serials', icon: Hash },
   { name: 'Yêu cầu bảo hành', href: '/requests', icon: Wrench },
+  { name: 'Quản lý người dùng', href: '/users', icon: Users },
   { name: 'Tra cứu bảo hành', href: '/customer-portal', icon: Search },
 ]
 

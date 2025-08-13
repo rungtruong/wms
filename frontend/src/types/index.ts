@@ -21,6 +21,7 @@ export interface Contract {
   terms: string;
   status: 'active' | 'expired' | 'suspended';
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface RepairHistory {
@@ -40,12 +41,25 @@ export interface Serial {
   warrantyRemaining: string;
   status: 'active' | 'expired' | 'suspended';
   repairHistory: RepairHistory[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TimelineEntry {
   date: string;
   status: string;
   note: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  passwordHash: string;
+  fullName: string;
+  role: 'admin' | 'manager' | 'technician';
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface WarrantyRequest {
@@ -55,8 +69,8 @@ export interface WarrantyRequest {
   customerName: string;
   issue: string;
   description: string;
-  status: 'received' | 'validated' | 'processing' | 'completed';
-  priority: 'low' | 'medium' | 'high';
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
   assignedTo: string;
   createdAt: string;
   updatedAt: string;

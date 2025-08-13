@@ -1,4 +1,4 @@
-import { Contract, Serial, WarrantyRequest, Statistics, Notification } from '@/types';
+import { Customer, Product, Contract, WarrantyRequest, Serial, Statistics, Notification, User } from '@/types';
 
 export const mockData = {
   contracts: [
@@ -22,7 +22,8 @@ export const mockData = {
       endDate: "2026-01-15",
       terms: "Bảo hành 24 tháng, miễn phí sửa chữa lỗi phần cứng",
       status: "active" as const,
-      createdAt: "2024-01-15T09:00:00Z"
+      createdAt: "2024-01-15T09:00:00Z",
+      updatedAt: "2024-12-10T15:30:00Z"
     },
     {
       id: "WC002", 
@@ -42,9 +43,10 @@ export const mockData = {
       ],
       startDate: "2024-02-20",
       endDate: "2025-02-20", 
-      terms: "Bảo hành 12 tháng, bảo hành màn hình 6 tháng",
+      terms: "Bảo hành 12 tháng, bảo hình màn hình 6 tháng",
       status: "active" as const,
-      createdAt: "2024-02-20T14:30:00Z"
+      createdAt: "2024-02-20T14:30:00Z",
+      updatedAt: "2024-12-08T11:15:00Z"
     },
     {
       id: "WC003",
@@ -66,7 +68,8 @@ export const mockData = {
       endDate: "2025-03-10",
       terms: "Bảo hành 12 tháng toàn bộ máy",
       status: "active" as const,
-      createdAt: "2024-03-10T10:20:00Z"
+      createdAt: "2024-03-10T10:20:00Z",
+      updatedAt: "2024-12-05T09:45:00Z"
     },
     {
       id: "WC004",
@@ -88,7 +91,8 @@ export const mockData = {
       endDate: "2024-05-15",
       terms: "Bảo hành 12 tháng, hỗ trợ kỹ thuật 24/7",
       status: "expired" as const,
-      createdAt: "2023-05-15T11:00:00Z"
+      createdAt: "2023-05-15T11:00:00Z",
+      updatedAt: "2024-05-15T11:00:00Z"
     },
     {
       id: "WC005",
@@ -110,7 +114,8 @@ export const mockData = {
       endDate: "2025-06-01",
       terms: "Bảo hành 12 tháng, thay thế linh kiện miễn phí",
       status: "suspended" as const,
-      createdAt: "2024-06-01T14:15:00Z"
+      createdAt: "2024-06-01T14:15:00Z",
+      updatedAt: "2024-11-20T13:30:00Z"
     },
     {
       id: "WC006",
@@ -132,7 +137,8 @@ export const mockData = {
       endDate: "2024-08-20",
       terms: "Bảo hành 12 tháng gaming laptop",
       status: "expired" as const,
-      createdAt: "2023-08-20T16:45:00Z"
+      createdAt: "2023-08-20T16:45:00Z",
+      updatedAt: "2024-08-20T16:45:00Z"
     },
     {
       id: "WC007",
@@ -154,7 +160,8 @@ export const mockData = {
       endDate: "2025-07-10",
       terms: "Bảo hành 12 tháng, bao gồm bút Surface Pen",
       status: "suspended" as const,
-      createdAt: "2024-07-10T09:30:00Z"
+      createdAt: "2024-07-10T09:30:00Z",
+      updatedAt: "2024-11-15T14:20:00Z"
     }
   ] as Contract[],
 
@@ -175,7 +182,9 @@ export const mockData = {
           solution: "Thay pin mới, test OK",
           technician: "Nguyễn Văn Tâm"
         }
-      ]
+      ],
+      createdAt: "2024-01-15T10:00:00Z",
+      updatedAt: "2024-12-10T16:30:00Z"
     },
     {
       id: "S002", 
@@ -186,7 +195,9 @@ export const mockData = {
       contractId: "WC002", 
       warrantyRemaining: "6 tháng",
       status: "active" as const,
-      repairHistory: []
+      repairHistory: [],
+      createdAt: "2024-02-20T11:15:00Z",
+      updatedAt: "2024-12-08T14:45:00Z"
     },
     {
       id: "S003",
@@ -197,7 +208,9 @@ export const mockData = {
       contractId: "WC003",
       warrantyRemaining: "8 tháng",
       status: "active" as const,
-      repairHistory: []
+      repairHistory: [],
+      createdAt: "2024-03-10T12:30:00Z",
+      updatedAt: "2024-12-05T10:20:00Z"
     },
     {
       id: "S004",
@@ -215,7 +228,9 @@ export const mockData = {
           solution: "Thay pin chính hãng Apple",
           technician: "Lê Văn Minh"
         }
-      ]
+      ],
+      createdAt: "2023-05-15T13:00:00Z",
+      updatedAt: "2024-05-15T13:00:00Z"
     },
     {
       id: "S005",
@@ -233,7 +248,9 @@ export const mockData = {
           solution: "Đang chờ linh kiện thay thế",
           technician: "Phạm Văn Đức"
         }
-      ]
+      ],
+      createdAt: "2024-06-01T15:45:00Z",
+      updatedAt: "2024-11-20T14:30:00Z"
     },
     {
       id: "S006",
@@ -257,7 +274,9 @@ export const mockData = {
           solution: "Thay màn hình LCD",
           technician: "Trần Văn Hải"
         }
-      ]
+      ],
+      createdAt: "2023-08-20T17:00:00Z",
+      updatedAt: "2024-08-20T17:00:00Z"
     },
     {
       id: "S007",
@@ -268,7 +287,9 @@ export const mockData = {
       contractId: "WC007",
       warrantyRemaining: "10 tháng",
       status: "suspended" as const,
-      repairHistory: []
+      repairHistory: [],
+      createdAt: "2024-07-10T10:30:00Z",
+      updatedAt: "2024-11-15T15:20:00Z"
     },
     {
       id: "S008",
@@ -279,7 +300,9 @@ export const mockData = {
       contractId: null,
       warrantyRemaining: "14 tháng",
       status: "active" as const,
-      repairHistory: []
+      repairHistory: [],
+      createdAt: "2024-04-12T14:00:00Z",
+      updatedAt: "2024-12-01T11:30:00Z"
     },
     {
       id: "S009",
@@ -297,7 +320,9 @@ export const mockData = {
           solution: "Thay bàn phím mới",
           technician: "Võ Thị Mai"
         }
-      ]
+      ],
+      createdAt: "2023-09-08T16:30:00Z",
+      updatedAt: "2024-09-08T16:30:00Z"
     },
     {
       id: "S010",
@@ -308,7 +333,9 @@ export const mockData = {
       contractId: null,
       warrantyRemaining: "23 tháng",
       status: "active" as const,
-      repairHistory: []
+      repairHistory: [],
+      createdAt: "2024-08-01T12:00:00Z",
+      updatedAt: "2024-12-12T09:15:00Z"
     }
   ] as Serial[],
 
@@ -320,7 +347,7 @@ export const mockData = {
       customerName: "Nguyễn Văn An",
       issue: "Laptop không khởi động được",
       description: "Laptop bị đen màn hình khi bật nguồn, đã thử reset BIOS nhưng không được",
-      status: "processing" as const, 
+      status: "in_progress" as const, 
       priority: "high" as const,
       assignedTo: "Nguyễn Văn Tâm",
       createdAt: "2024-12-01T10:15:00Z",
@@ -328,17 +355,12 @@ export const mockData = {
       timeline: [
         {
           date: "2024-12-01T10:15:00Z",
-          status: "received",
+          status: "open",
           note: "Tiếp nhận yêu cầu bảo hành"
         },
         {
-          date: "2024-12-01T14:00:00Z", 
-          status: "validated",
-          note: "Kiểm tra bảo hành hợp lệ"
-        },
-        {
           date: "2024-12-02T09:30:00Z",
-          status: "processing", 
+          status: "in_progress", 
           note: "Đang chẩn đoán lỗi phần cứng"
         }
       ]
@@ -350,7 +372,7 @@ export const mockData = {
       customerName: "Trần Thị Bình",
       issue: "Màn hình bị vỡ góc",
       description: "Màn hình iPhone bị nứt ở góc trên bên phải, cảm ứng vẫn hoạt động bình thường",
-      status: "completed" as const,
+      status: "resolved" as const,
       priority: "medium" as const, 
       assignedTo: "Lê Văn Đức",
       createdAt: "2024-11-20T16:45:00Z",
@@ -358,22 +380,17 @@ export const mockData = {
       timeline: [
         {
           date: "2024-11-20T16:45:00Z",
-          status: "received", 
+          status: "open", 
           note: "Tiếp nhận yêu cầu bảo hành"
         },
         {
-          date: "2024-11-21T08:00:00Z",
-          status: "validated",
-          note: "Kiểm tra bảo hành hợp lệ"
-        },
-        {
           date: "2024-11-22T10:00:00Z",
-          status: "processing",
+          status: "in_progress",
           note: "Đặt hàng màn hình thay thế"
         },
         {
           date: "2024-11-25T11:00:00Z",
-          status: "completed",
+          status: "resolved",
           note: "Thay màn hình mới hoàn tất, test OK"
         }
       ]
@@ -385,15 +402,15 @@ export const mockData = {
       customerName: "Lê Văn Cường",
       issue: "Pin chai nhanh",
       description: "Điện thoại chỉ dùng được 4-5 tiếng là hết pin, trước đây dùng cả ngày",
-      status: "received" as const,
-      priority: "low" as const,
+      status: "open" as const,
+      priority: "urgent" as const,
       assignedTo: "Trần Văn Minh",
       createdAt: "2024-12-05T14:20:00Z",
       updatedAt: "2024-12-05T14:20:00Z",
       timeline: [
         {
           date: "2024-12-05T14:20:00Z",
-          status: "received",
+          status: "open",
           note: "Tiếp nhận yêu cầu bảo hành"
         }
       ]
@@ -434,5 +451,68 @@ export const mockData = {
       date: "2024-12-12T09:15:00Z",
       read: false
     }
-  ] as Notification[]
+  ] as Notification[],
+
+  users: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      email: "admin@company.com",
+      passwordHash: "$2b$10$...",
+      fullName: "Nguyễn Văn Admin",
+      role: "admin" as const,
+      isActive: true,
+      createdAt: "2024-01-15T08:00:00Z",
+      updatedAt: "2024-12-10T10:30:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440002", 
+      email: "manager@company.com",
+      passwordHash: "$2b$10$...",
+      fullName: "Trần Thị Manager",
+      role: "manager" as const,
+      isActive: true,
+      createdAt: "2024-02-20T09:15:00Z",
+      updatedAt: "2024-12-08T14:20:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440003",
+      email: "tech1@company.com", 
+      passwordHash: "$2b$10$...",
+      fullName: "Lê Văn Tâm",
+      role: "technician" as const,
+      isActive: true,
+      createdAt: "2024-03-10T10:00:00Z",
+      updatedAt: "2024-12-05T16:45:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440004",
+      email: "tech2@company.com",
+      passwordHash: "$2b$10$...", 
+      fullName: "Phạm Thị Hoa",
+      role: "technician" as const,
+      isActive: true,
+      createdAt: "2024-04-05T11:30:00Z",
+      updatedAt: "2024-12-01T09:10:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440005",
+      email: "tech3@company.com",
+      passwordHash: "$2b$10$...",
+      fullName: "Hoàng Minh Đức", 
+      role: "technician" as const,
+      isActive: false,
+      createdAt: "2024-05-12T13:45:00Z",
+      updatedAt: "2024-11-15T08:30:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440006",
+      email: "manager2@company.com",
+      passwordHash: "$2b$10$...",
+      fullName: "Vũ Thị Lan",
+      role: "manager" as const,
+      isActive: true,
+      createdAt: "2024-06-18T15:20:00Z", 
+      updatedAt: "2024-12-12T11:00:00Z"
+    }
+  ] as User[]
 };

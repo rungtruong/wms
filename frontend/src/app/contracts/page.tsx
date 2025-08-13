@@ -1,22 +1,23 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Search, Filter, Plus, Edit, Trash2, Eye } from 'lucide-react'
 import Layout from '@/components/Layout'
 import ContractForm from '@/components/ContractForm'
-import ConfirmationModal from '@/components/ConfirmationModal'
 import Table from '@/components/Table'
 import { mockData } from '@/lib/data'
 import { showToast } from '@/lib/toast'
 
 export default function ContractsPage() {
+  const router = useRouter()
   const [contracts, setContracts] = useState(mockData.contracts)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingContract, setEditingContract] = useState(null)
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
-  const [contractToDelete, setContractToDelete] = useState<string | null>(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [selectedContract, setSelectedContract] = useState<any>(null)
 
   const filteredContracts = contracts.filter(contract => {
     const matchesSearch = contract.contractNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -61,23 +62,24 @@ export default function ContractsPage() {
   }
 
   const handleDeleteContract = (id: string) => {
-    setContractToDelete(id)
-    setIsConfirmModalOpen(true)
+    const contract = contracts.find(c => c.id === id)
+    if (contract) {
+      setSelectedContract(contract)
+      setIsDeleteModalOpen(true)
+    }
   }
 
   const confirmDeleteContract = () => {
-    if (contractToDelete) {
-      setContracts(contracts.filter(c => c.id !== contractToDelete))
+    if (selectedContract) {
+      setContracts(contracts.filter(c => c.id !== selectedContract.id))
+      setIsDeleteModalOpen(false)
+      setSelectedContract(null)
       showToast.success('Xóa hợp đồng thành công!')
-      setContractToDelete(null)
     }
   }
 
   const handleViewContract = (id: string) => {
-    const contract = contracts.find(c => c.id === id)
-    if (contract) {
-      showToast.info(`Hợp đồng: ${contract.contractNumber} - Khách hàng: ${contract.customer.name} - Trạng thái: ${getStatusText(contract.status)}`)
-    }
+    router.push(`/contracts/${id}`)
   }
 
   const handleFormSubmit = (formData: any) => {
@@ -117,7 +119,8 @@ export default function ContractsPage() {
         endDate: formData.endDate,
         terms: formData.warrantyTerms,
         status: 'active' as const,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
       setContracts([...contracts, newContract])
       showToast.success('Thêm hợp đồng thành công!')
@@ -200,6 +203,16 @@ export default function ContractsPage() {
                   )
                 },
                 {
+                  key: 'createdAt',
+                  header: 'Ngày tạo',
+                  render: (_, contract) => formatDate(contract.createdAt)
+                },
+                {
+                  key: 'updatedAt',
+                  header: 'Ngày cập nhật',
+                  render: (_, contract) => formatDate(contract.updatedAt)
+                },
+                {
                   key: 'actions',
                   header: 'Thao tác',
                   render: (_, contract) => (
@@ -250,16 +263,46 @@ export default function ContractsPage() {
             editingContract={editingContract}
           />
 
-          <ConfirmationModal
-            isOpen={isConfirmModalOpen}
-            onClose={() => setIsConfirmModalOpen(false)}
-            onConfirm={confirmDeleteContract}
-            title="Bạn có chắc chắn muốn xóa hợp đồng này?"
-            message="Hành động này không thể hoàn tác."
-            confirmText="Xóa"
-            cancelText="Hủy"
-            type="danger"
-          />
+          {/* Delete Confirmation Modal */}
+          {isDeleteModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Xác nhận xóa</h3>
+                
+                <div className="mb-6">
+                  <p className="text-gray-600 mb-2">Bạn có chắc chắn muốn xóa hợp đồng này?</p>
+                  {selectedContract && (
+                    <div className="bg-gray-50 p-3 rounded-md">
+                      <p className="text-sm"><strong>Số hợp đồng:</strong> {selectedContract.contractNumber}</p>
+                      <p className="text-sm"><strong>Khách hàng:</strong> {selectedContract.customer.name}</p>
+                      <p className="text-sm"><strong>Thời hạn:</strong> {formatDate(selectedContract.startDate)} - {formatDate(selectedContract.endDate)}</p>
+                    </div>
+                  )}
+                  <p className="text-red-600 text-sm mt-2">
+                    <strong>Lưu ý:</strong> Hành động này không thể hoàn tác.
+                  </p>
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      setIsDeleteModalOpen(false)
+                      setSelectedContract(null)
+                    }}
+                    className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    onClick={confirmDeleteContract}
+                    className="flex-1 px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    Xóa hợp đồng
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
     </Layout>
   )
 }

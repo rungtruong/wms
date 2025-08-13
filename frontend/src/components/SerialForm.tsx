@@ -172,7 +172,7 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
             type="submit"
             className="btn btn-primary"
           >
-            Lưu
+            {editingSerial ? 'Cập nhật' : 'Thêm mới'}
           </button>
         </div>
       </form>

@@ -232,7 +232,7 @@ export default function ContractForm({ isOpen, onClose, onSubmit, editingContrac
             type="submit"
             className="btn btn-primary"
           >
-            Lưu
+            {editingContract ? 'Cập nhật' : 'Thêm mới'}
           </button>
         </div>
       </form>

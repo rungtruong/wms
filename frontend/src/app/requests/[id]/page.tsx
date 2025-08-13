@@ -1,0 +1,566 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Calendar, User, AlertCircle, Clock, CheckCircle, FileText, Phone, Mail, MapPin, UserPlus } from 'lucide-react'
+import Layout from '@/components/Layout'
+import { mockData } from '@/lib/data'
+import { WarrantyRequest } from '@/types'
+import { showToast } from '@/lib/toast'
+
+interface RequestDetailPageProps {
+  params: {
+    id: string
+  }
+}
+
+export default function RequestDetailPage({ params }: RequestDetailPageProps) {
+  const router = useRouter()
+  const [request, setRequest] = useState<WarrantyRequest | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
+  const [selectedStatus, setSelectedStatus] = useState('')
+  const [statusNote, setStatusNote] = useState('')
+
+  useEffect(() => {
+    const foundRequest = mockData.warrantyRequests.find(r => r.id === params.id)
+    setRequest(foundRequest || null)
+    setLoading(false)
+  }, [params.id])
+
+  const getStatusBadge = (status: string) => {
+    const statusClasses = {
+      open: 'status-badge status-received',
+      in_progress: 'status-badge status-processing',
+      resolved: 'status-badge status-completed',
+      closed: 'status-badge status-completed',
+    }
+    return statusClasses[status as keyof typeof statusClasses] || 'status-badge'
+  }
+
+  const getStatusText = (status: string) => {
+    const statusTexts = {
+      open: 'Tiếp nhận',
+      in_progress: 'Đang xử lý',
+      resolved: 'Đã giải quyết',
+      closed: 'Đã đóng',
+    }
+    return statusTexts[status as keyof typeof statusTexts] || status
+  }
+
+  const getPriorityBadge = (priority: string) => {
+    const priorityClasses = {
+      urgent: 'status-badge priority-urgent',
+      high: 'status-badge priority-high',
+      medium: 'status-badge priority-medium',
+      low: 'status-badge priority-low',
+    }
+    return priorityClasses[priority as keyof typeof priorityClasses] || 'status-badge'
+  }
+
+  const getPriorityText = (priority: string) => {
+    const priorityTexts = {
+      urgent: 'Khẩn cấp',
+      high: 'Cao',
+      medium: 'Trung bình',
+      low: 'Thấp',
+    }
+    return priorityTexts[priority as keyof typeof priorityTexts] || priority
+  }
+
+  const calculateDaysRemaining = (dateString: string) => {
+    const today = new Date()
+    const created = new Date(dateString)
+    const diffTime = today.getTime() - created.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays
+  }
+
+  const daysRemaining = calculateDaysRemaining(request?.createdAt || '')
+
+  const handleUpdateStatus = () => {
+    setIsStatusModalOpen(true)
+  }
+
+  const handleAssignTechnician = () => {
+    setIsAssignModalOpen(true)
+  }
+
+  const handleSendEmail = () => {
+    // TODO: Integrate with email API later
+    showToast.success('Đã gửi email thông báo đến khách hàng!')
+  }
+
+  const handlePrintReport = () => {
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Báo cáo yêu cầu bảo hành - ${request!.ticketNumber}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; color: #000; line-height: 1.4; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #21808D; padding-bottom: 20px; }
+            .report-title { font-size: 24px; font-weight: bold; color: #21808D; margin-bottom: 10px; }
+            .ticket-number { font-size: 16px; color: #666; }
+            .section { margin-bottom: 25px; page-break-inside: avoid; }
+            .section-title { font-size: 18px; font-weight: bold; color: #21808D; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+            .info-grid { display: table; width: 100%; margin-bottom: 15px; }
+            .info-row { display: table-row; }
+            .info-cell { display: table-cell; width: 50%; padding: 5px 10px 5px 0; vertical-align: top; }
+            .info-label { font-weight: bold; color: #333; display: inline-block; min-width: 120px; }
+            .info-value { color: #666; }
+            .timeline-item { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 10px; }
+            .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="report-title">BÁO CÁO YÊU CẦU BẢO HÀNH</div>
+            <div class="ticket-number">Mã yêu cầu: ${request!.ticketNumber}</div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Thông tin yêu cầu</div>
+            <div class="info-grid">
+              <div class="info-row">
+                <div class="info-cell">
+                  <span class="info-label">Mã yêu cầu:</span> <span class="info-value">${request!.ticketNumber}</span>
+                </div>
+                <div class="info-cell">
+                  <span class="info-label">Serial Number:</span> <span class="info-value">${request!.serialNumber}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-cell">
+                  <span class="info-label">Khách hàng:</span> <span class="info-value">${request!.customerName}</span>
+                </div>
+                <div class="info-cell">
+                  <span class="info-label">Kỹ thuật viên:</span> <span class="info-value">${request!.assignedTo}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-cell">
+                  <span class="info-label">Trạng thái:</span> <span class="info-value">${getStatusText(request!.status)}</span>
+                </div>
+                <div class="info-cell">
+                  <span class="info-label">Ưu tiên:</span> <span class="info-value">${getPriorityText(request!.priority)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Mô tả vấn đề</div>
+            <p><strong>Vấn đề:</strong> ${request!.issue}</p>
+            <p><strong>Mô tả chi tiết:</strong> ${request!.description}</p>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Timeline xử lý</div>
+            ${request!.timeline.map(item => `
+              <div class="timeline-item">
+                <div><strong>${getStatusText(item.status)}</strong> - ${formatDate(item.date)}</div>
+                <div>${item.note}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="footer">
+            <p>Báo cáo được tạo vào ngày: ${new Date().toLocaleDateString('vi-VN')}</p>
+            <p>© ${new Date().getFullYear()} - Hệ thống quản lý bảo hành</p>
+          </div>
+        </body>
+      </html>
+    `
+
+    printWindow.document.write(printContent)
+    printWindow.document.close()
+    printWindow.focus()
+    printWindow.print()
+    printWindow.close()
+    
+    showToast.success('Đang chuẩn bị in báo cáo...')
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'received':
+        return <FileText className="h-4 w-4" />
+      case 'validated':
+        return <CheckCircle className="h-4 w-4" />
+      case 'processing':
+        return <Clock className="h-4 w-4" />
+      case 'completed':
+        return <CheckCircle className="h-4 w-4" />
+      default:
+        return <AlertCircle className="h-4 w-4" />
+    }
+  }
+
+  if (loading) {
+    return (
+      <Layout title="Chi tiết yêu cầu bảo hành">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        </div>
+      </Layout>
+    )
+  }
+
+  if (!request) {
+    return (
+      <Layout title="Chi tiết yêu cầu bảo hành">
+        <div className="text-center py-12">
+          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Không tìm thấy yêu cầu</h2>
+          <p className="text-gray-600 mb-6">Yêu cầu bảo hành không tồn tại hoặc đã bị xóa.</p>
+          <button
+            onClick={() => router.back()}
+            className="btn btn--primary"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Quay lại
+          </button>
+        </div>
+      </Layout>
+    )
+  }
+
+  return (
+    <Layout title={`Chi tiết yêu cầu ${request.ticketNumber}`}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => router.back()}
+              className="btn btn-secondary"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Chi tiết yêu cầu bảo hành</h1>
+              <p className="text-gray-600 mt-1">Mã yêu cầu: {request.ticketNumber}</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <span className={getStatusBadge(request.status)}>
+              {getStatusText(request.status)}
+            </span>
+            <span className={getPriorityBadge(request.priority)}>
+              {getPriorityText(request.priority)}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="card">
+              <div className="card-header" >
+                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">Thông tin yêu cầu</h2>
+              </div>
+              <div className="card-content space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Mã yêu cầu
+                    </label>
+                    <p className="text-sm text-gray-900 font-mono">{request.ticketNumber}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Serial sản phẩm
+                    </label>
+                    <p className="text-sm text-gray-900 font-mono">{request.serialNumber}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Khách hàng
+                    </label>
+                    <p className="text-sm text-gray-900">{request.customerName}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Người phụ trách
+                    </label>
+                    <p className="text-sm text-gray-900">{request.assignedTo}</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Vấn đề
+                  </label>
+                  <p className="text-sm text-gray-900 font-medium">{request.issue}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Mô tả chi tiết
+                  </label>
+                  <p className="text-sm text-gray-600 leading-relaxed">{request.description}</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Ngày tạo
+                    </label>
+                    <p className="text-sm text-gray-900">{formatDate(request.createdAt)}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Cập nhật lần cuối
+                    </label>
+                    <p className="text-sm text-gray-900">{formatDate(request.updatedAt)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="card-header" >
+                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">Lịch sử xử lý</h2>
+              </div>
+              <div className="card-content">
+                <div className="space-y-4">
+                  {request.timeline.map((item, index) => (
+                    <div key={index} className="flex items-start space-x-3">
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${getStatusBadge(item.status)}`}>
+                        {getStatusIcon(item.status)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium text-gray-900">
+                            {getStatusText(item.status)}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatDate(item.date)}
+                          </p>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">{item.note}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="card">
+              <div className="card-header" >
+                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">Thông tin khách hàng</h2>
+              </div>
+              <div className="card-content space-y-3">
+                <div className="flex items-center space-x-3">
+                  <User className="h-4 w-4 text-gray-400" />
+                  <span className="text-sm text-gray-900">{request.customerName}</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Phone className="h-4 w-4 text-gray-400" />
+                  <span className="text-sm text-gray-600">Chưa có thông tin</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Mail className="h-4 w-4 text-gray-400" />
+                  <span className="text-sm text-gray-600">Chưa có thông tin</span>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <span className="text-sm text-gray-600">Chưa có thông tin</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="card-header" >
+                <h2 className="card-title pb-6 text-lg font-bold text-gray-900">Thao tác</h2>
+              </div>
+              <div className="card-content space-y-3">
+                <button 
+                  onClick={handleUpdateStatus}
+                  className="w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors"
+                  style={{backgroundColor: '#21808D', color: '#FCFCF9'}}
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Cập nhật trạng thái
+                </button>
+                <button 
+                  onClick={handleAssignTechnician}
+                  className="w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors"
+                  style={{backgroundColor: '#3B82F6', color: '#FCFCF9'}}
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Phân công kỹ thuật viên
+                </button>
+                <button 
+                  onClick={handleSendEmail}
+                  disabled={request?.status !== 'resolved' && request?.status !== 'closed'}
+                  className="w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: request?.status === 'resolved' || request?.status === 'closed' ? '#10B981' : '#9CA3AF', 
+                    color: '#FCFCF9'
+                  }}
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Gửi email cho khách hàng
+                </button>
+                <button 
+                  onClick={handlePrintReport}
+                  className="w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors border"
+                  style={{backgroundColor: 'transparent', color: '#133437', borderColor: '#A7A9A9'}}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  In báo cáo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Status Update Modal */}
+      {isStatusModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Cập nhật trạng thái</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Trạng thái mới
+                </label>
+                <select 
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="form-input"
+                >
+                  <option value="">-- Chọn trạng thái --</option>
+                  <option value="open">Tiếp nhận</option>
+                  <option value="in_progress">Đang xử lý</option>
+                  <option value="resolved">Đã giải quyết</option>
+                  <option value="closed">Đã đóng</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ghi chú
+                </label>
+                <textarea 
+                  value={statusNote}
+                  onChange={(e) => setStatusNote(e.target.value)}
+                  className="form-input"
+                  rows={3}
+                  placeholder="Nhập ghi chú về việc cập nhật trạng thái..."
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setIsStatusModalOpen(false)}
+                className="btn btn-outline"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => {
+                  if (selectedStatus && request) {
+                    // Update the request status in state
+                    const updatedRequest = {
+                      ...request,
+                      status: selectedStatus as 'open' | 'in_progress' | 'resolved' | 'closed',
+                      updatedAt: new Date().toISOString(),
+                      timeline: [
+                        ...request.timeline,
+                        {
+                          date: new Date().toISOString(),
+                          status: selectedStatus,
+                          note: statusNote || `Cập nhật trạng thái thành ${selectedStatus}`
+                        }
+                      ]
+                    }
+                    setRequest(updatedRequest)
+                    setIsStatusModalOpen(false)
+                    setSelectedStatus('')
+                    setStatusNote('')
+                    showToast.success('Cập nhật trạng thái thành công!')
+                  }
+                }}
+                disabled={!selectedStatus}
+                className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cập nhật
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Progress Update Modal */}
+      {isAssignModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Phân công kỹ thuật viên</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Chọn kỹ thuật viên
+                </label>
+                <select 
+                  className="form-input"
+                >
+                  <option value="">-- Chọn kỹ thuật viên --</option>
+                  <option value="Nguyễn Văn Tâm">Nguyễn Văn Tâm</option>
+                  <option value="Trần Thị Hoa">Trần Thị Hoa</option>
+                  <option value="Lê Minh Đức">Lê Minh Đức</option>
+                  <option value="Phạm Văn Long">Phạm Văn Long</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ghi chú
+                </label>
+                <textarea 
+                  className="form-input"
+                  rows={3}
+                  placeholder="Ghi chú về việc phân công..."
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setIsAssignModalOpen(false)}
+                className="btn btn-outline"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => {
+                  setIsAssignModalOpen(false)
+                  showToast.success('Phân công kỹ thuật viên thành công!')
+                }}
+                className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Phân công
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+    </Layout>
+  )
+}
