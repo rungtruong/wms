@@ -18,12 +18,12 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: 'Tổng quan', href: '/', icon: Home },
-  { name: 'Hợp đồng', href: '/contracts', icon: FileText },
-  { name: 'Serial sản phẩm', href: '/serials', icon: Hash },
-  { name: 'Yêu cầu bảo hành', href: '/requests', icon: Wrench },
-  { name: 'Quản lý người dùng', href: '/users', icon: Users },
-  { name: 'Tra cứu bảo hành', href: '/customer-portal', icon: Search },
+  { name: 'Tổng quan', href: '/wms/dashboard', icon: Home },
+  { name: 'Hợp đồng', href: '/wms/contracts', icon: FileText },
+  { name: 'Serial sản phẩm', href: '/wms/serials', icon: Hash },
+  { name: 'Yêu cầu bảo hành', href: '/wms/requests', icon: Wrench },
+  { name: 'Quản lý người dùng', href: '/wms/users', icon: Users },
+  { name: 'Tra cứu bảo hành', href: '/wms/warranty-lookup', icon: Search },
 ]
 
 export default function Sidebar({ collapsed }: SidebarProps) {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Menu, User, Settings, LogOut, ChevronDown, Shield, UserCircle } from "lucide-react";
 import NotificationDropdown from "./NotificationDropdown";
 import { WMSLogo } from "./Logo";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   title: string;
@@ -17,12 +18,13 @@ export default function Header({
   onMenuToggle,
 }: HeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { user, logout } = useAuth();
 
-  // Mock current user data
+  // Use auth user data
   const currentUser = {
-    fullName: "Nguyễn Văn Admin",
-    email: "admin@wms.com",
-    role: "admin",
+    fullName: user?.name || "User",
+    email: user?.email || "",
+    role: user?.role || "user",
     avatar: null
   };
 
@@ -45,8 +47,7 @@ export default function Header({
   };
 
   const handleLogout = () => {
-    // TODO: Implement logout logic
-    console.log('Logout clicked');
+    logout();
   };
 
   const handleProfile = () => {
