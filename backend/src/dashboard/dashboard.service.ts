@@ -46,35 +46,17 @@ export class DashboardService {
   }
 
   async getWarrantyRequestsChart() {
-    const last6Months = Array.from({ length: 6 }, (_, i) => {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      return date;
-    }).reverse();
+    const tickets = await this.prisma.ticket.findMany({ select: { status: true } });
+    
+    const pendingRequests = tickets.filter(t => t.status === TicketStatus.open).length;
+    const processingRequests = tickets.filter(t => t.status === TicketStatus.in_progress).length;
+    const completedRequests = tickets.filter(t => t.status === TicketStatus.resolved).length;
 
-    const data = await Promise.all(
-      last6Months.map(async (month) => {
-        const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
-        const endOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 1);
-        
-        const count = await this.prisma.ticket.count({
-          where: {
-            createdAt: {
-              gte: startOfMonth,
-              lt: endOfMonth
-            }
-          }
-        });
-        
-        return count;
-      })
-    );
-
-    const labels = last6Months.map(month => 
-      month.toLocaleDateString('vi-VN', { month: 'short', year: 'numeric' })
-    );
-
-    return { labels, data };
+    return {
+      pendingRequests,
+      processingRequests,
+      completedRequests
+    };
   }
 
   async getProductFailuresChart() {
@@ -103,10 +85,7 @@ export class DashboardService {
       })
     );
 
-    return {
-      labels: productData.map(p => p.name),
-      data: productData.map(p => p.failures)
-    };
+    return productData;
   }
 
   private async getTopFailingProducts() {

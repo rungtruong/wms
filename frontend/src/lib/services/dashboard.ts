@@ -18,22 +18,14 @@ interface DashboardStatistics {
 }
 
 interface WarrantyRequestsChartData {
-  labels: string[];
-  datasets: Array<{
-    label: string;
-    data: number[];
-    backgroundColor?: string;
-    borderColor?: string;
-  }>;
+  pendingRequests: number;
+  processingRequests: number;
+  completedRequests: number;
 }
 
 interface ProductFailuresChartData {
-  labels: string[];
-  datasets: Array<{
-    label: string;
-    data: number[];
-    backgroundColor?: string[];
-  }>;
+  name: string;
+  failures: number;
 }
 
 class DashboardService {
@@ -45,8 +37,8 @@ class DashboardService {
     return apiClient.get<WarrantyRequestsChartData>('/dashboard/charts/warranty-requests');
   }
 
-  async getProductFailuresChart(): Promise<ProductFailuresChartData> {
-    return apiClient.get<ProductFailuresChartData>('/dashboard/charts/product-failures');
+  async getProductFailuresChart(): Promise<ProductFailuresChartData[]> {
+    return apiClient.get<ProductFailuresChartData[]>('/dashboard/charts/product-failures');
   }
 }
 

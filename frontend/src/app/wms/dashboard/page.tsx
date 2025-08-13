@@ -14,7 +14,7 @@ import { ticketsService } from "@/lib/services/tickets";
 export default function Dashboard() {
   const [statistics, setStatistics] = useState(null);
   const [warrantyRequestsData, setWarrantyRequestsData] = useState(null);
-  const [productFailuresData, setProductFailuresData] = useState<ProductFailuresChartData | null>(null);
+  const [productFailuresData, setProductFailuresData] = useState<ProductFailuresChartData[] | null>(null);
   const [recentRequests, setRecentRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -148,7 +148,7 @@ export default function Dashboard() {
             Sản phẩm lỗi nhiều nhất
           </h3>
           <div className="h-64">
-            <ProductFailuresChart data={productFailuresData?.datasets?.[0]?.data ? productFailuresData.labels.map((label, index) => ({ name: label, failures: productFailuresData.datasets[0].data[index] })) : []} />
+            <ProductFailuresChart data={productFailuresData || []} />
           </div>
         </div>
       </div>
