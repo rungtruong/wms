@@ -1,40 +1,31 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
-import { ReactQueryProvider } from "@/lib/react-query";
-import { Toaster } from "sonner";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import type { Metadata } from 'next'
+import { Toaster } from 'sonner'
+import { NotificationProvider } from '@/contexts/NotificationContext'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: "Product Warranty Management",
-  description: "Hệ thống quản lý bảo hành sản phẩm",
-};
+  title: 'WMS',
+  description: 'Warranty Management System',
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ReactQueryProvider>
+    <html lang="vi">
+      <body className="bg-cream-50 antialiased">
+        <NotificationProvider>
           {children}
-          <Toaster position="top-right" richColors />
-        </ReactQueryProvider>
+        </NotificationProvider>
+        <Toaster 
+          position="top-right"
+          richColors
+          closeButton
+          duration={4000}
+        />
       </body>
     </html>
-  );
+  )
 }
