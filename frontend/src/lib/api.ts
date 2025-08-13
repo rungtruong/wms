@@ -14,7 +14,7 @@ class ApiClient {
   private baseURL: string;
   private token: string | null = null;
 
-  constructor(baseURL: string = 'http://localhost:3001') {
+  constructor(baseURL: string = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api') {
     this.baseURL = baseURL;
     this.token = this.getStoredToken();
   }

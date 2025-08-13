@@ -1,6 +1,6 @@
 # TODO:
 
-- [x] check-prisma-schema: Kiểm tra Prisma schema để hiểu cấu trúc database (priority: High)
-- [x] create-seed-script: Tạo seed script từ mock data frontend (priority: High)
-- [x] update-package-json: Cập nhật package.json với seed command (priority: Medium)
-- [x] test-seed-script: Test chạy seed script (priority: Medium)
+- [x] create-env-file: Tạo file .env cho frontend với các biến môi trường cần thiết (priority: High)
+- [x] update-api-client: Cập nhật API client để sử dụng environment variable (priority: High)
+- [x] create-env-example: Tạo file .env.example làm template (priority: Medium)
+- [x] update-gitignore: Đảm bảo .env được thêm vào .gitignore (priority: Medium)
