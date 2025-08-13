@@ -22,12 +22,12 @@ ChartJS.register(
   ArcElement
 )
 
-// Request status doughnut chart - exactly like original
-export function WarrantyRequestsChart() {
+// Request status doughnut chart
+export function WarrantyRequestsChart({ data: chartData }: { data?: { pendingRequests: number; processingRequests: number; completedRequests: number } }) {
   const data = {
     labels: ['Chờ xử lý', 'Đang xử lý', 'Hoàn thành'],
     datasets: [{
-      data: [12, 5, 127], // pendingRequests, processingRequests, completedRequests
+      data: chartData ? [chartData.pendingRequests, chartData.processingRequests, chartData.completedRequests] : [0, 0, 0],
       backgroundColor: ['#1FB8CD', '#FFC185', '#B4413C']
     }]
   }

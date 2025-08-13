@@ -1,6 +1,8 @@
 # TODO:
 
-- [x] analyze-contracts-api-response: Kiểm tra cấu trúc data trả về từ contracts API để hiểu format customer object (priority: High)
-- [x] fix-customer-name-error: Sửa lỗi 'Cannot read properties of undefined (reading 'name')' ở dòng 216 trong contracts/page.tsx (priority: High)
-- [x] add-safe-navigation: Thêm optional chaining cho tất cả truy cập customer properties trong file contracts/page.tsx (priority: High)
-- [x] test-contracts-page: Test lại trang contracts để đảm bảo không còn lỗi runtime (priority: Medium)
+- [x] examine-dashboard-charts: Kiểm tra WarrantyRequestsChart và ProductFailuresChart để xem cách chúng sử dụng data (priority: High)
+- [x] fix-warranty-requests-chart: Sửa WarrantyRequestsChart để fetch data từ API /dashboard/charts/warranty-requests thay vì hardcoded data (priority: High)
+- [x] update-dashboard-page: Cập nhật dashboard page để fetch chart data riêng biệt và pass vào chart components (priority: High)
+- [x] fix-product-failures-chart: Sửa ProductFailuresChart để sử dụng data từ API /dashboard/charts/product-failures (priority: High)
+- [x] fix-recent-requests-table: Đảm bảo bảng recent requests hiển thị đầy đủ thông tin từ tickets API (priority: Medium)
+- [x] test-dashboard-integration: Test lại trang dashboard để đảm bảo API integration hoạt động đúng (priority: Medium)

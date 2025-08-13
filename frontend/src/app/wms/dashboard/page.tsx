@@ -8,11 +8,13 @@ import {
   ProductFailuresChart,
 } from "@/components/Charts";
 import Table from "@/components/Table";
-import { dashboardService } from "@/lib/services/dashboard";
+import { dashboardService, type ProductFailuresChartData, type WarrantyRequestsChartData } from "@/lib/services/dashboard";
 import { ticketsService } from "@/lib/services/tickets";
 
 export default function Dashboard() {
   const [statistics, setStatistics] = useState(null);
+  const [warrantyRequestsData, setWarrantyRequestsData] = useState(null);
+  const [productFailuresData, setProductFailuresData] = useState<ProductFailuresChartData | null>(null);
   const [recentRequests, setRecentRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -20,12 +22,16 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         setIsLoading(true);
-        const [statsData, requestsData] = await Promise.all([
+        const [statsData, warrantyChartData, productFailuresChartData, requestsData] = await Promise.all([
           dashboardService.getStatistics(),
+          dashboardService.getWarrantyRequestsChart(),
+          dashboardService.getProductFailuresChart(),
           ticketsService.getAll()
         ]);
         
         setStatistics(statsData);
+        setWarrantyRequestsData(warrantyChartData);
+        setProductFailuresData(productFailuresChartData);
         setRecentRequests(requestsData.slice(0, 5));
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -70,10 +76,10 @@ export default function Dashboard() {
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
-      received: "status-badge status-received",
-      validated: "status-badge status-processing",
-      processing: "status-badge status-processing",
-      completed: "status-badge status-completed",
+      open: "status-badge status-received",
+      in_progress: "status-badge status-processing", 
+      resolved: "status-badge status-completed",
+      closed: "status-badge status-completed",
     };
     return (
       statusClasses[status as keyof typeof statusClasses] || "status-badge"
@@ -133,7 +139,7 @@ export default function Dashboard() {
             Thống kê yêu cầu bảo hành
           </h3>
           <div className="h-64">
-            <WarrantyRequestsChart />
+            <WarrantyRequestsChart data={warrantyRequestsData} />
           </div>
         </div>
 
@@ -142,7 +148,7 @@ export default function Dashboard() {
             Sản phẩm lỗi nhiều nhất
           </h3>
           <div className="h-64">
-            <ProductFailuresChart data={statistics?.topFailingProducts || []} />
+            <ProductFailuresChart data={productFailuresData?.datasets?.[0]?.data ? productFailuresData.labels.map((label, index) => ({ name: label, failures: productFailuresData.datasets[0].data[index] })) : []} />
           </div>
         </div>
       </div>
@@ -166,18 +172,18 @@ export default function Dashboard() {
               header: "Khách hàng",
             },
             {
-              key: "issue",
-              header: "Sản phẩm",
+              key: "issueDescription",
+              header: "Mô tả vấn đề",
             },
             {
               key: "status",
               header: "Trạng thái",
               render: (status) => (
                 <span className={getStatusBadge(status)}>
-                  {status === "received" && "Tiếp nhận"}
-                  {status === "validated" && "Đã kiểm tra"}
-                  {status === "processing" && "Đang xử lý"}
-                  {status === "completed" && "Hoàn thành"}
+                  {status === "open" && "Mở"}
+                  {status === "in_progress" && "Đang xử lý"}
+                  {status === "resolved" && "Đã giải quyết"}
+                  {status === "closed" && "Đã đóng"}
                 </span>
               ),
             },
