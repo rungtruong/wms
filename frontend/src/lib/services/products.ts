@@ -22,10 +22,33 @@ interface CreateWarrantyRequestRequest {
 }
 
 interface WarrantyDetails {
-  serial: Serial;
-  contract?: any;
-  warrantyStatus: 'active' | 'expired' | 'suspended';
-  warrantyRemaining: string;
+  serial: {
+    serialNumber: string
+    productName: string
+    model: string
+    manufacturingDate: string
+    purchaseDate: string
+    warrantyRemaining: string
+    status: 'valid' | 'expired' | 'cancelled'
+    repairHistory?: any[]
+  }
+  contract: {
+    contractNumber: string
+    startDate: string
+    endDate: string
+    terms: string
+    customerName?: string
+    customerPhone?: string
+    customerAddress?: string
+    customerEmail?: string
+  } | null
+  warranty: {
+    isValid: boolean
+    status: 'valid' | 'expired' | 'cancelled'
+    startDate: string
+    endDate: string
+    daysRemaining: number
+  }
 }
 
 class ProductsService {

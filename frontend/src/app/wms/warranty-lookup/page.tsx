@@ -3,32 +3,66 @@
 import { useState } from 'react'
 import Layout from '@/components/Layout'
 import { productsService } from '@/lib/services/products'
-import { Search, HelpCircle, CheckCircle, Clock, AlertCircle, Phone, Mail } from 'lucide-react'
+import { Search, HelpCircle, CheckCircle, Clock, AlertCircle, Phone, Mail, Loader2 } from 'lucide-react'
 import { showToast } from '@/lib/toast'
+import type { WarrantyDetails } from '@/lib/services/products'
 
 export default function CustomerPortalPage() {
   const [serialInput, setSerialInput] = useState('')
-  const [searchResult, setSearchResult] = useState<any>(null)
+  const [searchResult, setSearchResult] = useState<WarrantyDetails | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const validateSerialNumber = (serial: string): boolean => {
+    if (!serial || serial.trim().length === 0) {
+      setError('Vui lòng nhập số serial')
+      return false
+    }
+    if (serial.trim().length < 3) {
+      setError('Số serial phải có ít nhất 3 ký tự')
+      return false
+    }
+    if (serial.trim().length > 50) {
+      setError('Số serial không được vượt quá 50 ký tự')
+      return false
+    }
+    return true
+  }
 
   const handleSearch = async () => {
-    if (!serialInput.trim()) return
+    const trimmedSerial = serialInput.trim()
+    setError(null)
+    
+    if (!validateSerialNumber(trimmedSerial)) {
+      return
+    }
 
     setIsLoading(true)
+    setSearchResult(null)
     
     try {
-      const warrantyInfo = await productsService.checkWarranty(serialInput.trim())
+      const warrantyInfo = await productsService.checkWarranty(trimmedSerial)
       
       if (warrantyInfo) {
         setSearchResult(warrantyInfo)
+        showToast.success('Tìm thấy thông tin bảo hành')
       } else {
         setSearchResult(null)
-        showToast.error('Không tìm thấy thông tin bảo hành cho serial này')
+        setError('Không tìm thấy thông tin bảo hành cho serial này')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error checking warranty:', error)
       setSearchResult(null)
-      showToast.error('Lỗi khi tra cứu thông tin bảo hành')
+      
+      if (error?.response?.status === 404) {
+        setError('Không tìm thấy thông tin bảo hành cho serial này')
+      } else if (error?.response?.status === 400) {
+        setError('Số serial không hợp lệ')
+      } else if (error?.response?.status >= 500) {
+        setError('Lỗi hệ thống, vui lòng thử lại sau')
+      } else {
+        setError('Lỗi khi tra cứu thông tin bảo hành')
+      }
     } finally {
       setIsLoading(false)
     }
@@ -61,11 +95,18 @@ export default function CustomerPortalPage() {
                   />
                 </div>
                 <button 
-                  className="btn btn-primary px-8 py-3 text-lg"
+                  className="btn btn-primary px-8 py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleSearch}
                   disabled={isLoading || !serialInput.trim()}
                 >
-                  {isLoading ? 'Đang tìm...' : 'Tra cứu'}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                      Đang tìm...
+                    </>
+                  ) : (
+                    'Tra cứu'
+                  )}
                 </button>
               </div>
 
@@ -81,7 +122,83 @@ export default function CustomerPortalPage() {
                   <p>• Ví dụ: DL15-2024-001234, IP15-2024-005678</p>
                 </div>
               </div>
-            </div>
+              
+              {/* Error Display */}
+              {error && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-red-500" />
+                    <p className="text-red-700">{error}</p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Loading Skeleton */}
+              {isLoading && (
+                <div className="mt-8 bg-white rounded-lg shadow-lg p-8">
+                  <div className="animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded w-1/3 mb-6"></div>
+                    
+                    <div className="grid md:grid-cols-2 gap-8 mb-8">
+                      <div className="space-y-4">
+                        <div className="h-5 bg-gray-200 rounded w-1/2 mb-4"></div>
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                          <div className="h-4 bg-gray-200 rounded w-3/5"></div>
+                          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div className="h-5 bg-gray-200 rounded w-1/2 mb-4"></div>
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                          <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-8">
+                      <div className="h-5 bg-gray-200 rounded w-1/3 mb-4"></div>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                          <div className="h-4 bg-gray-200 rounded w-3/5"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+               )}
+               
+               {/* Empty State */}
+               {!isLoading && !error && !searchResult && serialInput.trim() === '' && (
+                 <div className="mt-8 text-center py-12">
+                   <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                   <h3 className="text-lg font-medium text-gray-600 mb-2">Tra cứu thông tin bảo hành</h3>
+                   <p className="text-gray-500">Nhập số serial để kiểm tra thông tin bảo hành sản phẩm</p>
+                 </div>
+               )}
+               
+               {/* No Results State */}
+               {!isLoading && !error && !searchResult && serialInput.trim() !== '' && (
+                 <div className="mt-8 text-center py-12">
+                   <HelpCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                   <h3 className="text-lg font-medium text-gray-600 mb-2">Không tìm thấy kết quả</h3>
+                   <p className="text-gray-500">Vui lòng kiểm tra lại số serial và thử lại</p>
+                 </div>
+               )}
+             </div>
 
             {/* Search Results */}
             {searchResult && (
@@ -107,7 +224,7 @@ export default function CustomerPortalPage() {
                       </div>
                       <div>
                         <label className="form-label">Ngày sản xuất</label>
-                        <p className="text-lg font-medium text-gray-900">{formatDate(searchResult.serial.manufactureDate)}</p>
+                        <p className="text-lg font-medium text-gray-900">{formatDate(searchResult.serial.manufacturingDate)}</p>
                       </div>
                     </div>
                   </div>
@@ -122,11 +239,11 @@ export default function CustomerPortalPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="form-label">Ngày bắt đầu bảo hành</label>
-                        <p className="text-lg font-medium text-gray-900">{formatDate(searchResult.contract.startDate)}</p>
+                        <p className="text-lg font-medium text-gray-900">{formatDate(searchResult.warranty.startDate)}</p>
                       </div>
                       <div>
                         <label className="form-label">Ngày kết thúc bảo hành</label>
-                        <p className="text-lg font-medium text-gray-900">{formatDate(searchResult.contract.endDate)}</p>
+                        <p className="text-lg font-medium text-gray-900">{formatDate(searchResult.warranty.endDate)}</p>
                       </div>
                       <div>
                         <label className="form-label">Thời gian bảo hành còn lại</label>
@@ -134,13 +251,13 @@ export default function CustomerPortalPage() {
                       </div>
                       <div>
                         <label className="form-label">Trạng thái</label>
-                        <span className={`status-badge ${searchResult.serial.warrantyStatus === 'valid' ? 'status-active' : 'status-expired'}`}>
-                      {searchResult.serial.warrantyStatus === 'valid' ? 'Đang bảo hành' : 'Hết bảo hành'}
+                        <span className={`status-badge ${searchResult.warranty.status === 'valid' ? 'status-active' : 'status-expired'}`}>
+                      {searchResult.warranty.status === 'valid' ? 'Đang bảo hành' : 'Hết bảo hành'}
                         </span>
                       </div>
                       <div className="md:col-span-2">
                         <label className="form-label">Điều khoản bảo hành</label>
-                        <p className="text-gray-900">{searchResult.contract.terms}</p>
+                        <p className="text-gray-900">{searchResult.contract?.terms}</p>
                       </div>
                     </div>
                   </div>
@@ -155,22 +272,22 @@ export default function CustomerPortalPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="form-label">Tên khách hàng</label>
-                        <p className="text-lg font-medium text-gray-900">{searchResult.contract.customerName || 'N/A'}</p>
+                        <p className="text-lg font-medium text-gray-900">{searchResult.contract?.customerName || 'N/A'}</p>
                       </div>
                       <div>
                         <label className="form-label">Số điện thoại</label>
-                        <p className="text-lg font-medium text-gray-900">{searchResult.contract.customerPhone || 'N/A'}</p>
+                        <p className="text-lg font-medium text-gray-900">{searchResult.contract?.customerPhone || 'N/A'}</p>
                       </div>
                       <div className="md:col-span-2">
                         <label className="form-label">Địa chỉ</label>
-                        <p className="text-gray-900">{searchResult.contract.customerAddress || 'N/A'}</p>
+                        <p className="text-gray-900">{searchResult.contract?.customerAddress || 'N/A'}</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Repair History */}
-                {searchResult.serial.repairHistory.length > 0 && (
+                {searchResult.serial.repairHistory && searchResult.serial.repairHistory.length > 0 && (
                   <div className="card">
                     <div className="px-6 py-4 border-b border-gray-200">
                       <h3 className="text-xl font-semibold text-gray-900">Lịch sử Sửa chữa</h3>
