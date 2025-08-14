@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import { Search, FileText, Phone, Mail, MapPin, Calendar, CheckCircle, AlertCircle, Clock } from 'lucide-react'
 import { showToast } from '@/lib/toast'
-import { mockData } from '@/lib/data'
 import { WMSLogo } from '@/components/Logo'
+import { customerPortalService, type WarrantyDetails } from '@/lib/services/customer-portal'
 
 export default function CustomerPortalPage() {
   const [activeTab, setActiveTab] = useState('lookup')
   const [lookupSerial, setLookupSerial] = useState('')
-  const [lookupResult, setLookupResult] = useState(null)
+  const [lookupResult, setLookupResult] = useState<WarrantyDetails | null>(null)
+  const [lookupError, setLookupError] = useState<string | null>(null)
   const [isLooking, setIsLooking] = useState(false)
   
   const [ticketForm, setTicketForm] = useState({
@@ -20,54 +21,61 @@ export default function CustomerPortalPage() {
     issue: '',
     description: ''
   })
+  const [ticketError, setTicketError] = useState<string | null>(null)
+  const [ticketSuccess, setTicketSuccess] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleLookup = async () => {
     if (!lookupSerial.trim()) {
-      showToast.error('Vui lòng nhập số serial')
+      setLookupError('Vui lòng nhập số serial')
+      setLookupResult(null)
       return
     }
 
     setIsLooking(true)
+    setLookupError(null)
     
-    setTimeout(() => {
-      const serial = mockData.serials.find(s => 
-        s.serialNumber.toLowerCase().includes(lookupSerial.toLowerCase())
-      )
-      
-      if (serial) {
-        const contract = mockData.contracts.find(c => 
-          c.products.some(p => p.serial === serial.serialNumber)
-        )
-        
-        setLookupResult({
-          serial,
-          contract,
-          isValid: contract && new Date(contract.endDate) > new Date(),
-          daysLeft: contract ? Math.max(0, Math.ceil((new Date(contract.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : 0
-        })
-        showToast.success('Tìm thấy thông tin bảo hành')
+    try {
+      const warrantyDetails = await customerPortalService.checkWarranty(lookupSerial.trim())
+      setLookupResult(warrantyDetails)
+      setLookupError(null)
+    } catch (error: any) {
+      setLookupResult(null)
+      if (error.status === 404) {
+        setLookupError(`Không tìm thấy thông tin bảo hành cho serial "${lookupSerial.trim()}"`)
       } else {
-        setLookupResult(null)
-        showToast.error('Không tìm thấy thông tin bảo hành cho serial này')
+        setLookupError(error.message || 'Có lỗi xảy ra khi tra cứu thông tin bảo hành')
       }
+    } finally {
       setIsLooking(false)
-    }, 1000)
+    }
   }
 
-  const handleTicketSubmit = async (e) => {
+  const handleTicketSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!ticketForm.serialNumber || !ticketForm.customerName || !ticketForm.customerPhone || !ticketForm.issue) {
-      showToast.error('Vui lòng điền đầy đủ thông tin bắt buộc')
+      setTicketError('Vui lòng điền đầy đủ thông tin bắt buộc')
+      setTicketSuccess(null)
       return
     }
 
     setIsSubmitting(true)
+    setTicketError(null)
+    setTicketSuccess(null)
     
-    setTimeout(() => {
-      const ticketNumber = `WR${Date.now().toString().slice(-6)}`
-      showToast.success(`Yêu cầu bảo hành đã được gửi thành công! Mã yêu cầu: ${ticketNumber}`)
+    try {
+      const response = await customerPortalService.createWarrantyRequest({
+        serialNumber: ticketForm.serialNumber,
+        customerName: ticketForm.customerName,
+        customerPhone: ticketForm.customerPhone,
+        customerEmail: ticketForm.customerEmail || undefined,
+        issue: ticketForm.issue,
+        description: ticketForm.description,
+        priority: 'medium'
+      })
+      
+      setTicketSuccess(`Yêu cầu bảo hành đã được gửi thành công! Mã yêu cầu: ${response.ticket.ticketNumber}`)
       
       setTicketForm({
         serialNumber: '',
@@ -77,8 +85,17 @@ export default function CustomerPortalPage() {
         issue: '',
         description: ''
       })
+    } catch (error: any) {
+      if (error.status === 404) {
+        setTicketError('Không tìm thấy serial number này trong hệ thống')
+      } else if (error.status === 401) {
+        setTicketError('Bạn cần đăng nhập để gửi yêu cầu bảo hành')
+      } else {
+        setTicketError(error.message || 'Có lỗi xảy ra khi gửi yêu cầu bảo hành')
+      }
+    } finally {
       setIsSubmitting(false)
-    }, 1500)
+    }
   }
 
   const getStatusIcon = (isValid) => {
@@ -86,17 +103,17 @@ export default function CustomerPortalPage() {
     return <AlertCircle className="h-5 w-5 text-red-500" />
   }
 
-  const getStatusText = (isValid, daysLeft) => {
-    if (isValid) {
-      if (daysLeft > 30) return 'Còn hiệu lực'
-      return `Sắp hết hạn (${daysLeft} ngày)`
+  const getStatusText = (warranty: WarrantyDetails['warranty']) => {
+    if (warranty.isValid) {
+      if (warranty.daysRemaining > 30) return 'Còn hiệu lực'
+      return `Sắp hết hạn (${warranty.daysRemaining} ngày)`
     }
     return 'Hết hạn'
   }
 
-  const getStatusColor = (isValid, daysLeft) => {
-    if (isValid) {
-      if (daysLeft > 30) return 'text-green-600 bg-green-50'
+  const getStatusColor = (warranty: WarrantyDetails['warranty']) => {
+    if (warranty.isValid) {
+      if (warranty.daysRemaining > 30) return 'text-green-600 bg-green-50'
       return 'text-orange-600 bg-orange-50'
     }
     return 'text-red-600 bg-red-50'
@@ -164,7 +181,10 @@ export default function CustomerPortalPage() {
                         type="text"
                         placeholder="Nhập số serial (VD: DL15-2024-001234)"
                         value={lookupSerial}
-                        onChange={(e) => setLookupSerial(e.target.value)}
+                        onChange={(e) => {
+                          setLookupSerial(e.target.value)
+                          if (lookupError) setLookupError(null)
+                        }}
                         className="form-input w-full"
                         onKeyPress={(e) => e.key === 'Enter' && handleLookup()}
                       />
@@ -187,17 +207,26 @@ export default function CustomerPortalPage() {
                       )}
                     </button>
                   </div>
+                  
+                  {lookupError && (
+                    <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center">
+                        <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+                        <p className="text-red-700">{lookupError}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {lookupResult && (
                   <div className="bg-gray-50 rounded-lg p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Thông tin Bảo hành</h3>
-                      <div className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(lookupResult.isValid, lookupResult.daysLeft)}`}>
-                        {getStatusIcon(lookupResult.isValid)}
-                        <span className="ml-2">{getStatusText(lookupResult.isValid, lookupResult.daysLeft)}</span>
-                      </div>
+                    <h3 className="text-lg font-semibold text-gray-900">Thông tin Bảo hành</h3>
+                    <div className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(lookupResult.warranty)}`}>
+                      {getStatusIcon(lookupResult.warranty.isValid)}
+                      <span className="ml-2">{getStatusText(lookupResult.warranty)}</span>
                     </div>
+                  </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
@@ -213,13 +242,17 @@ export default function CustomerPortalPage() {
                           <label className="block text-sm font-medium text-gray-700 mb-1">Số Serial</label>
                           <p className="text-gray-900 font-mono">{lookupResult.serial.serialNumber}</p>
                         </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Thời gian bảo hành còn lại</label>
+                          <p className="text-gray-900">{lookupResult.serial.warrantyRemaining}</p>
+                        </div>
                       </div>
 
                       {lookupResult.contract && (
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Khách hàng</label>
-                            <p className="text-gray-900">{lookupResult.contract.customerName || 'N/A'}</p>
+                            <p className="text-gray-900">{lookupResult.contract.customer.name || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Ngày bắt đầu</label>
@@ -228,6 +261,10 @@ export default function CustomerPortalPage() {
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Ngày hết hạn</label>
                             <p className="text-gray-900">{new Date(lookupResult.contract.endDate).toLocaleDateString('vi-VN')}</p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Số hợp đồng</label>
+                            <p className="text-gray-900">{lookupResult.contract.contractNumber}</p>
                           </div>
                         </div>
                       )}
@@ -254,7 +291,10 @@ export default function CustomerPortalPage() {
                         type="text"
                         required
                         value={ticketForm.serialNumber}
-                        onChange={(e) => setTicketForm({...ticketForm, serialNumber: e.target.value})}
+                        onChange={(e) => {
+                          setTicketForm({...ticketForm, serialNumber: e.target.value})
+                          if (ticketError) setTicketError(null)
+                        }}
                         className="form-input w-full"
                         placeholder="VD: DL15-2024-001234"
                       />
@@ -268,7 +308,10 @@ export default function CustomerPortalPage() {
                         type="text"
                         required
                         value={ticketForm.customerName}
-                        onChange={(e) => setTicketForm({...ticketForm, customerName: e.target.value})}
+                        onChange={(e) => {
+                          setTicketForm({...ticketForm, customerName: e.target.value})
+                          if (ticketError) setTicketError(null)
+                        }}
                         className="form-input w-full"
                         placeholder="Nhập họ và tên"
                       />
@@ -282,7 +325,10 @@ export default function CustomerPortalPage() {
                         type="tel"
                         required
                         value={ticketForm.customerPhone}
-                        onChange={(e) => setTicketForm({...ticketForm, customerPhone: e.target.value})}
+                        onChange={(e) => {
+                          setTicketForm({...ticketForm, customerPhone: e.target.value})
+                          if (ticketError) setTicketError(null)
+                        }}
                         className="form-input w-full"
                         placeholder="0901234567"
                       />
@@ -309,7 +355,10 @@ export default function CustomerPortalPage() {
                     <select
                       required
                       value={ticketForm.issue}
-                      onChange={(e) => setTicketForm({...ticketForm, issue: e.target.value})}
+                      onChange={(e) => {
+                        setTicketForm({...ticketForm, issue: e.target.value})
+                        if (ticketError) setTicketError(null)
+                      }}
                       className="form-input w-full"
                     >
                       <option value="">Chọn loại vấn đề</option>
@@ -334,6 +383,24 @@ export default function CustomerPortalPage() {
                       placeholder="Mô tả chi tiết về vấn đề bạn gặp phải..."
                     />
                   </div>
+
+                  {ticketError && (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center">
+                        <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+                        <p className="text-red-700">{ticketError}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {ticketSuccess && (
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center">
+                        <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                        <p className="text-green-700">{ticketSuccess}</p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex justify-end">
                     <button

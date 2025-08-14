@@ -15,6 +15,7 @@ import { UpdateProductSerialDto } from './dto/update-product-serial.dto';
 import { UpdateWarrantyStatusDto } from './dto/update-warranty-status.dto';
 import { CreateWarrantyRequestDto } from './dto/create-warranty-request.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Public } from '../auth/public.decorator';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)
@@ -61,8 +62,9 @@ export class ProductsController {
     return this.productsService.remove(id);
   }
 
+  @Public()
   @Get('serials/warranty/:serialNumber')
-  checkWarranty(@Param('serialNumber') serialNumber: string) {
+  async getWarrantyDetails(@Param('serialNumber') serialNumber: string) {
     return this.productsService.getWarrantyDetails(serialNumber);
   }
 

@@ -159,6 +159,22 @@ async function main() {
         notes: 'Hết bảo hành, cần gia hạn',
       },
     }),
+    prisma.productSerial.create({
+      data: {
+        serialNumber: 'DL15-2024-001234',
+        name: 'Máy in Dell Laser 1234',
+        model: 'DL15-2024',
+        category: 'Printer',
+        description: 'Máy in laser Dell hiệu năng cao',
+        warrantyMonths: 24,
+        contractId: contracts[0].id,
+        manufactureDate: new Date('2024-01-10'),
+        purchaseDate: new Date('2024-01-25'),
+        warrantyStatus: 'valid',
+        isActive: true,
+        notes: 'Sản phẩm mới, đang trong thời gian bảo hành',
+      },
+    }),
   ]);
 
   console.log(`Created ${productSerials.length} product serials`);
