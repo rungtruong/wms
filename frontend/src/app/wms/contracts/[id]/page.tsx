@@ -217,11 +217,11 @@ export default function ContractDetailPage({
                 </div>
                 <div class="info-cell"></div>
               </div>
-              <div class="info-row">
-                <div class="info-cell" style="width: 100%;" colspan="2">
-                  <span class="info-label">Địa chỉ:</span> <span class="info-value">${contract!.customerAddress || 'N/A'}</span>
-                </div>
-              </div>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Địa chỉ:</span> <span class="info-value">${contract!.customerAddress || 'N/A'}</span>
+            </div>
+            <div class="info-grid">
             </div>
           </div>
 
