@@ -9,9 +9,9 @@ interface CreateContractRequest {
   customerPhone: string;
   customerEmail: string;
   contractProducts: Array<{
-    name: string;
-    model: string;
-    serial: string;
+    productSerialId: string;
+    quantity?: number;
+    unitPrice?: number;
   }>;
   startDate: string;
   endDate: string;

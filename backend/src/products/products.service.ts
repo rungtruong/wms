@@ -126,24 +126,39 @@ export class ProductsService {
       }
     }
 
-    const productSerial = await this.prisma.productSerial.create({
-      data: {
-        serialNumber: createProductSerialDto.serialNumber,
-        name: createProductSerialDto.name,
-        model: createProductSerialDto.model,
-        category: createProductSerialDto.category,
-        contractId: createProductSerialDto.contractId || null,
-        manufactureDate: createProductSerialDto.manufactureDate ? new Date(createProductSerialDto.manufactureDate) : null,
-        purchaseDate: createProductSerialDto.purchaseDate ? new Date(createProductSerialDto.purchaseDate) : null,
-        warrantyStatus: createProductSerialDto.warrantyStatus || 'valid',
-        notes: createProductSerialDto.notes,
-      },
-      include: {
-        contract: true,
-      },
-    });
+    // Use transaction to ensure data consistency
+    return this.prisma.$transaction(async (tx) => {
+      const productSerial = await tx.productSerial.create({
+        data: {
+          serialNumber: createProductSerialDto.serialNumber,
+          name: createProductSerialDto.name,
+          model: createProductSerialDto.model,
+          category: createProductSerialDto.category,
+          contractId: createProductSerialDto.contractId || null,
+          manufactureDate: createProductSerialDto.manufactureDate ? new Date(createProductSerialDto.manufactureDate) : null,
+          purchaseDate: createProductSerialDto.purchaseDate ? new Date(createProductSerialDto.purchaseDate) : null,
+          warrantyStatus: createProductSerialDto.warrantyStatus || 'valid',
+          notes: createProductSerialDto.notes,
+        },
+        include: {
+          contract: true,
+        },
+      });
 
-    return this.formatProductSerial(productSerial);
+      // Create contractProduct entry if contractId is provided
+      if (createProductSerialDto.contractId) {
+        await tx.contractProduct.create({
+          data: {
+            contractId: createProductSerialDto.contractId,
+            productSerialId: productSerial.id,
+            quantity: 1,
+            unitPrice: 0, // Default price, can be updated later
+          },
+        });
+      }
+
+      return this.formatProductSerial(productSerial);
+    });
   }
 
   async findAllSerials() {
@@ -417,7 +432,7 @@ export class ProductsService {
   }
 
   async updateSerial(id: string, updateProductSerialDto: UpdateProductSerialDto) {
-    await this.findSerialById(id);
+    const existingSerial = await this.findSerialById(id);
     
     // Transform date strings to Date objects for Prisma
     const updateData = { ...updateProductSerialDto };
@@ -427,13 +442,57 @@ export class ProductsService {
     if (updateData.purchaseDate) {
       updateData.purchaseDate = new Date(updateData.purchaseDate);
     }
-    
-    return this.prisma.productSerial.update({
-      where: { id },
-      data: updateData,
-      include: {
-        contract: true,
-      },
+
+    // Handle contractId changes to sync contractProducts
+    const oldContractId = existingSerial.contractId;
+    const newContractId = updateData.contractId;
+
+    // Use transaction to ensure data consistency
+    return this.prisma.$transaction(async (tx) => {
+      // Update the product serial
+      const updatedSerial = await tx.productSerial.update({
+        where: { id },
+        data: updateData,
+        include: {
+          contract: true,
+        },
+      });
+
+      // Handle contractProducts synchronization
+      if (oldContractId !== newContractId) {
+        // Remove from old contract if exists
+        if (oldContractId) {
+          await tx.contractProduct.deleteMany({
+            where: {
+              contractId: oldContractId,
+              productSerialId: id,
+            },
+          });
+        }
+
+        // Add to new contract if exists
+        if (newContractId) {
+          // Check if contract exists
+          const contract = await tx.contract.findUnique({
+            where: { id: newContractId },
+          });
+          if (!contract) {
+            throw new BadRequestException(`Contract with ID ${newContractId} not found`);
+          }
+
+          // Create contractProduct entry
+        await tx.contractProduct.create({
+          data: {
+            contractId: newContractId,
+            productSerialId: id,
+            quantity: 1,
+            unitPrice: 0, // Default price, can be updated later
+          },
+        });
+        }
+      }
+
+      return updatedSerial;
     });
   }
 

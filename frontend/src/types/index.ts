@@ -11,6 +11,29 @@ export interface Product {
   serial: string;
 }
 
+export interface ContractProduct {
+  id: string;
+  contractId: string;
+  productSerialId: string;
+  quantity: number;
+  unitPrice: number;
+  productSerial: {
+    id: string;
+    serialNumber: string;
+    name: string;
+    model: string;
+    category?: string;
+    description?: string;
+    warrantyMonths: number;
+    contractId?: string;
+    manufactureDate?: string;
+    purchaseDate?: string;
+    warrantyStatus: "valid" | "expired" | "voided";
+    isActive: boolean;
+    notes?: string;
+  };
+}
+
 export interface Contract {
   id: string;
   contractNumber: string;
@@ -19,7 +42,7 @@ export interface Contract {
   customerEmail: string;
   customerPhone: string;
   customerAddress: string;
-  contractProducts: Product[];
+  contractProducts: ContractProduct[];
   startDate: string;
   endDate: string;
   termsConditions: string;

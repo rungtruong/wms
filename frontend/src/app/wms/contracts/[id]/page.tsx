@@ -232,13 +232,13 @@ export default function ContractDetailPage({
                 <div class="product-info">
                   <div class="product-row">
                     <div class="product-cell">
-                      <span class="info-label">Tên sản phẩm:</span> <span class="info-value">${product.name}</span>
+                      <span class="info-label">Tên sản phẩm:</span> <span class="info-value">${product.productSerial?.name || 'N/A'}</span>
                     </div>
                     <div class="product-cell">
-                      <span class="info-label">Model:</span> <span class="info-value">${product.model}</span>
+                      <span class="info-label">Model:</span> <span class="info-value">${product.productSerial?.model || 'N/A'}</span>
                     </div>
                     <div class="product-cell">
-                      <span class="info-label">Serial:</span> <span class="info-value">${product.serial}</span>
+                      <span class="info-label">Serial:</span> <span class="info-value">${product.productSerial?.serialNumber || 'N/A'}</span>
                     </div>
                   </div>
                 </div>
@@ -274,7 +274,6 @@ export default function ContractDetailPage({
     try {
       // Update contract data (in real app, this would call an API)
       const updatedContract = {
-        ...contract!,
         contractNumber: formData.contractNumber,
         customerName: formData.customerName,
         customerAddress: formData.customerAddress,
@@ -284,7 +283,7 @@ export default function ContractDetailPage({
         endDate: formData.endDate,
         termsConditions: formData.warrantyTerms
       };
-      const result = await contractsService.update(updatedContract.id, updatedContract);
+      const result = await contractsService.update(contract!.id, updatedContract);
       setContract(result);
       setIsFormOpen(false);
       showToast.success('Cập nhật hợp đồng thành công!');
@@ -404,17 +403,17 @@ export default function ContractDetailPage({
                           <Package className="h-5 w-5 text-teal-600 mt-0.5" />
                           <div className="flex-1">
                             <h3 className="font-medium text-gray-900">
-                              {product.name}
+                              {product.productSerial?.name || 'N/A'}
                             </h3>
                             <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
                               <div>
                                 <span className="font-medium">Model:</span>{" "}
-                                {product.model}
+                                {product.productSerial?.model || 'N/A'}
                               </div>
                               <div>
                                 <span className="font-medium">Serial:</span>{" "}
                                 <span className="font-mono">
-                                  {product.serial}
+                                  {product.productSerial?.serialNumber || 'N/A'}
                                 </span>
                               </div>
                             </div>

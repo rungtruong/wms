@@ -12,9 +12,17 @@ export const mockData = {
       customerEmail: "nguyenvanan@email.com",
       contractProducts: [
         {
-          name: "Laptop Dell Inspiron 15",
-          model: "Dell-INS-15-3000",
-          serial: "DL15-2024-001234"
+          id: "CP001",
+          contractId: "WC001",
+          productSerialId: "S001",
+          quantity: 1,
+          unitPrice: 15000000,
+          productSerial: {
+            id: "S001",
+            name: "Laptop Dell Inspiron 15",
+            model: "Dell-INS-15-3000",
+            serialNumber: "DL15-2024-001234"
+          }
         }
       ],
       startDate: "2024-01-15",
@@ -35,9 +43,17 @@ export const mockData = {
       customerEmail: "tranthibinh@email.com",
       contractProducts: [
         {
-          name: "iPhone 15 Pro",
-          model: "A3108",
-          serial: "IP15-2024-005678"
+          id: "CP002",
+          contractId: "WC002",
+          productSerialId: "S002",
+          quantity: 1,
+          unitPrice: 30000000,
+          productSerial: {
+            id: "S002",
+            name: "iPhone 15 Pro",
+            model: "A3108",
+            serialNumber: "IP15-2024-005678"
+          }
         }
       ],
       startDate: "2024-02-20",
@@ -58,9 +74,17 @@ export const mockData = {
       customerEmail: "levancuong@email.com",
       contractProducts: [
         {
-          name: "Samsung Galaxy S24",
-          model: "SM-S921B",
-          serial: "SG24-2024-009876"
+          id: "CP003",
+          contractId: "WC003",
+          productSerialId: "S003",
+          quantity: 1,
+          unitPrice: 24000000,
+          productSerial: {
+            id: "S003",
+            name: "Samsung Galaxy S24",
+            model: "SM-S921B",
+            serialNumber: "SG24-2024-009876"
+          }
         }
       ],
       startDate: "2024-03-10",
@@ -81,9 +105,17 @@ export const mockData = {
       customerEmail: "phamthidung@email.com",
       contractProducts: [
         {
-          name: "MacBook Air M2",
-          model: "MBA-M2-13",
-          serial: "MBA-2023-112233"
+          id: "CP004",
+          contractId: "WC004",
+          productSerialId: "S004",
+          quantity: 1,
+          unitPrice: 25000000,
+          productSerial: {
+            id: "S004",
+            name: "MacBook Air M2",
+            model: "MBA-M2-13",
+            serialNumber: "MBA-2023-112233"
+          }
         }
       ],
       startDate: "2023-05-15",
@@ -104,15 +136,23 @@ export const mockData = {
       customerEmail: "hoangminhtuan@email.com",
       contractProducts: [
         {
-          name: "HP Pavilion Gaming",
-          model: "HP-PG-15-dk2",
-          serial: "HP-2024-445566"
+          id: "CP005",
+          contractId: "WC005",
+          productSerialId: "S005",
+          quantity: 1,
+          unitPrice: 18000000,
+          productSerial: {
+            id: "S005",
+            name: "HP Pavilion Gaming",
+            model: "HP-PG-15-dk2",
+            serialNumber: "HP-2024-445566"
+          }
         }
       ],
       startDate: "2024-06-01",
       endDate: "2025-06-01",
       termsConditions: "Bảo hành 12 tháng, thay thế linh kiện miễn phí",
-      warrantyStatus: "voided" as const,
+      status: "suspended" as const,
       createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2024-06-01T14:15:00Z",
       updatedAt: "2024-11-20T13:30:00Z"
@@ -127,15 +167,23 @@ export const mockData = {
       customerEmail: "ngothilan@email.com",
       contractProducts: [
         {
-          name: "Asus ROG Strix",
-          model: "ROG-G15-G513",
-          serial: "ASUS-2023-778899"
+          id: "CP006",
+          contractId: "WC006",
+          productSerialId: "S006",
+          quantity: 1,
+          unitPrice: 22000000,
+          productSerial: {
+            id: "S006",
+            name: "Asus ROG Strix",
+            model: "ROG-G15-G513",
+            serialNumber: "ASUS-2023-778899"
+          }
         }
       ],
       startDate: "2023-08-20",
       endDate: "2024-08-20",
       termsConditions: "Bảo hành 12 tháng gaming laptop",
-      warrantyStatus: "expired" as const,
+      status: "expired" as const,
       createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2023-08-20T16:45:00Z",
       updatedAt: "2024-08-20T16:45:00Z"
@@ -150,15 +198,23 @@ export const mockData = {
       customerEmail: "dovanhung@email.com",
       contractProducts: [
         {
-          name: "Surface Pro 9",
-          model: "SP9-128GB",
-          serial: "SP9-2024-334455"
+          id: "CP007",
+          contractId: "WC007",
+          productSerialId: "S007",
+          quantity: 1,
+          unitPrice: 20000000,
+          productSerial: {
+            id: "S007",
+            name: "Surface Pro 9",
+            model: "SP9-128GB",
+            serialNumber: "SP9-2024-334455"
+          }
         }
       ],
       startDate: "2024-07-10",
       endDate: "2025-07-10",
       termsConditions: "Bảo hành 12 tháng, bao gồm bút Surface Pen",
-      warrantyStatus: "voided" as const,
+      status: "suspended" as const,
       createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2024-07-10T09:30:00Z",
       updatedAt: "2024-11-15T14:20:00Z"
