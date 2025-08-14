@@ -208,6 +208,44 @@ export class TicketsService {
     return TicketsTransformer.transformTicket(ticket);
   }
 
+  async assignTechnician(id: string, technicianId: string, note: string | null, userId: string) {
+    const existingTicket = await this.findById(id);
+    
+    const ticket = await this.prisma.ticket.update({
+      where: { id },
+      data: { assignedTo: technicianId },
+      include: {
+        productSerial: {
+          include: {
+            contract: true,
+          },
+        },
+        assignee: true,
+        history: {
+          include: {
+            performer: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      },
+    });
+
+    // Tạo history entry cho việc phân công
+    const description = note || 'Ticket đã được phân công cho kỹ thuật viên';
+    await this.createHistoryEntry(
+      id,
+      ActionType.assigned,
+      description,
+      existingTicket.assignedTo,
+      technicianId,
+      userId
+    );
+
+    return TicketsTransformer.transformTicket(ticket);
+  }
+
   async getHistory(ticketId: string) {
     await this.findById(ticketId);
     

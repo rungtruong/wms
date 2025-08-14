@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -26,6 +27,12 @@ export class UsersController {
   @Get()
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Get('by-role')
+  findByRole(@Query('roles') roles: string) {
+    const roleArray = roles.split(',').map(role => role.trim());
+    return this.usersService.findByRole(roleArray);
   }
 
   @Get(':id')

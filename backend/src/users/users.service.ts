@@ -71,6 +71,26 @@ export class UsersService {
     });
   }
 
+  async findByRole(roles: string[]) {
+    return this.prisma.user.findMany({
+      where: {
+        role: {
+          in: roles as any,
+        },
+        isActive: true,
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findById(id);
     

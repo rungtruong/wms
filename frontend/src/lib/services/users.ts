@@ -50,6 +50,15 @@ class UsersService {
     const users = await this.getAll();
     return users.filter(user => user.isActive);
   }
+
+  async getUsersByRole(roles: string[]): Promise<User[]> {
+    const rolesParam = roles.join(',');
+    return apiClient.get<User[]>(`/users/by-role?roles=${rolesParam}`);
+  }
+
+  async getTechniciansAndManagers(): Promise<User[]> {
+    return this.getUsersByRole(['manager', 'technician']);
+  }
 }
 
 export const usersService = new UsersService();

@@ -1,5 +1,8 @@
 # TODO:
 
-- [x] fix-history-logic: Sửa logic tạo history để không cập nhật issueDescription của ticket, chỉ tạo history entry với note làm description (priority: High)
-- [x] update-frontend-service: Cập nhật frontend service để chỉ gửi status, không gửi issueDescription (priority: Medium)
-- [ ] test-correct-behavior: Test để đảm bảo ticket không bị thay đổi issueDescription và history được tạo đúng (**IN PROGRESS**) (priority: Medium)
+- [ ] install-nodemailer: Cài đặt nodemailer package trong backend (priority: High)
+- [ ] create-email-service: Tạo email service sử dụng nodemailer với cấu hình SMTP từ .env (priority: High)
+- [ ] create-email-endpoint: Tạo API endpoint POST /api/tickets/:id/send-email trong tickets controller (priority: High)
+- [ ] add-email-method: Thêm method sendEmail trong tickets.service.ts với validation status (priority: High)
+- [ ] integrate-frontend: Tích hợp API vào frontend thay thế TODO comment trong handleSendEmail (priority: Medium)
+- [ ] test-email-feature: Test tính năng gửi email hoạt động đúng với điều kiện status (priority: Low)

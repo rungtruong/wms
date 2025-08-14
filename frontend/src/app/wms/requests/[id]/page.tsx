@@ -16,9 +16,10 @@ import {
   UserPlus,
 } from "lucide-react";
 import Layout from "@/components/Layout";
-import { WarrantyRequest } from "@/types";
+import { WarrantyRequest, User as UserType } from "@/types";
 import { showToast } from "@/lib/toast";
 import { ticketsService } from "@/lib/services/tickets";
+import { usersService } from "@/lib/services/users";
 
 interface RequestDetailPageProps {
   params: {
@@ -36,6 +37,9 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [statusNote, setStatusNote] = useState("");
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [technicians, setTechnicians] = useState<UserType[]>([]);
+  const [selectedTechnician, setSelectedTechnician] = useState("");
+  const [assignNote, setAssignNote] = useState("");
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -57,6 +61,19 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
     fetchRequest();
   }, [params.id]);
+
+  useEffect(() => {
+    const fetchTechnicians = async () => {
+      try {
+        const techniciansList = await usersService.getTechniciansAndManagers();
+        setTechnicians(techniciansList);
+      } catch (error) {
+        console.error("Error fetching technicians:", error);
+      }
+    };
+
+    fetchTechnicians();
+  }, []);
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
@@ -700,12 +717,17 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Chọn kỹ thuật viên
                 </label>
-                <select className="form-input">
+                <select 
+                  value={selectedTechnician}
+                  onChange={(e) => setSelectedTechnician(e.target.value)}
+                  className="form-input"
+                >
                   <option value="">-- Chọn kỹ thuật viên --</option>
-                  <option value="Nguyễn Văn Tâm">Nguyễn Văn Tâm</option>
-                  <option value="Trần Thị Hoa">Trần Thị Hoa</option>
-                  <option value="Lê Minh Đức">Lê Minh Đức</option>
-                  <option value="Phạm Văn Long">Phạm Văn Long</option>
+                  {technicians.map((tech) => (
+                    <option key={tech.id} value={tech.id}>
+                      {tech.fullName} ({tech.role === 'manager' ? 'Quản lý' : 'Kỹ thuật viên'})
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -713,6 +735,8 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                   Ghi chú
                 </label>
                 <textarea
+                  value={assignNote}
+                  onChange={(e) => setAssignNote(e.target.value)}
                   className="form-input"
                   rows={3}
                   placeholder="Ghi chú về việc phân công..."
@@ -727,11 +751,37 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                 Hủy
               </button>
               <button
-                onClick={() => {
-                  setIsAssignModalOpen(false);
-                  showToast.success("Phân công kỹ thuật viên thành công!");
+                onClick={async () => {
+                  if (selectedTechnician && request) {
+                    try {
+                      await ticketsService.assignTechnician(
+                        request.id,
+                        selectedTechnician,
+                        assignNote || undefined
+                      );
+
+                      // Reload request data to get updated info and history
+                      const updatedRequest = await ticketsService.getById(
+                        params.id
+                      );
+                      setRequest(updatedRequest);
+
+                      setIsAssignModalOpen(false);
+                      setSelectedTechnician('');
+                      setAssignNote('');
+                      showToast.success("Phân công kỹ thuật viên thành công!");
+                    } catch (error) {
+                      console.error("Error assigning technician:", error);
+                      showToast.error(
+                        "Có lỗi xảy ra khi phân công kỹ thuật viên. Vui lòng thử lại."
+                      );
+                    }
+                  } else {
+                    showToast.error("Vui lòng chọn kỹ thuật viên!");
+                  }
                 }}
-                className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                disabled={!selectedTechnician}
+                className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Phân công
               </button>

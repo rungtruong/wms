@@ -74,6 +74,14 @@ class TicketsService {
     }
     return apiClient.patch<WarrantyRequest>(`/tickets/${id}/status`, updateData);
   }
+
+  async assignTechnician(id: string, technicianId: string, note?: string): Promise<WarrantyRequest> {
+    const assignData: any = { technicianId };
+    if (note) {
+      assignData.note = note;
+    }
+    return apiClient.patch<WarrantyRequest>(`/tickets/${id}/assign`, assignData);
+  }
 }
 
 export const ticketsService = new TicketsService();

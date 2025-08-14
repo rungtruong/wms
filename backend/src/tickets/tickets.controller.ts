@@ -64,6 +64,15 @@ export class TicketsController {
     return this.ticketsService.updateStatus(id, updateStatusDto.status, updateStatusDto.note || null, user.id);
   }
 
+  @Patch(':id/assign')
+  assignTechnician(
+    @Param('id') id: string,
+    @Body() assignDto: { technicianId: string; note?: string },
+    @User() user: any
+  ) {
+    return this.ticketsService.assignTechnician(id, assignDto.technicianId, assignDto.note || null, user.id);
+  }
+
   @Get(':id/history')
   getHistory(@Param('id') id: string) {
     return this.ticketsService.getHistory(id);
