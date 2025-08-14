@@ -360,22 +360,40 @@ export class ProductsService {
       },
     });
 
+    await this.prisma.ticketHistory.create({
+      data: {
+        ticketId: ticket.id,
+        actionType: ActionType.created,
+        description: `Yêu cầu bảo hành được tạo bởi khách hàng ${createWarrantyRequestDto.customerName}`,
+        newValue: 'created',
+        performedBy: null,
+      },
+    });
+
+    const updatedTicket = await this.prisma.ticket.findUnique({
+      where: { id: ticket.id },
+      include: {
+        productSerial: {
+          include: {
+            contract: true,
+          },
+        },
+        history: {
+          include: {
+            performer: true,
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+        assignee: true,
+      },
+    });
+
     return {
       success: true,
       message: 'Warranty request created successfully',
-      ticket: {
-        id: ticket.id,
-        ticketNumber: ticket.ticketNumber,
-        serialNumber: productSerial.serialNumber,
-        customerName: ticket.customerName,
-        issue: createWarrantyRequestDto.issueTitle,
-        description: createWarrantyRequestDto.issueDescription,
-        status: ticket.status,
-        priority: ticket.priority,
-        assignedTo: ticket.assignedTo,
-        createdAt: ticket.createdAt,
-        updatedAt: ticket.updatedAt,
-      },
+      ticket: updatedTicket,
     };
   }
 

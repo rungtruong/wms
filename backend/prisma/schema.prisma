@@ -155,7 +155,7 @@ model ContractProduct {
 model Ticket {
   id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   ticketNumber     String         @unique @map("ticket_number") @db.VarChar(50)
-  productSerialId  String         @map("product_serial_id") @db.Uuid
+  productSerialId  String?        @map("product_serial_id") @db.Uuid
   customerName     String         @map("customer_name") @db.VarChar(100)
   customerEmail    String?        @map("customer_email") @db.VarChar(255)
   customerPhone    String?        @map("customer_phone") @db.VarChar(20)
@@ -168,7 +168,7 @@ model Ticket {
   updatedAt        DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   resolvedAt       DateTime?      @map("resolved_at") @db.Timestamptz(6)
 
-  productSerial ProductSerial   @relation(fields: [productSerialId], references: [id], onDelete: Cascade)
+  productSerial ProductSerial?  @relation(fields: [productSerialId], references: [id], onDelete: Cascade)
   assignee      User?           @relation("TicketAssignee", fields: [assignedTo], references: [id])
   history       TicketHistory[]
 
