@@ -22,7 +22,7 @@ export default function SerialsPage() {
 
   const filters: SerialFilters = {
     search: searchTerm || undefined,
-    warrantyStatus: statusFilter ? statusFilter as 'active' | 'expired' | 'claimed' | 'suspended' : undefined,
+    warrantyStatus: statusFilter ? statusFilter as 'valid' | 'expired' | 'voided' : undefined,
   }
 
   const { data: serials = [], isLoading, error, refetch } = useSerials(filters)
@@ -56,20 +56,18 @@ export default function SerialsPage() {
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
-      active: 'status-badge status-active',
+      valid: 'status-badge status-active',
       expired: 'status-badge status-expired',
-      claimed: 'status-badge status-processing',
-      suspended: 'status-badge status-suspended',
+      voided: 'status-badge status-suspended',
     }
     return statusClasses[status as keyof typeof statusClasses] || 'status-badge'
   }
 
   const getStatusText = (status: string) => {
     const statusTexts = {
-      active: 'Đang bảo hành',
+      valid: 'Còn bảo hành',
       expired: 'Hết bảo hành',
-      claimed: 'Đã bảo hành',
-      suspended: 'Tạm ngưng',
+      voided: 'Hủy bảo hành',
     }
     return statusTexts[status as keyof typeof statusTexts] || status
   }
@@ -121,7 +119,7 @@ export default function SerialsPage() {
           description: formData.description,
           category: formData.category,
           warrantyMonths: formData.warrantyMonths,
-          isActive: formData.isActive,
+
           manufactureDate: formData.manufactureDate,
           purchaseDate: formData.purchaseDate,
           contractId: formData.contractId,
@@ -142,11 +140,11 @@ export default function SerialsPage() {
         description: formData.description,
         category: formData.category,
         warrantyMonths: formData.warrantyMonths || 24,
-        isActive: formData.isActive ?? true,
+        
         manufactureDate: formData.manufactureDate,
         purchaseDate: formData.purchaseDate,
         contractId: formData.contractId,
-        warrantyStatus: formData.warrantyStatus || 'active',
+        warrantyStatus: formData.warrantyStatus || 'valid',
         notes: formData.notes
       }, {
         onSuccess: () => {
@@ -187,10 +185,9 @@ export default function SerialsPage() {
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
                   <option value="">Tất cả trạng thái</option>
-                  <option value="active">Đang bảo hành</option>
+                  <option value="valid">Còn bảo hành</option>
                   <option value="expired">Hết bảo hành</option>
-                  <option value="claimed">Đã bảo hành</option>
-                  <option value="suspended">Tạm ngưng</option>
+                  <option value="voided">Hủy bảo hành</option>
                 </select>
               </div>
             </div>
@@ -227,7 +224,7 @@ export default function SerialsPage() {
                     header: 'Bảo hành (tháng)'
                   },
                   {
-                    key: 'status',
+                    key: 'warrantyStatus',
                     header: 'Trạng thái',
                     render: (status) => (
                       <span className={getStatusBadge(status)}>

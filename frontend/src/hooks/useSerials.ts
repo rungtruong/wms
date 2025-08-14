@@ -93,7 +93,7 @@ export function useUpdateWarrantyStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, warrantyStatus }: { id: string; warrantyStatus: 'active' | 'expired' | 'claimed' }) =>
+    mutationFn: ({ id, warrantyStatus }: { id: string; warrantyStatus: 'valid' | 'expired' | 'voided' }) =>
       serialsService.updateWarrantyStatus(id, warrantyStatus),
     onSuccess: (updatedSerial) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.serials })

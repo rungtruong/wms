@@ -9,7 +9,7 @@ class SerialService {
     if (filters?.search) params.search = filters.search
     if (filters?.category) params.category = filters.category
     if (filters?.warrantyStatus) params.warrantyStatus = filters.warrantyStatus
-    if (filters?.isActive !== undefined) params.isActive = filters.isActive.toString()
+
     
     return apiClient.get<Serial[]>('/products/serials', Object.keys(params).length > 0 ? params : undefined)
   }
@@ -38,7 +38,7 @@ class SerialService {
     return apiClient.get<Serial[]>(`/products/serials/customer/${customerEmail}`)
   }
 
-  async updateWarrantyStatus(id: string, warrantyStatus: 'active' | 'expired' | 'claimed'): Promise<Serial> {
+  async updateWarrantyStatus(id: string, warrantyStatus: 'valid' | 'expired' | 'voided'): Promise<Serial> {
     return apiClient.patch<Serial>(`/products/serials/${id}/warranty-status`, { warrantyStatus })
   }
 }

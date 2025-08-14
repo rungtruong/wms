@@ -38,10 +38,9 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
-      active: "status-badge status-active",
+      valid: "status-badge status-active",
       expired: "status-badge status-expired",
-      claimed: "status-badge status-processing",
-      suspended: "status-badge status-suspended",
+      voided: "status-badge status-suspended",
     };
     return (
       statusClasses[status as keyof typeof statusClasses] || "status-badge"
@@ -50,10 +49,9 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
 
   const getStatusText = (status: string) => {
     const statusTexts = {
-      active: "Đang bảo hành",
+      valid: "Còn bảo hành",
       expired: "Hết bảo hành",
-      claimed: "Đã bảo hành",
-      suspended: "Tạm ngưng",
+      voided: "Hủy bảo hành",
     };
     return statusTexts[status as keyof typeof statusTexts] || status;
   };
@@ -141,7 +139,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                 </div>
                 <div class="info-cell">
                   <span class="info-label">Trạng thái:</span> <span class="info-value">${getStatusText(
-                    serial!.status
+                    serial!.warrantyStatus
                   )}</span>
                 </div>
               </div>
@@ -153,7 +151,9 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                 </div>
                 <div class="info-cell">
                   <span class="info-label">Bảo hành còn lại:</span> <span class="info-value">${
-                    serial!.warrantyMonths ? `${serial!.warrantyMonths} tháng` : '-'
+                    serial!.warrantyMonths
+                      ? `${serial!.warrantyMonths} tháng`
+                      : "-"
                   }</span>
                 </div>
               </div>
@@ -168,18 +168,26 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
             <div class="info-grid">
               <div class="info-row">
                 <div class="info-cell">
-                  <span class="info-label">Mã hợp đồng:</span> <span class="info-value">${contract.contractNumber}</span>
+                  <span class="info-label">Mã hợp đồng:</span> <span class="info-value">${
+                    contract.contractNumber
+                  }</span>
                 </div>
                 <div class="info-cell">
-                  <span class="info-label">Khách hàng:</span> <span class="info-value">${contract.customerName || 'N/A'}</span>
+                  <span class="info-label">Khách hàng:</span> <span class="info-value">${
+                    contract.customerName || "N/A"
+                  }</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="info-cell">
-                  <span class="info-label">Điện thoại:</span> <span class="info-value">${contract.customerPhone || 'N/A'}</span>
+                  <span class="info-label">Điện thoại:</span> <span class="info-value">${
+                    contract.customerPhone || "N/A"
+                  }</span>
                 </div>
                 <div class="info-cell">
-                  <span class="info-label">Email:</span> <span class="info-value">${contract.customerEmail || 'N/A'}</span>
+                  <span class="info-label">Email:</span> <span class="info-value">${
+                    contract.customerEmail || "N/A"
+                  }</span>
                 </div>
               </div>
             </div>
@@ -346,16 +354,6 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
-            <span className={getStatusBadge(serial.status)}>
-              {getStatusText(serial.status)}
-            </span>
-            {serial.warrantyMonths && (
-              <span className="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                Bảo hành {serial.warrantyMonths} tháng
-              </span>
-            )}
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -394,8 +392,8 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Trạng thái
                     </label>
-                    <span className={getStatusBadge(serial.status)}>
-                      {getStatusText(serial.status)}
+                    <span className={getStatusBadge(serial.warrantyStatus)}>
+                      {getStatusText(serial.warrantyStatus)}
                     </span>
                   </div>
                   <div>
@@ -403,7 +401,9 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                       Ngày sản xuất
                     </label>
                     <p className="text-sm text-gray-900">
-                      {serial.manufactureDate ? formatDateOnly(serial.manufactureDate) : '-'}
+                      {serial.manufactureDate
+                        ? formatDateOnly(serial.manufactureDate)
+                        : "-"}
                     </p>
                   </div>
                   <div>
@@ -411,7 +411,9 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                       Bảo hành còn lại
                     </label>
                     <p className="text-sm text-gray-900">
-                      {serial.warrantyMonths ? `${serial.warrantyMonths} tháng` : '-'}
+                      {serial.warrantyMonths
+                        ? `${serial.warrantyMonths} tháng`
+                        : "-"}
                     </p>
                   </div>
                 </div>
@@ -440,7 +442,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                         Khách hàng
                       </label>
                       <p className="text-sm text-gray-900">
-                        {contract.customerName || 'N/A'}
+                        {contract.customerName || "N/A"}
                       </p>
                     </div>
                     <div>
@@ -448,7 +450,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                         Điện thoại
                       </label>
                       <p className="text-sm text-gray-900">
-                        {contract.customerPhone || 'N/A'}
+                        {contract.customerPhone || "N/A"}
                       </p>
                     </div>
                     <div>
@@ -456,7 +458,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                         Email
                       </label>
                       <p className="text-sm text-gray-900">
-                        {contract.customerEmail || 'N/A'}
+                        {contract.customerEmail || "N/A"}
                       </p>
                     </div>
                   </div>
@@ -481,8 +483,6 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                 )}
               </div>
             </div>
-
-
           </div>
 
           <div className="space-y-6">

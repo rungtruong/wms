@@ -134,8 +134,8 @@ export default function CustomerPortalPage() {
                       </div>
                       <div>
                         <label className="form-label">Trạng thái</label>
-                        <span className={`status-badge ${searchResult.serial.status === 'active' ? 'status-active' : 'status-expired'}`}>
-                          {searchResult.serial.status === 'active' ? 'Đang bảo hành' : 'Hết bảo hành'}
+                        <span className={`status-badge ${searchResult.serial.warrantyStatus === 'valid' ? 'status-active' : 'status-expired'}`}>
+                      {searchResult.serial.warrantyStatus === 'valid' ? 'Đang bảo hành' : 'Hết bảo hành'}
                         </span>
                       </div>
                       <div className="md:col-span-2">

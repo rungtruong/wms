@@ -20,7 +20,7 @@ export const mockData = {
       startDate: "2024-01-15",
       endDate: "2026-01-15",
       termsConditions: "Bảo hành 24 tháng, miễn phí sửa chữa lỗi phần cứng",
-      status: "active" as const,
+      warrantyStatus: "valid" as const,
       createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2024-01-15T09:00:00Z",
       updatedAt: "2024-12-10T15:30:00Z"
@@ -43,7 +43,7 @@ export const mockData = {
       startDate: "2024-02-20",
       endDate: "2025-02-20", 
       termsConditions: "Bảo hành 12 tháng, bảo hình màn hình 6 tháng",
-      status: "active" as const,
+      warrantyStatus: "valid" as const,
       createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2024-02-20T14:30:00Z",
       updatedAt: "2024-12-08T11:15:00Z"
@@ -89,7 +89,7 @@ export const mockData = {
       startDate: "2023-05-15",
       endDate: "2024-05-15",
       termsConditions: "Bảo hành 12 tháng, hỗ trợ kỹ thuật 24/7",
-      status: "expired" as const,
+      warrantyStatus: "expired" as const,
       createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2023-05-15T11:00:00Z",
       updatedAt: "2024-05-15T11:00:00Z"
@@ -112,7 +112,7 @@ export const mockData = {
       startDate: "2024-06-01",
       endDate: "2025-06-01",
       termsConditions: "Bảo hành 12 tháng, thay thế linh kiện miễn phí",
-      status: "suspended" as const,
+      warrantyStatus: "voided" as const,
       createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2024-06-01T14:15:00Z",
       updatedAt: "2024-11-20T13:30:00Z"
@@ -135,7 +135,7 @@ export const mockData = {
       startDate: "2023-08-20",
       endDate: "2024-08-20",
       termsConditions: "Bảo hành 12 tháng gaming laptop",
-      status: "expired" as const,
+      warrantyStatus: "expired" as const,
       createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2023-08-20T16:45:00Z",
       updatedAt: "2024-08-20T16:45:00Z"
@@ -158,7 +158,7 @@ export const mockData = {
       startDate: "2024-07-10",
       endDate: "2025-07-10",
       termsConditions: "Bảo hành 12 tháng, bao gồm bút Surface Pen",
-      status: "suspended" as const,
+      warrantyStatus: "voided" as const,
       createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2024-07-10T09:30:00Z",
       updatedAt: "2024-11-15T14:20:00Z"
@@ -174,7 +174,7 @@ export const mockData = {
       manufactureDate: "2024-01-10",
       contractId: "WC001",
       warrantyRemaining: "18 tháng",
-      status: "active" as const,
+      warrantyStatus: "valid" as const,
       repairHistory: [
         {
           date: "2024-06-15",
@@ -194,7 +194,7 @@ export const mockData = {
       manufactureDate: "2024-02-15",
       contractId: "WC002", 
       warrantyRemaining: "6 tháng",
-      status: "active" as const,
+      warrantyStatus: "valid" as const,
       repairHistory: [],
       createdAt: "2024-02-20T11:15:00Z",
       updatedAt: "2024-12-08T14:45:00Z"
@@ -220,7 +220,7 @@ export const mockData = {
       manufactureDate: "2023-05-10",
       contractId: "WC004",
       warrantyRemaining: "Hết hạn",
-      status: "expired" as const,
+      warrantyStatus: "expired" as const,
       repairHistory: [
         {
           date: "2024-02-10",
@@ -240,7 +240,7 @@ export const mockData = {
       manufactureDate: "2024-05-25",
       contractId: "WC005",
       warrantyRemaining: "9 tháng",
-      status: "suspended" as const,
+      warrantyStatus: "voided" as const,
       repairHistory: [
         {
           date: "2024-07-15",
@@ -260,7 +260,7 @@ export const mockData = {
       manufactureDate: "2023-08-15",
       contractId: "WC006",
       warrantyRemaining: "Hết hạn",
-      status: "expired" as const,
+      warrantyStatus: "expired" as const,
       repairHistory: [
         {
           date: "2024-01-20",
@@ -286,7 +286,7 @@ export const mockData = {
       manufactureDate: "2024-07-05",
       contractId: "WC007",
       warrantyRemaining: "10 tháng",
-      status: "suspended" as const,
+      warrantyStatus: "voided" as const,
       repairHistory: [],
       createdAt: "2024-07-10T10:30:00Z",
       updatedAt: "2024-11-15T15:20:00Z"
@@ -298,8 +298,8 @@ export const mockData = {
       model: "LG-17Z90P",
       manufactureDate: "2024-04-12",
       contractId: null,
-      warrantyRemaining: "14 tháng",
-      status: "active" as const,
+      warrantyRemaining: "11 tháng",
+      warrantyStatus: "valid" as const,
       repairHistory: [],
       createdAt: "2024-04-12T14:00:00Z",
       updatedAt: "2024-12-01T11:30:00Z"
@@ -331,8 +331,8 @@ export const mockData = {
       model: "A515-57",
       manufactureDate: "2024-08-01",
       contractId: null,
-      warrantyRemaining: "23 tháng",
-      status: "active" as const,
+      warrantyRemaining: "2 tháng",
+      warrantyStatus: "valid" as const,
       repairHistory: [],
       createdAt: "2024-08-01T12:00:00Z",
       updatedAt: "2024-12-12T09:15:00Z"
@@ -358,8 +358,7 @@ export const mockData = {
         name: "Dell Inspiron 15",
         model: "3520",
         warrantyMonths: 24,
-        warrantyStatus: "valid" as const,
-        isActive: true
+        warrantyStatus: "valid" as const
       },
       history: [
         {
@@ -400,8 +399,7 @@ export const mockData = {
         name: "iPhone 15",
         model: "A2846",
         warrantyMonths: 12,
-        warrantyStatus: "valid" as const,
-        isActive: true
+        warrantyStatus: "valid" as const
       },
       history: [
         {
@@ -451,8 +449,7 @@ export const mockData = {
         name: "Samsung Galaxy S24",
         model: "SM-S921B",
         warrantyMonths: 24,
-        warrantyStatus: "valid" as const,
-        isActive: true
+        warrantyStatus: "valid" as const
       },
       history: [
         {

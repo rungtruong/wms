@@ -44,7 +44,7 @@ export interface Serial {
   manufactureDate: string;
   contractId: string;
   warrantyRemaining: string;
-  status: "active" | "expired" | "suspended";
+  warrantyStatus: "valid" | "expired" | "voided";
   repairHistory: RepairHistory[];
   createdAt: string;
   updatedAt: string;

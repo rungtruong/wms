@@ -40,13 +40,11 @@ export class CreateProductSerialDto {
   @IsOptional()
   isActive?: boolean;
 
-  @IsDateString()
   @IsOptional()
-  manufactureDate?: string;
+  manufactureDate?: string | Date;
 
-  @IsDateString()
   @IsOptional()
-  purchaseDate?: string;
+  purchaseDate?: string | Date;
 
   @IsString()
   @IsOptional()

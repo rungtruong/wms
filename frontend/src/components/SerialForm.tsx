@@ -20,28 +20,38 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
     description: '',
     category: '',
     warrantyMonths: 12,
-    isActive: true,
     manufactureDate: '',
     purchaseDate: '',
     contractId: '',
-    warrantyStatus: 'active' as 'active' | 'expired' | 'claimed' | 'suspended',
+    warrantyStatus: 'valid' as 'valid' | 'expired' | 'voided',
     notes: ''
   })
 
+  // Helper function to format date from ISO string to YYYY-MM-DD
+  const formatDateForInput = (dateString: string | null | undefined): string => {
+    if (!dateString) return ''
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) return ''
+      return date.toISOString().split('T')[0]
+    } catch {
+      return ''
+    }
+  }
+
   useEffect(() => {
-    if (editingSerial) {
+    if (editingSerial && isOpen) {
       setFormData({
-        serialNumber: editingSerial.serialNumber,
-        name: editingSerial.productName || editingSerial.name,
-        model: editingSerial.model,
+        serialNumber: editingSerial.serialNumber || '',
+        name: editingSerial.productName || editingSerial.name || '',
+        model: editingSerial.model || '',
         description: editingSerial.description || '',
-        category: editingSerial.category,
-        warrantyMonths: editingSerial.warrantyMonths,
-        isActive: editingSerial.isActive,
-        manufactureDate: editingSerial.manufactureDate,
-        purchaseDate: editingSerial.purchaseDate || '',
+        category: editingSerial.category || '',
+        warrantyMonths: editingSerial.warrantyMonths || 12,
+        manufactureDate: formatDateForInput(editingSerial.manufactureDate),
+        purchaseDate: formatDateForInput(editingSerial.purchaseDate),
         contractId: editingSerial.contractId || '',
-        warrantyStatus: editingSerial.warrantyStatus || 'active',
+        warrantyStatus: editingSerial.warrantyStatus || 'valid',
         notes: editingSerial.notes || ''
       })
     } else {
@@ -52,11 +62,10 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
         description: '',
         category: '',
         warrantyMonths: 12,
-        isActive: true,
         manufactureDate: '',
         purchaseDate: '',
         contractId: '',
-        warrantyStatus: 'active' as 'active' | 'expired' | 'claimed' | 'suspended',
+        warrantyStatus: 'valid' as 'valid' | 'expired' | 'voided',
         notes: ''
       })
     }
@@ -241,10 +250,9 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
                   onChange={handleChange}
                   className="form-input"
                 >
-                  <option value="active">Đang bảo hành</option>
-                  <option value="expired">Hết bảo hành</option>
-                  <option value="claimed">Đã bảo hành</option>
-                  <option value="suspended">Tạm ngưng</option>
+                  <option value="valid">Còn hiệu lực</option>
+                  <option value="expired">Hết hạn</option>
+                  <option value="voided">Đã hủy</option>
                 </select>
               </div>
 
@@ -283,21 +291,7 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
             </div>
           </div>
 
-          {/* Checkbox Kích hoạt ở cuối form */}
-          <div className="mt-6">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                name="isActive"
-                checked={formData.isActive}
-                onChange={handleChange}
-                className="mr-2"
-              />
-              <label className="text-sm font-medium text-gray-700">
-                Kích hoạt
-              </label>
-            </div>
-          </div>
+
         </div>
 
         <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">

@@ -7,11 +7,10 @@ export interface Serial {
   description?: string
   category: string
   warrantyMonths: number
-  isActive: boolean
   manufactureDate: string
   purchaseDate?: string
   contractId?: string
-  warrantyStatus: 'active' | 'expired' | 'claimed' | 'suspended'
+  warrantyStatus: 'valid' | 'expired' | 'voided'
   notes?: string
   createdAt?: string
   updatedAt?: string
@@ -24,11 +23,10 @@ export interface CreateSerialDto {
   description?: string
   category: string
   warrantyMonths: number
-  isActive: boolean
   manufactureDate: string
   purchaseDate?: string
   contractId?: string
-  warrantyStatus: 'active' | 'expired' | 'claimed' | 'suspended'
+  warrantyStatus: 'valid' | 'expired' | 'voided'
   notes?: string
 }
 
@@ -37,8 +35,7 @@ export interface UpdateSerialDto extends Partial<CreateSerialDto> {}
 export interface SerialFilters {
   search?: string
   category?: string
-  warrantyStatus?: 'active' | 'expired' | 'claimed' | 'suspended'
-  isActive?: boolean
+  warrantyStatus?: 'valid' | 'expired' | 'voided'
 }
 
 export interface SerialResponse {

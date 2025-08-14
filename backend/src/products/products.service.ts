@@ -368,9 +368,18 @@ export class ProductsService {
   async updateSerial(id: string, updateProductSerialDto: UpdateProductSerialDto) {
     await this.findSerialById(id);
     
+    // Transform date strings to Date objects for Prisma
+    const updateData = { ...updateProductSerialDto };
+    if (updateData.manufactureDate) {
+      updateData.manufactureDate = new Date(updateData.manufactureDate);
+    }
+    if (updateData.purchaseDate) {
+      updateData.purchaseDate = new Date(updateData.purchaseDate);
+    }
+    
     return this.prisma.productSerial.update({
       where: { id },
-      data: updateProductSerialDto,
+      data: updateData,
       include: {
         contract: true,
       },
