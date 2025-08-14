@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 import { CreateProductSerialDto } from './dto/create-product-serial.dto';
 import { UpdateProductSerialDto } from './dto/update-product-serial.dto';
 import { CreateWarrantyRequestDto } from './dto/create-warranty-request.dto';
@@ -7,7 +8,10 @@ import { WarrantyStatus, TicketStatus, TicketPriority, ActionType } from '@prism
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   async create(createProductSerialDto: CreateProductSerialDto) {
     return this.prisma.productSerial.create({
@@ -351,6 +355,53 @@ export class ProductsService {
         assignee: true,
       },
     });
+
+    // Send email notification to customer
+    try {
+      if (createWarrantyRequestDto.customerEmail) {
+        const ticketEmailData = {
+          id: updatedTicket.id,
+          ticketNumber: updatedTicket.ticketNumber,
+          customerEmail: createWarrantyRequestDto.customerEmail,
+          customerName: createWarrantyRequestDto.customerName,
+          issueDescription: createWarrantyRequestDto.issueDescription,
+          issueTitle: createWarrantyRequestDto.issueTitle,
+          priority: updatedTicket.priority,
+          status: updatedTicket.status,
+          productSerial: updatedTicket.productSerial,
+          assignedTechnician: updatedTicket.assignee,
+          createdAt: updatedTicket.createdAt.toISOString()
+        };
+        
+        await this.emailService.sendTicketNotification(
+          ticketEmailData,
+          'created'
+        );
+        
+        // Log successful email sending
+        await this.prisma.ticketHistory.create({
+          data: {
+            ticketId: ticket.id,
+            actionType: ActionType.email_sent,
+            description: `Email thông báo đã được gửi đến ${createWarrantyRequestDto.customerEmail}`,
+            newValue: 'email_sent',
+            performedBy: null,
+          },
+        });
+      }
+    } catch (emailError) {
+      console.error('Failed to send warranty request email:', emailError);
+      // Log email failure but don't fail the entire request
+      await this.prisma.ticketHistory.create({
+        data: {
+          ticketId: ticket.id,
+          actionType: ActionType.email_failed,
+          description: `Không thể gửi email đến ${createWarrantyRequestDto.customerEmail}: ${emailError.message}`,
+          newValue: 'email_failed',
+          performedBy: null,
+        },
+      });
+    }
 
     return {
       success: true,

@@ -48,6 +48,35 @@ export class TicketsService {
       createTicketDto.assignedTo
     );
 
+    // Tự động gửi email thông báo cho customer
+    if (ticket.customerEmail) {
+      try {
+        const ticketData = {
+          id: ticket.id,
+          ticketNumber: ticket.ticketNumber,
+          customerEmail: ticket.customerEmail,
+          customerName: ticket.customerName,
+          issueDescription: ticket.issueDescription,
+          status: ticket.status,
+          createdAt: ticket.createdAt.toISOString(),
+        };
+        
+        await this.emailService.sendTicketNotification(ticketData, 'created');
+        
+        // Tạo history entry cho việc gửi email
+        await this.createHistoryEntry(
+          ticket.id,
+          ActionType.status_changed,
+          `Email thông báo tạo ticket đã được gửi đến khách hàng (${ticket.customerEmail})`,
+          null,
+          null,
+          createTicketDto.assignedTo
+        );
+      } catch (error) {
+        console.error('Lỗi khi gửi email thông báo:', error);
+      }
+    }
+
     return TicketsTransformer.transformTicket(ticket);
   }
 

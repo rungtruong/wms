@@ -50,6 +50,8 @@ enum ActionType {
   resolved
   closed
   reopened
+  email_sent
+  email_failed
 }
 
 enum NotificationType {
