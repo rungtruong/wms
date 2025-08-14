@@ -29,8 +29,8 @@ export default function ContractForm({ isOpen, onClose, onSubmit, editingContrac
     customerAddress: editingContract.customerAddress || '',
     customerPhone: editingContract.customerPhone || '',
     customerEmail: editingContract.customerEmail || '',
-        startDate: editingContract.startDate,
-        endDate: editingContract.endDate,
+        startDate: editingContract.startDate ? new Date(editingContract.startDate).toISOString().split('T')[0] : '',
+        endDate: editingContract.endDate ? new Date(editingContract.endDate).toISOString().split('T')[0] : '',
         warrantyTerms: editingContract.termsConditions || ''
       })
     } else {
