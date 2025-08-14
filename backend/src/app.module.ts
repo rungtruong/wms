@@ -13,6 +13,7 @@ import { WarrantyHistoryModule } from './warranty-history/warranty-history.modul
 import { DashboardModule } from './dashboard/dashboard.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { CustomerPortalModule } from './customer-portal/customer-portal.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CustomerPortalModule } from './customer-portal/customer-portal.module';
     DashboardModule,
     NotificationsModule,
     CustomerPortalModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

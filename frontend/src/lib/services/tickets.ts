@@ -82,6 +82,10 @@ class TicketsService {
     }
     return apiClient.patch<WarrantyRequest>(`/tickets/${id}/assign`, assignData);
   }
+
+  async sendEmail(id: string): Promise<{ success: boolean; message: string }> {
+    return apiClient.post<{ success: boolean; message: string }>(`/tickets/${id}/send-email`, {});
+  }
 }
 
 export const ticketsService = new TicketsService();

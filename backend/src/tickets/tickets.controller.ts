@@ -78,6 +78,14 @@ export class TicketsController {
     return this.ticketsService.getHistory(id);
   }
 
+  @Post(':id/send-email')
+  sendEmail(
+    @Param('id') id: string,
+    @User() user: any
+  ) {
+    return this.ticketsService.sendEmail(id, user.id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ticketsService.remove(id);

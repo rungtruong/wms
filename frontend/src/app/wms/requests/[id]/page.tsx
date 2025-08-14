@@ -153,9 +153,17 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
     setIsAssignModalOpen(true);
   };
 
-  const handleSendEmail = () => {
-    // TODO: Integrate with email API later
-    showToast.success("Đã gửi email thông báo đến khách hàng!");
+  const handleSendEmail = async () => {
+    try {
+      const result = await ticketsService.sendEmail(params.id);
+      showToast.success(result.message);
+      
+      // Reload request data to get updated history
+      const updatedRequest = await ticketsService.getById(params.id);
+      setRequest(updatedRequest);
+    } catch (error: any) {
+      showToast.error(error.message || "Có lỗi xảy ra khi gửi email");
+    }
   };
 
   const handlePrintReport = () => {
