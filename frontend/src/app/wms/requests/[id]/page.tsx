@@ -66,7 +66,8 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       closed: "status-badge status-closed",
     };
     return (
-      statusClasses[status as keyof typeof statusClasses] || "status-badge status-received"
+      statusClasses[status as keyof typeof statusClasses] ||
+      "status-badge status-received"
     );
   };
 
@@ -196,7 +197,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                 </div>
                 <div class="info-cell">
                   <span class="info-label">Kỹ thuật viên:</span> <span class="info-value">${
-                    request!.assignedTo
+                    request!.assignee?.fullName
                   }</span>
                 </div>
               </div>
@@ -234,7 +235,9 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                 }</div>
                 ${
                   item.oldValue && item.newValue
-                    ? `<div>Từ: ${item.oldValue} → ${item.newValue}</div>`
+                    ? `<div>Từ: ${getStatusDisplayValue(
+                        item.oldValue
+                      )} → ${getStatusDisplayValue(item.newValue)}</div>`
                     : ""
                 }
               </div>
