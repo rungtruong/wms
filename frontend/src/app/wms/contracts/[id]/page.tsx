@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, User, AlertCircle, Clock, CheckCircle, FileText, Phone, Mail, MapPin, Edit, Package } from 'lucide-react'
 import Layout from '@/components/Layout'
 import ContractForm from '@/components/ContractForm'
-import { mockData } from '@/lib/data'
+
 import { Contract } from '@/types'
 import { showToast } from '@/lib/toast'
+import { contractsService } from '@/lib/services/contracts'
 
 interface ContractDetailPageProps {
   params: {
@@ -20,13 +21,28 @@ export default function ContractDetailPage({
 }: ContractDetailPageProps) {
   const router = useRouter();
   const [contract, setContract] = useState<Contract | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   useEffect(() => {
-    const foundContract = mockData.contracts.find((c) => c.id === params.id);
-    setContract(foundContract || null);
-    setLoading(false);
+    const fetchContract = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        const data = await contractsService.getById(params.id)
+        setContract(data)
+      } catch (error: any) {
+        console.error('Error fetching contract:', error)
+        setError(error.message || 'Failed to fetch contract')
+      } finally {
+        setLoading(false)
+      }
+    };
+
+    fetchContract();
   }, [params.id]);
 
   const getStatusBadge = (status: string) => {
@@ -73,32 +89,40 @@ export default function ContractDetailPage({
 
   if (loading) {
     return (
-      <Layout title="Chi tiết hợp đồng bảo hành">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <Layout title="Chi tiết hợp đồng">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
         </div>
       </Layout>
-    );
+    )
+  }
+
+  if (error) {
+    return (
+      <Layout title="Chi tiết hợp đồng">
+        <div className="text-center py-8">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Lỗi tải dữ liệu</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Thử lại
+          </button>
+        </div>
+      </Layout>
+    )
   }
 
   if (!contract) {
     return (
-      <Layout title="Chi tiết hợp đồng bảo hành">
-        <div className="text-center py-12">
-          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Không tìm thấy hợp đồng
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Hợp đồng bảo hành không tồn tại hoặc đã bị xóa.
-          </p>
-          <button onClick={() => router.back()} className="btn btn-secondary">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Quay lại
-          </button>
+      <Layout title="Chi tiết hợp đồng">
+        <div className="text-center py-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Không tìm thấy hợp đồng</h2>
+          <p className="text-gray-600">Hợp đồng với ID này không tồn tại.</p>
         </div>
       </Layout>
-    );
+    )
   }
 
   const daysRemaining = calculateDaysRemaining(contract.endDate);
@@ -181,21 +205,21 @@ export default function ContractDetailPage({
             <div class="info-grid">
               <div class="info-row">
                 <div class="info-cell">
-                  <span class="info-label">Tên khách hàng:</span> <span class="info-value">${contract!.customer.name || 'N/A'}</span>
+                  <span class="info-label">Tên khách hàng:</span> <span class="info-value">${contract!.customerName || 'N/A'}</span>
                 </div>
                 <div class="info-cell">
-                  <span class="info-label">Số điện thoại:</span> <span class="info-value">${contract!.customer.phone || 'N/A'}</span>
+                  <span class="info-label">Số điện thoại:</span> <span class="info-value">${contract!.customerPhone || 'N/A'}</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="info-cell">
-                  <span class="info-label">Email:</span> <span class="info-value">${contract!.customer.email || 'N/A'}</span>
+                  <span class="info-label">Email:</span> <span class="info-value">${contract!.customerEmail || 'N/A'}</span>
                 </div>
                 <div class="info-cell"></div>
               </div>
               <div class="info-row">
                 <div class="info-cell" style="width: 100%;" colspan="2">
-                  <span class="info-label">Địa chỉ:</span> <span class="info-value">${contract!.customer.address || 'N/A'}</span>
+                  <span class="info-label">Địa chỉ:</span> <span class="info-value">${contract!.customerAddress || 'N/A'}</span>
                 </div>
               </div>
             </div>
@@ -203,7 +227,7 @@ export default function ContractDetailPage({
 
           <div class="section">
             <div class="section-title">Sản phẩm được bảo hành</div>
-            ${contract!.products.map(product => `
+            ${contract!.contractProducts.map(product => `
               <div class="product-item">
                 <div class="product-info">
                   <div class="product-row">
@@ -225,7 +249,7 @@ export default function ContractDetailPage({
           <div class="section">
             <div class="section-title">Điều khoản bảo hành</div>
             <div class="terms">
-              ${contract!.terms}
+              ${contract!.termsConditions}
             </div>
           </div>
 
@@ -246,24 +270,28 @@ export default function ContractDetailPage({
     showToast.success('Đang chuẩn bị in hợp đồng...')
   };
 
-  const handleFormSubmit = (formData: any) => {
-    // Update contract data (in real app, this would call an API)
-    const updatedContract = {
-      ...contract!,
-      contractNumber: formData.contractNumber,
-      customer: {
-        name: formData.customerName,
-        address: formData.customerAddress,
-        phone: formData.customerPhone,
-        email: formData.customerEmail
-      },
-      startDate: formData.startDate,
-      endDate: formData.endDate,
-      terms: formData.warrantyTerms
-    };
-    setContract(updatedContract);
-    setIsFormOpen(false);
-    showToast.success('Cập nhật hợp đồng thành công!');
+  const handleFormSubmit = async (formData: any) => {
+    try {
+      // Update contract data (in real app, this would call an API)
+      const updatedContract = {
+        ...contract!,
+        contractNumber: formData.contractNumber,
+        customerName: formData.customerName,
+        customerAddress: formData.customerAddress,
+        customerPhone: formData.customerPhone,
+        customerEmail: formData.customerEmail,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        termsConditions: formData.warrantyTerms
+      };
+      const result = await contractsService.update(updatedContract.id, updatedContract);
+      setContract(result);
+      setIsFormOpen(false);
+      showToast.success('Cập nhật hợp đồng thành công!');
+    } catch (err) {
+      console.error('Error updating contract:', err);
+      showToast.error('Có lỗi xảy ra khi cập nhật hợp đồng');
+    }
   };
 
   return (
@@ -279,13 +307,13 @@ export default function ContractDetailPage({
                 Chi tiết hợp đồng bảo hành
               </h1>
               <p className="text-gray-600 mt-1">
-                Mã hợp đồng: {contract.contractNumber}
+                Mã hợp đồng: {contract?.contractNumber || 'N/A'}
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <span className={getStatusBadge(contract.status)}>
-              {getStatusText(contract.status)}
+            <span className={getStatusBadge(contract?.status || 'active')}>
+              {getStatusText(contract?.status || 'active')}
             </span>
             {daysRemaining > 0 && (
               <span className="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
@@ -310,15 +338,15 @@ export default function ContractDetailPage({
                       Mã hợp đồng
                     </label>
                     <p className="text-sm text-gray-900 font-mono">
-                      {contract.contractNumber}
+                      {contract?.contractNumber || 'N/A'}
                     </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Trạng thái
                     </label>
-                    <span className={getStatusBadge(contract.status)}>
-                      {getStatusText(contract.status)}
+                    <span className={getStatusBadge(contract?.status || 'active')}>
+                      {getStatusText(contract?.status || 'active')}
                     </span>
                   </div>
                   <div>
@@ -326,7 +354,7 @@ export default function ContractDetailPage({
                       Ngày bắt đầu
                     </label>
                     <p className="text-sm text-gray-900">
-                      {formatDateOnly(contract.startDate)}
+                      {contract?.startDate ? formatDateOnly(contract.startDate) : 'N/A'}
                     </p>
                   </div>
                   <div>
@@ -334,7 +362,7 @@ export default function ContractDetailPage({
                       Ngày kết thúc
                     </label>
                     <p className="text-sm text-gray-900">
-                      {formatDateOnly(contract.endDate)}
+                      {contract?.endDate ? formatDateOnly(contract.endDate) : 'N/A'}
                     </p>
                   </div>
                 </div>
@@ -344,7 +372,7 @@ export default function ContractDetailPage({
                     Điều khoản bảo hành
                   </label>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    {contract.terms}
+                    {contract?.termsConditions || 'Chưa có điều khoản'}
                   </p>
                 </div>
 
@@ -354,7 +382,7 @@ export default function ContractDetailPage({
                       Ngày tạo hợp đồng
                     </label>
                     <p className="text-sm text-gray-900">
-                      {formatDate(contract.createdAt)}
+                      {contract?.createdAt ? formatDate(contract.createdAt) : 'N/A'}
                     </p>
                   </div>
                 </div>
@@ -369,30 +397,36 @@ export default function ContractDetailPage({
               </div>
               <div className="card-content">
                 <div className="space-y-4">
-                  {contract.products.map((product, index) => (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                      <div className="flex items-start space-x-3">
-                        <Package className="h-5 w-5 text-teal-600 mt-0.5" />
-                        <div className="flex-1">
-                          <h3 className="font-medium text-gray-900">
-                            {product.name}
-                          </h3>
-                          <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
-                            <div>
-                              <span className="font-medium">Model:</span>{" "}
-                              {product.model}
-                            </div>
-                            <div>
-                              <span className="font-medium">Serial:</span>{" "}
-                              <span className="font-mono">
-                                {product.serial}
-                              </span>
+                  {contract.contractProducts && contract.contractProducts.length > 0 ? (
+                    contract.contractProducts.map((product, index) => (
+                      <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                        <div className="flex items-start space-x-3">
+                          <Package className="h-5 w-5 text-teal-600 mt-0.5" />
+                          <div className="flex-1">
+                            <h3 className="font-medium text-gray-900">
+                              {product.name}
+                            </h3>
+                            <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
+                              <div>
+                                <span className="font-medium">Model:</span>{" "}
+                                {product.model}
+                              </div>
+                              <div>
+                                <span className="font-medium">Serial:</span>{" "}
+                                <span className="font-mono">
+                                  {product.serial}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      Không có sản phẩm nào được bảo hành
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>
@@ -409,25 +443,25 @@ export default function ContractDetailPage({
                 <div className="flex items-center space-x-3">
                   <User className="h-4 w-4 text-gray-400" />
                   <span className="text-sm text-gray-900">
-                    {contract.customer.name || 'N/A'}
+                    {contract?.customerName || 'N/A'}
                   </span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="h-4 w-4 text-gray-400" />
                   <span className="text-sm text-gray-600">
-                    {contract.customer.phone || 'N/A'}
+                    {contract?.customerPhone || 'N/A'}
                   </span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Mail className="h-4 w-4 text-gray-400" />
                   <span className="text-sm text-gray-600">
-                    {contract.customer.email || 'N/A'}
+                    {contract?.customerEmail || 'N/A'}
                   </span>
                 </div>
                 <div className="flex items-start space-x-3">
                   <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
                   <span className="text-sm text-gray-600">
-                    {contract.customer.address || 'N/A'}
+                    {contract?.customerAddress || 'N/A'}
                   </span>
                 </div>
               </div>

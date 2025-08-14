@@ -112,15 +112,13 @@ export default function ContractsPage() {
         // Update existing contract
         const updatedContract = await contractsService.update(editingContract.id, {
           contractNumber: formData.contractNumber,
-          customer: {
-            name: formData.customerName,
-            address: formData.customerAddress,
-            phone: formData.customerPhone,
-            email: formData.customerEmail
-          },
+          customerName: formData.customerName,
+          customerAddress: formData.customerAddress,
+          customerPhone: formData.customerPhone,
+          customerEmail: formData.customerEmail,
           startDate: formData.startDate,
           endDate: formData.endDate,
-          terms: formData.warrantyTerms
+          termsConditions: formData.warrantyTerms
         })
         setContracts(contracts.map(contract => 
           contract.id === editingContract.id ? updatedContract : contract
@@ -130,16 +128,14 @@ export default function ContractsPage() {
         // Add new contract
         const newContract = await contractsService.create({
           contractNumber: formData.contractNumber,
-          customer: {
-            name: formData.customerName,
-            address: formData.customerAddress,
-            phone: formData.customerPhone,
-            email: formData.customerEmail
-          },
-          products: [],
+          customerName: formData.customerName,
+          customerAddress: formData.customerAddress,
+          customerPhone: formData.customerPhone,
+          customerEmail: formData.customerEmail,
+          contractProducts: [],
           startDate: formData.startDate,
           endDate: formData.endDate,
-          terms: formData.warrantyTerms
+          termsConditions: formData.warrantyTerms
         })
         setContracts([...contracts, newContract])
         showToast.success('Thêm hợp đồng thành công!')

@@ -5,13 +5,12 @@ export const mockData = {
     {
       id: "WC001",
       contractNumber: "HD-BH-2024-001",
-      customer: {
-        name: "Nguyễn Văn An",
-        address: "123 Đường Lê Lợi, Quận 1, TP.HCM",
-        phone: "0901234567",
-        email: "nguyenvanan@email.com"
-      },
-      products: [
+      customerId: null,
+      customerName: "Nguyễn Văn An",
+      customerAddress: "123 Đường Lê Lợi, Quận 1, TP.HCM",
+      customerPhone: "0901234567",
+      customerEmail: "nguyenvanan@email.com",
+      contractProducts: [
         {
           name: "Laptop Dell Inspiron 15",
           model: "Dell-INS-15-3000",
@@ -20,21 +19,21 @@ export const mockData = {
       ],
       startDate: "2024-01-15",
       endDate: "2026-01-15",
-      terms: "Bảo hành 24 tháng, miễn phí sửa chữa lỗi phần cứng",
+      termsConditions: "Bảo hành 24 tháng, miễn phí sửa chữa lỗi phần cứng",
       status: "active" as const,
+      createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2024-01-15T09:00:00Z",
       updatedAt: "2024-12-10T15:30:00Z"
     },
     {
       id: "WC002", 
       contractNumber: "HD-BH-2024-002",
-      customer: {
-        name: "Trần Thị Bình",
-        address: "456 Đường Nguyễn Huệ, Quận 3, TP.HCM", 
-        phone: "0902345678",
-        email: "tranthibinh@email.com"
-      },
-      products: [
+      customerId: null,
+      customerName: "Trần Thị Bình",
+      customerAddress: "456 Đường Nguyễn Huệ, Quận 3, TP.HCM",
+      customerPhone: "0902345678",
+      customerEmail: "tranthibinh@email.com",
+      contractProducts: [
         {
           name: "iPhone 15 Pro",
           model: "A3108",
@@ -43,21 +42,21 @@ export const mockData = {
       ],
       startDate: "2024-02-20",
       endDate: "2025-02-20", 
-      terms: "Bảo hành 12 tháng, bảo hình màn hình 6 tháng",
+      termsConditions: "Bảo hành 12 tháng, bảo hình màn hình 6 tháng",
       status: "active" as const,
+      createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2024-02-20T14:30:00Z",
       updatedAt: "2024-12-08T11:15:00Z"
     },
     {
       id: "WC003",
       contractNumber: "HD-BH-2024-003",
-      customer: {
-        name: "Lê Văn Cường",
-        address: "789 Đường Pasteur, Quận 1, TP.HCM",
-        phone: "0903456789",
-        email: "levancuong@email.com"
-      },
-      products: [
+      customerId: null,
+      customerName: "Lê Văn Cường",
+      customerAddress: "789 Đường Pasteur, Quận 1, TP.HCM",
+      customerPhone: "0903456789",
+      customerEmail: "levancuong@email.com",
+      contractProducts: [
         {
           name: "Samsung Galaxy S24",
           model: "SM-S921B",
@@ -66,21 +65,21 @@ export const mockData = {
       ],
       startDate: "2024-03-10",
       endDate: "2025-03-10",
-      terms: "Bảo hành 12 tháng toàn bộ máy",
+      termsConditions: "Bảo hành 12 tháng toàn bộ máy",
       status: "active" as const,
+      createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2024-03-10T10:20:00Z",
       updatedAt: "2024-12-05T09:45:00Z"
     },
     {
       id: "WC004",
       contractNumber: "HD-BH-2023-045",
-      customer: {
-        name: "Phạm Thị Dung",
-        address: "321 Đường Võ Văn Tần, Quận 3, TP.HCM",
-        phone: "0904567890",
-        email: "phamthidung@email.com"
-      },
-      products: [
+      customerId: null,
+      customerName: "Phạm Thị Dung",
+      customerAddress: "321 Đường Võ Văn Tần, Quận 3, TP.HCM",
+      customerPhone: "0904567890",
+      customerEmail: "phamthidung@email.com",
+      contractProducts: [
         {
           name: "MacBook Air M2",
           model: "MBA-M2-13",
@@ -89,21 +88,21 @@ export const mockData = {
       ],
       startDate: "2023-05-15",
       endDate: "2024-05-15",
-      terms: "Bảo hành 12 tháng, hỗ trợ kỹ thuật 24/7",
+      termsConditions: "Bảo hành 12 tháng, hỗ trợ kỹ thuật 24/7",
       status: "expired" as const,
+      createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2023-05-15T11:00:00Z",
       updatedAt: "2024-05-15T11:00:00Z"
     },
     {
       id: "WC005",
       contractNumber: "HD-BH-2024-067",
-      customer: {
-        name: "Hoàng Minh Tuấn",
-        address: "654 Đường Cách Mạng Tháng 8, Quận 10, TP.HCM",
-        phone: "0905678901",
-        email: "hoangminhtuan@email.com"
-      },
-      products: [
+      customerId: null,
+      customerName: "Hoàng Minh Tuấn",
+      customerAddress: "654 Đường Cách Mạng Tháng 8, Quận 10, TP.HCM",
+      customerPhone: "0905678901",
+      customerEmail: "hoangminhtuan@email.com",
+      contractProducts: [
         {
           name: "HP Pavilion Gaming",
           model: "HP-PG-15-dk2",
@@ -112,21 +111,21 @@ export const mockData = {
       ],
       startDate: "2024-06-01",
       endDate: "2025-06-01",
-      terms: "Bảo hành 12 tháng, thay thế linh kiện miễn phí",
+      termsConditions: "Bảo hành 12 tháng, thay thế linh kiện miễn phí",
       status: "suspended" as const,
+      createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2024-06-01T14:15:00Z",
       updatedAt: "2024-11-20T13:30:00Z"
     },
     {
       id: "WC006",
       contractNumber: "HD-BH-2023-089",
-      customer: {
-        name: "Ngô Thị Lan",
-        address: "987 Đường Điện Biên Phủ, Quận Bình Thạnh, TP.HCM",
-        phone: "0906789012",
-        email: "ngothilan@email.com"
-      },
-      products: [
+      customerId: null,
+      customerName: "Ngô Thị Lan",
+      customerAddress: "987 Đường Điện Biên Phủ, Quận Bình Thạnh, TP.HCM",
+      customerPhone: "0906789012",
+      customerEmail: "ngothilan@email.com",
+      contractProducts: [
         {
           name: "Asus ROG Strix",
           model: "ROG-G15-G513",
@@ -135,21 +134,21 @@ export const mockData = {
       ],
       startDate: "2023-08-20",
       endDate: "2024-08-20",
-      terms: "Bảo hành 12 tháng gaming laptop",
+      termsConditions: "Bảo hành 12 tháng gaming laptop",
       status: "expired" as const,
+      createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2023-08-20T16:45:00Z",
       updatedAt: "2024-08-20T16:45:00Z"
     },
     {
       id: "WC007",
       contractNumber: "HD-BH-2024-123",
-      customer: {
-        name: "Đỗ Văn Hùng",
-        address: "147 Đường Nguyễn Thị Minh Khai, Quận 1, TP.HCM",
-        phone: "0907890123",
-        email: "dovanhung@email.com"
-      },
-      products: [
+      customerId: null,
+      customerName: "Đỗ Văn Hùng",
+      customerAddress: "147 Đường Nguyễn Thị Minh Khai, Quận 1, TP.HCM",
+      customerPhone: "0907890123",
+      customerEmail: "dovanhung@email.com",
+      contractProducts: [
         {
           name: "Surface Pro 9",
           model: "SP9-128GB",
@@ -158,8 +157,9 @@ export const mockData = {
       ],
       startDate: "2024-07-10",
       endDate: "2025-07-10",
-      terms: "Bảo hành 12 tháng, bao gồm bút Surface Pen",
+      termsConditions: "Bảo hành 12 tháng, bao gồm bút Surface Pen",
       status: "suspended" as const,
+      createdBy: "98e32aa6-fd7a-4e46-939e-522fb1226d8c",
       createdAt: "2024-07-10T09:30:00Z",
       updatedAt: "2024-11-15T14:20:00Z"
     }

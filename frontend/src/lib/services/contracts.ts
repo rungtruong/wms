@@ -3,20 +3,21 @@ import type { Contract } from '@/types';
 
 interface CreateContractRequest {
   contractNumber: string;
-  customer: {
-    name: string;
-    address: string;
-    phone: string;
-    email: string;
-  };
-  products: Array<{
+  customerId?: string;
+  customerName: string;
+  customerAddress: string;
+  customerPhone: string;
+  customerEmail: string;
+  contractProducts: Array<{
     name: string;
     model: string;
     serial: string;
   }>;
   startDate: string;
   endDate: string;
-  terms: string;
+  termsConditions: string;
+   status?: 'active' | 'expired' | 'suspended';
+   createdBy?: string;
 }
 
 interface UpdateContractRequest extends Partial<CreateContractRequest> {}

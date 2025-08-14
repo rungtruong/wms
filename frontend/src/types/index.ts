@@ -14,12 +14,17 @@ export interface Product {
 export interface Contract {
   id: string;
   contractNumber: string;
-  customer: Customer;
-  products: Product[];
+  customerId: string | null;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerAddress: string;
+  contractProducts: Product[];
   startDate: string;
   endDate: string;
-  terms: string;
+  termsConditions: string;
   status: "active" | "expired" | "suspended";
+  createdBy: string;
   createdAt: string;
   updatedAt: string;
 }
