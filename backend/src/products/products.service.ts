@@ -355,6 +355,13 @@ export class ProductsService {
     return {
       success: true,
       message: 'Warranty request created successfully',
+      ticket: {
+        id: updatedTicket.id,
+        ticketNumber: updatedTicket.ticketNumber,
+        status: updatedTicket.status,
+        priority: updatedTicket.priority,
+        createdAt: updatedTicket.createdAt.toISOString(),
+      },
     };
   }
 

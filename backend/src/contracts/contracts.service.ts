@@ -25,7 +25,6 @@ export class ContractsService {
             productSerialId: product.productSerialId,
             quantity: product.quantity,
             unitPrice: product.unitPrice,
-            notes: product.notes,
           })) || [],
         },
       },
