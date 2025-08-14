@@ -66,7 +66,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       closed: "status-badge status-closed",
     };
     return (
-      statusClasses[status as keyof typeof statusClasses] || "status-badge"
+      statusClasses[status as keyof typeof statusClasses] || "status-badge status-received"
     );
   };
 
