@@ -59,6 +59,10 @@ export class CreateContractDto {
   @IsOptional()
   status?: ContractStatus = ContractStatus.active;
 
+  @IsString()
+  @IsOptional()
+  termsConditions?: string;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ContractProductDto)
