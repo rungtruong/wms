@@ -41,6 +41,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
       active: "status-badge status-active",
       expired: "status-badge status-expired",
       claimed: "status-badge status-processing",
+      suspended: "status-badge status-suspended",
     };
     return (
       statusClasses[status as keyof typeof statusClasses] || "status-badge"
@@ -52,6 +53,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
       active: "Đang bảo hành",
       expired: "Hết bảo hành",
       claimed: "Đã bảo hành",
+      suspended: "Tạm ngưng",
     };
     return statusTexts[status as keyof typeof statusTexts] || status;
   };
@@ -139,7 +141,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                 </div>
                 <div class="info-cell">
                   <span class="info-label">Trạng thái:</span> <span class="info-value">${getStatusText(
-                    serial!.warrantyStatus
+                    serial!.status
                   )}</span>
                 </div>
               </div>
@@ -345,8 +347,8 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <span className={getStatusBadge(serial.warrantyStatus)}>
-              {getStatusText(serial.warrantyStatus)}
+            <span className={getStatusBadge(serial.status)}>
+              {getStatusText(serial.status)}
             </span>
             {serial.warrantyMonths && (
               <span className="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
@@ -379,7 +381,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                       Tên sản phẩm
                     </label>
                     <p className="text-sm text-gray-900">
-                      {serial.name}
+                      {serial.productName}
                     </p>
                   </div>
                   <div>
@@ -392,8 +394,8 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Trạng thái
                     </label>
-                    <span className={getStatusBadge(serial.warrantyStatus)}>
-                      {getStatusText(serial.warrantyStatus)}
+                    <span className={getStatusBadge(serial.status)}>
+                      {getStatusText(serial.status)}
                     </span>
                   </div>
                   <div>
@@ -401,7 +403,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                       Ngày sản xuất
                     </label>
                     <p className="text-sm text-gray-900">
-                      {serial.createdAt ? formatDateOnly(serial.createdAt) : '-'}
+                      {serial.manufactureDate ? formatDateOnly(serial.manufactureDate) : '-'}
                     </p>
                   </div>
                   <div>
