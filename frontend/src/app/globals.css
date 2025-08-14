@@ -438,6 +438,11 @@
     background-color: rgba(59, 130, 246, 0.15);
   }
 
+  .status-suspended {
+    @apply text-gray-800;
+    background-color: rgba(107, 114, 128, 0.15);
+  }
+
   .priority-urgent {
     @apply text-red-900;
     background-color: rgba(192, 21, 47, 0.25);

@@ -127,7 +127,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                 </div>
                 <div class="info-cell">
                   <span class="info-label">Tên sản phẩm:</span> <span class="info-value">${
-                    serial!.name
+                    serial!.productName
                   }</span>
                 </div>
               </div>

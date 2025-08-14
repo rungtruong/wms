@@ -22,7 +22,7 @@ export default function SerialsPage() {
 
   const filters: SerialFilters = {
     search: searchTerm || undefined,
-    warrantyStatus: statusFilter ? statusFilter as 'active' | 'expired' | 'claimed' : undefined,
+    warrantyStatus: statusFilter ? statusFilter as 'active' | 'expired' | 'claimed' | 'suspended' : undefined,
   }
 
   const { data: serials = [], isLoading, error, refetch } = useSerials(filters)
@@ -59,6 +59,7 @@ export default function SerialsPage() {
       active: 'status-badge status-active',
       expired: 'status-badge status-expired',
       claimed: 'status-badge status-processing',
+      suspended: 'status-badge status-suspended',
     }
     return statusClasses[status as keyof typeof statusClasses] || 'status-badge'
   }
@@ -68,6 +69,7 @@ export default function SerialsPage() {
       active: 'Đang bảo hành',
       expired: 'Hết bảo hành',
       claimed: 'Đã bảo hành',
+      suspended: 'Tạm ngưng',
     }
     return statusTexts[status as keyof typeof statusTexts] || status
   }
@@ -188,6 +190,7 @@ export default function SerialsPage() {
                   <option value="active">Đang bảo hành</option>
                   <option value="expired">Hết bảo hành</option>
                   <option value="claimed">Đã bảo hành</option>
+                  <option value="suspended">Tạm ngưng</option>
                 </select>
               </div>
             </div>
@@ -208,7 +211,7 @@ export default function SerialsPage() {
                     className: 'font-medium text-primary-600'
                   },
                   {
-                    key: 'name',
+                    key: 'productName',
                     header: 'Sản phẩm'
                   },
                   {
@@ -224,7 +227,7 @@ export default function SerialsPage() {
                     header: 'Bảo hành (tháng)'
                   },
                   {
-                    key: 'warrantyStatus',
+                    key: 'status',
                     header: 'Trạng thái',
                     render: (status) => (
                       <span className={getStatusBadge(status)}>
@@ -310,7 +313,7 @@ export default function SerialsPage() {
                   {selectedSerial && (
                     <div className="bg-gray-50 p-3 rounded-md">
                       <p className="text-sm"><strong>Serial Number:</strong> {selectedSerial.serialNumber}</p>
-                      <p className="text-sm"><strong>Sản phẩm:</strong> {selectedSerial.name}</p>
+                      <p className="text-sm"><strong>Sản phẩm:</strong> {selectedSerial.productName}</p>
                       <p className="text-sm"><strong>Model:</strong> {selectedSerial.model}</p>
                     </div>
                   )}

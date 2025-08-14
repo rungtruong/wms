@@ -2,6 +2,7 @@ export interface Serial {
   id: string
   serialNumber: string
   name: string
+  productName: string
   model: string
   description?: string
   category: string
@@ -10,7 +11,7 @@ export interface Serial {
   manufactureDate: string
   purchaseDate?: string
   contractId?: string
-  warrantyStatus: 'active' | 'expired' | 'claimed'
+  warrantyStatus: 'active' | 'expired' | 'claimed' | 'suspended'
   notes?: string
   createdAt?: string
   updatedAt?: string
@@ -27,7 +28,7 @@ export interface CreateSerialDto {
   manufactureDate: string
   purchaseDate?: string
   contractId?: string
-  warrantyStatus: 'active' | 'expired' | 'claimed'
+  warrantyStatus: 'active' | 'expired' | 'claimed' | 'suspended'
   notes?: string
 }
 
@@ -36,7 +37,7 @@ export interface UpdateSerialDto extends Partial<CreateSerialDto> {}
 export interface SerialFilters {
   search?: string
   category?: string
-  warrantyStatus?: 'active' | 'expired' | 'claimed'
+  warrantyStatus?: 'active' | 'expired' | 'claimed' | 'suspended'
   isActive?: boolean
 }
 

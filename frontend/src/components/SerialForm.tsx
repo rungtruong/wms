@@ -24,7 +24,7 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
     manufactureDate: '',
     purchaseDate: '',
     contractId: '',
-    warrantyStatus: 'active' as 'active' | 'expired' | 'claimed',
+    warrantyStatus: 'active' as 'active' | 'expired' | 'claimed' | 'suspended',
     notes: ''
   })
 
@@ -32,7 +32,7 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
     if (editingSerial) {
       setFormData({
         serialNumber: editingSerial.serialNumber,
-        name: editingSerial.name,
+        name: editingSerial.productName || editingSerial.name,
         model: editingSerial.model,
         description: editingSerial.description || '',
         category: editingSerial.category,
@@ -56,7 +56,7 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
         manufactureDate: '',
         purchaseDate: '',
         contractId: '',
-        warrantyStatus: 'active' as const,
+        warrantyStatus: 'active' as 'active' | 'expired' | 'claimed' | 'suspended',
         notes: ''
       })
     }
@@ -250,6 +250,7 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
               <option value="active">Đang bảo hành</option>
               <option value="expired">Hết bảo hành</option>
               <option value="claimed">Đã bảo hành</option>
+              <option value="suspended">Tạm ngưng</option>
             </select>
           </div>
 
