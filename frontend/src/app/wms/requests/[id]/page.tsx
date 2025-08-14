@@ -63,7 +63,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       open: "status-badge status-received",
       in_progress: "status-badge status-processing",
       resolved: "status-badge status-completed",
-      closed: "status-badge status-completed",
+      closed: "status-badge status-closed",
     };
     return (
       statusClasses[status as keyof typeof statusClasses] || "status-badge"
@@ -455,14 +455,17 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                           <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-200"></div>
                         )}
                         <div className="flex items-start space-x-3">
-                          <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                          <div
+                            className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${getStatusBadge(
+                              historyItem.newValue
+                            )}`}
+                          >
+                            {getStatusIcon(historyItem.newValue)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
                               <p className="text-sm font-medium text-gray-900">
-                                {historyItem.performer?.fullName ||
-                                  "Hệ thống"}
+                                {historyItem.performer?.fullName || "Hệ thống"}
                               </p>
                               <p className="text-sm text-gray-500">
                                 {formatDate(historyItem.createdAt)}
@@ -644,21 +647,29 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                       setIsUpdatingStatus(true);
                       await ticketsService.updateStatus(
                         request.id,
-                        selectedStatus as "open" | "in_progress" | "resolved" | "closed",
+                        selectedStatus as
+                          | "open"
+                          | "in_progress"
+                          | "resolved"
+                          | "closed",
                         statusNote || undefined
                       );
-                      
+
                       // Reload request data to get updated info and history
-                      const updatedRequest = await ticketsService.getById(params.id);
+                      const updatedRequest = await ticketsService.getById(
+                        params.id
+                      );
                       setRequest(updatedRequest);
-                      
+
                       setIsStatusModalOpen(false);
                       setSelectedStatus("");
                       setStatusNote("");
                       showToast.success("Cập nhật trạng thái thành công!");
                     } catch (error) {
                       console.error("Error updating status:", error);
-                      showToast.error("Có lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại.");
+                      showToast.error(
+                        "Có lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại."
+                      );
                     } finally {
                       setIsUpdatingStatus(false);
                     }

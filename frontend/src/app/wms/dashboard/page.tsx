@@ -9,14 +9,20 @@ import {
   ProductFailuresChart,
 } from "@/components/Charts";
 import Table from "@/components/Table";
-import { dashboardService, type ProductFailuresChartData, type WarrantyRequestsChartData } from "@/lib/services/dashboard";
+import {
+  dashboardService,
+  type ProductFailuresChartData,
+  type WarrantyRequestsChartData,
+} from "@/lib/services/dashboard";
 import { ticketsService } from "@/lib/services/tickets";
 
 export default function Dashboard() {
   const router = useRouter();
   const [statistics, setStatistics] = useState(null);
   const [warrantyRequestsData, setWarrantyRequestsData] = useState(null);
-  const [productFailuresData, setProductFailuresData] = useState<ProductFailuresChartData[] | null>(null);
+  const [productFailuresData, setProductFailuresData] = useState<
+    ProductFailuresChartData[] | null
+  >(null);
   const [recentRequests, setRecentRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -24,19 +30,24 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         setIsLoading(true);
-        const [statsData, warrantyChartData, productFailuresChartData, requestsData] = await Promise.all([
+        const [
+          statsData,
+          warrantyChartData,
+          productFailuresChartData,
+          requestsData,
+        ] = await Promise.all([
           dashboardService.getStatistics(),
           dashboardService.getWarrantyRequestsChart(),
           dashboardService.getProductFailuresChart(),
-          ticketsService.getAll()
+          ticketsService.getAll(),
         ]);
-        
+
         setStatistics(statsData);
         setWarrantyRequestsData(warrantyChartData);
         setProductFailuresData(productFailuresChartData);
         setRecentRequests(requestsData.slice(0, 5));
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error("Error fetching dashboard data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -45,43 +56,45 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
-  const stats = statistics ? [
-    {
-      name: "Tổng hợp đồng",
-      value: statistics.totalContracts,
-      icon: FileText,
-      color: "text-teal-500",
-      bgColor: "bg-bg-1",
-    },
-    {
-      name: "Đang hiệu lực",
-      value: statistics.activeContracts,
-      icon: CheckCircle,
-      color: "text-teal-500",
-      bgColor: "bg-bg-3",
-    },
-    {
-      name: "Sắp hết hạn",
-      value: statistics.expiringThisMonth,
-      icon: Clock,
-      color: "text-orange-500",
-      bgColor: "bg-bg-2",
-    },
-    {
-      name: "Yêu cầu chờ xử lý",
-      value: statistics.pendingRequests,
-      icon: Wrench,
-      color: "text-red-500",
-      bgColor: "bg-bg-4",
-    },
-  ] : [];
+  const stats = statistics
+    ? [
+        {
+          name: "Tổng hợp đồng",
+          value: statistics.totalContracts,
+          icon: FileText,
+          color: "text-teal-500",
+          bgColor: "bg-bg-1",
+        },
+        {
+          name: "Đang hiệu lực",
+          value: statistics.activeContracts,
+          icon: CheckCircle,
+          color: "text-teal-500",
+          bgColor: "bg-bg-3",
+        },
+        {
+          name: "Sắp hết hạn",
+          value: statistics.expiringThisMonth,
+          icon: Clock,
+          color: "text-orange-500",
+          bgColor: "bg-bg-2",
+        },
+        {
+          name: "Yêu cầu chờ xử lý",
+          value: statistics.pendingRequests,
+          icon: Wrench,
+          color: "text-red-500",
+          bgColor: "bg-bg-4",
+        },
+      ]
+    : [];
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
       open: "status-badge status-received",
-      in_progress: "status-badge status-processing", 
+      in_progress: "status-badge status-processing",
       resolved: "status-badge status-completed",
-      closed: "status-badge status-completed",
+      closed: "status-badge status-closed",
     };
     return (
       statusClasses[status as keyof typeof statusClasses] || "status-badge"

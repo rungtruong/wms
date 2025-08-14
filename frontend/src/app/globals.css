@@ -414,13 +414,18 @@
   }
 
   .status-processing {
-    @apply text-orange-800;
-    background-color: rgba(168, 75, 47, 0.15);
+    @apply text-orange-400;
+    background-color: rgba(251, 191, 36, 0.15);
   }
 
   .status-completed {
     @apply text-teal-800;
     background-color: rgba(33, 128, 141, 0.15);
+  }
+
+  .status-closed {
+        @apply text-red-800;
+    background-color: rgba(192, 21, 47, 0.15);
   }
 
   .status-received {
