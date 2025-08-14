@@ -1,40 +1,63 @@
 import { useState, useEffect } from 'react'
 import Modal from './Modal'
 import { showToast } from '@/lib/toast'
+import { Serial, CreateSerialDto } from '@/types/serial'
 
 interface SerialFormProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (serialData: any) => void
-  editingSerial?: any
+  onSubmit: (serialData: CreateSerialDto) => void
+  editingSerial?: Serial
   contracts: any[]
+  isLoading?: boolean
 }
 
-export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, contracts }: SerialFormProps) {
+export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, contracts, isLoading = false }: SerialFormProps) {
   const [formData, setFormData] = useState({
     serialNumber: '',
-    productName: '',
+    name: '',
     model: '',
+    description: '',
+    category: '',
+    warrantyMonths: 12,
+    isActive: true,
     manufactureDate: '',
-    contractId: ''
+    purchaseDate: '',
+    contractId: '',
+    warrantyStatus: 'active' as 'active' | 'expired' | 'claimed',
+    notes: ''
   })
 
   useEffect(() => {
     if (editingSerial) {
       setFormData({
         serialNumber: editingSerial.serialNumber,
-        productName: editingSerial.productName,
+        name: editingSerial.name,
         model: editingSerial.model,
-        manufactureDate: editingSerial.manufactureDate || '',
-        contractId: editingSerial.contractId || ''
+        description: editingSerial.description || '',
+        category: editingSerial.category,
+        warrantyMonths: editingSerial.warrantyMonths,
+        isActive: editingSerial.isActive,
+        manufactureDate: editingSerial.manufactureDate,
+        purchaseDate: editingSerial.purchaseDate || '',
+        contractId: editingSerial.contractId || '',
+        warrantyStatus: editingSerial.warrantyStatus || 'active',
+        notes: editingSerial.notes || ''
       })
     } else {
       setFormData({
         serialNumber: '',
-        productName: '',
+        name: '',
         model: '',
+        description: '',
+        category: '',
+        warrantyMonths: 12,
+        isActive: true,
         manufactureDate: '',
-        contractId: ''
+        purchaseDate: '',
+        contractId: '',
+        warrantyStatus: 'active' as const,
+        notes: ''
       })
     }
   }, [editingSerial, isOpen])
@@ -48,8 +71,13 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
       return
     }
     
-    if (!formData.productName.trim()) {
+    if (!formData.name.trim()) {
       showToast.error('Vui lòng nhập tên sản phẩm')
+      return
+    }
+    
+    if (!formData.category.trim()) {
+      showToast.error('Vui lòng nhập danh mục sản phẩm')
       return
     }
     
@@ -58,19 +86,17 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
       return
     }
     
-    if (!formData.contractId) {
-      showToast.error('Vui lòng chọn hợp đồng')
-      return
-    }
+
     
     onSubmit(formData)
     onClose()
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: type === 'number' ? Number(value) : type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     })
   }
 
@@ -103,8 +129,8 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
             </label>
             <input
               type="text"
-              name="productName"
-              value={formData.productName}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               className="form-input"
               placeholder="Nhập tên sản phẩm..."
@@ -129,6 +155,64 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
+              Mô tả
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="form-input"
+              placeholder="Nhập mô tả sản phẩm..."
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Danh mục *
+            </label>
+            <input
+              type="text"
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="form-input"
+              placeholder="Nhập danh mục sản phẩm..."
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Thời gian bảo hành (tháng) *
+            </label>
+            <input
+              type="number"
+              name="warrantyMonths"
+              value={formData.warrantyMonths}
+              onChange={handleChange}
+              className="form-input"
+              placeholder="Nhập số tháng bảo hành..."
+              min="1"
+              required
+            />
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              name="isActive"
+              checked={formData.isActive}
+              onChange={handleChange}
+              className="mr-2"
+            />
+            <label className="text-sm font-medium text-gray-700">
+              Kích hoạt
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Ngày sản xuất
             </label>
             <input
@@ -138,6 +222,35 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
               onChange={handleChange}
               className="form-input"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Ngày mua
+            </label>
+            <input
+              type="date"
+              name="purchaseDate"
+              value={formData.purchaseDate}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Trạng thái bảo hành
+            </label>
+            <select
+              name="warrantyStatus"
+              value={formData.warrantyStatus}
+              onChange={handleChange}
+              className="form-input"
+            >
+              <option value="active">Đang bảo hành</option>
+              <option value="expired">Hết bảo hành</option>
+              <option value="claimed">Đã bảo hành</option>
+            </select>
           </div>
 
           <div>
@@ -158,6 +271,20 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
               ))}
             </select>
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Ghi chú
+            </label>
+            <textarea
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              className="form-input"
+              placeholder="Nhập ghi chú..."
+              rows={3}
+            />
+          </div>
         </div>
 
         <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
@@ -171,8 +298,16 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
           <button
             type="submit"
             className="btn btn-primary"
+            disabled={isLoading}
           >
-            {editingSerial ? 'Cập nhật' : 'Thêm mới'}
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                {editingSerial ? 'Đang cập nhật...' : 'Đang thêm...'}
+              </>
+            ) : (
+              editingSerial ? 'Cập nhật' : 'Thêm mới'
+            )}
           </button>
         </div>
       </form>

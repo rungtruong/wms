@@ -8,23 +8,47 @@ import SerialForm from '@/components/SerialForm'
 import Table from '@/components/Table'
 import { mockData } from '@/lib/data'
 import { showToast } from '@/lib/toast'
+import { useSerials, useCreateSerial, useUpdateSerial, useDeleteSerial } from '@/hooks/useSerials'
+import { Serial, SerialFilters } from '@/types/serial'
 
 export default function SerialsPage() {
   const router = useRouter()
-  const [serials, setSerials] = useState(mockData.serials)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [editingSerial, setEditingSerial] = useState(null)
-  const [selectedSerial, setSelectedSerial] = useState<any>(null)
+  const [editingSerial, setEditingSerial] = useState<Serial | null>(null)
+  const [selectedSerial, setSelectedSerial] = useState<Serial | null>(null)
 
-  const filteredSerials = serials.filter(serial => {
-    const matchesSearch = serial.serialNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         serial.productName.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === '' || serial.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  const filters: SerialFilters = {
+    search: searchTerm || undefined,
+    warrantyStatus: statusFilter ? statusFilter as 'active' | 'expired' | 'claimed' : undefined,
+  }
+
+  const { data: serials = [], isLoading, error, refetch } = useSerials(filters)
+  const createSerialMutation = useCreateSerial()
+  const updateSerialMutation = useUpdateSerial()
+  const deleteSerialMutation = useDeleteSerial()
+
+  if (error) {
+    return (
+      <Layout title="Quản lý Serial Sản phẩm" notificationCount={2}>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">Có lỗi xảy ra khi tải dữ liệu</p>
+            <button 
+              onClick={() => refetch()}
+              className="btn btn-primary"
+            >
+              Thử lại
+            </button>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
+  const filteredSerials = serials
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('vi-VN')
@@ -34,7 +58,7 @@ export default function SerialsPage() {
     const statusClasses = {
       active: 'status-badge status-active',
       expired: 'status-badge status-expired',
-      suspended: 'status-badge status-processing',
+      claimed: 'status-badge status-processing',
     }
     return statusClasses[status as keyof typeof statusClasses] || 'status-badge'
   }
@@ -43,7 +67,7 @@ export default function SerialsPage() {
     const statusTexts = {
       active: 'Đang bảo hành',
       expired: 'Hết bảo hành',
-      suspended: 'Tạm dừng',
+      claimed: 'Đã bảo hành',
     }
     return statusTexts[status as keyof typeof statusTexts] || status
   }
@@ -71,10 +95,12 @@ export default function SerialsPage() {
 
   const confirmDeleteSerial = () => {
     if (selectedSerial) {
-      setSerials(serials.filter(s => s.id !== selectedSerial.id))
-      setIsDeleteModalOpen(false)
-      setSelectedSerial(null)
-      showToast.success('Xóa serial thành công!')
+      deleteSerialMutation.mutate(selectedSerial.id, {
+        onSuccess: () => {
+          setIsDeleteModalOpen(false)
+          setSelectedSerial(null)
+        }
+      })
     }
   }
 
@@ -84,37 +110,47 @@ export default function SerialsPage() {
 
   const handleFormSubmit = (formData: any) => {
     if (editingSerial) {
-      // Update existing serial
-      setSerials(serials.map(serial => 
-        serial.id === editingSerial.id 
-          ? {
-              ...serial,
-              serialNumber: formData.serialNumber,
-              productName: formData.productName,
-              model: formData.model,
-              manufactureDate: formData.manufactureDate,
-              contractId: formData.contractId
-            }
-          : serial
-      ))
-      showToast.success('Cập nhật serial thành công!')
+      updateSerialMutation.mutate({
+        id: editingSerial.id,
+        data: {
+          serialNumber: formData.serialNumber,
+          name: formData.productName,
+          model: formData.model,
+          description: formData.description,
+          category: formData.category,
+          warrantyMonths: formData.warrantyMonths,
+          isActive: formData.isActive,
+          manufactureDate: formData.manufactureDate,
+          purchaseDate: formData.purchaseDate,
+          contractId: formData.contractId,
+          warrantyStatus: formData.warrantyStatus,
+          notes: formData.notes
+        }
+      }, {
+        onSuccess: () => {
+          setIsFormOpen(false)
+          setEditingSerial(null)
+        }
+      })
     } else {
-      // Add new serial
-      const newSerial = {
-        id: `S${String(Date.now()).slice(-3)}`,
+      createSerialMutation.mutate({
         serialNumber: formData.serialNumber,
-        productName: formData.productName,
+        name: formData.productName,
         model: formData.model,
+        description: formData.description,
+        category: formData.category,
+        warrantyMonths: formData.warrantyMonths || 24,
+        isActive: formData.isActive ?? true,
         manufactureDate: formData.manufactureDate,
+        purchaseDate: formData.purchaseDate,
         contractId: formData.contractId,
-        warrantyRemaining: '24 tháng',
-        status: 'active' as const,
-        repairHistory: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-      setSerials([...serials, newSerial])
-      showToast.success('Thêm serial thành công!')
+        warrantyStatus: formData.warrantyStatus || 'active',
+        notes: formData.notes
+      }, {
+        onSuccess: () => {
+          setIsFormOpen(false)
+        }
+      })
     }
   }
 
@@ -151,49 +187,61 @@ export default function SerialsPage() {
                   <option value="">Tất cả trạng thái</option>
                   <option value="active">Đang bảo hành</option>
                   <option value="expired">Hết bảo hành</option>
-                  <option value="suspended">Tạm dừng</option>
+                  <option value="claimed">Đã bảo hành</option>
                 </select>
               </div>
             </div>
 
-            <Table
-              columns={[
-                {
-                  key: 'serialNumber',
-                  header: 'Serial Number',
-                  className: 'font-medium text-primary-600'
-                },
-                {
-                  key: 'productName',
-                  header: 'Sản phẩm'
-                },
-                {
-                  key: 'model',
-                  header: 'Model'
-                },
-                {
-                  key: 'warrantyRemaining',
-                  header: 'Bảo hành còn lại'
-                },
-                {
-                  key: 'status',
-                  header: 'Trạng thái',
-                  render: (status) => (
-                    <span className={getStatusBadge(status)}>
-                      {getStatusText(status)}
-                    </span>
-                  )
-                },
-                {
-                  key: 'createdAt',
-                  header: 'Ngày tạo',
-                  render: (_, serial) => formatDate(serial.createdAt)
-                },
-                {
-                  key: 'updatedAt',
-                  header: 'Ngày cập nhật',
-                  render: (_, serial) => formatDate(serial.updatedAt)
-                },
+            {isLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Đang tải dữ liệu...</p>
+                </div>
+              </div>
+            ) : (
+              <Table
+                columns={[
+                  {
+                    key: 'serialNumber',
+                    header: 'Serial Number',
+                    className: 'font-medium text-primary-600'
+                  },
+                  {
+                    key: 'name',
+                    header: 'Sản phẩm'
+                  },
+                  {
+                    key: 'model',
+                    header: 'Model'
+                  },
+                  {
+                    key: 'category',
+                    header: 'Danh mục'
+                  },
+                  {
+                    key: 'warrantyMonths',
+                    header: 'Bảo hành (tháng)'
+                  },
+                  {
+                    key: 'warrantyStatus',
+                    header: 'Trạng thái',
+                    render: (status) => (
+                      <span className={getStatusBadge(status)}>
+                        {getStatusText(status)}
+                      </span>
+                    )
+                  },
+                  {
+                    key: 'createdAt',
+                    header: 'Ngày tạo',
+                    render: (_, serial) => serial.createdAt ? formatDate(serial.createdAt) : '-'
+                  },
+                  {
+                    key: 'updatedAt',
+                    header: 'Ngày cập nhật',
+                    render: (_, serial) => serial.updatedAt ? formatDate(serial.updatedAt) : '-'
+                  },
                 {
                   key: 'actions',
                   header: 'Thao tác',
@@ -233,17 +281,22 @@ export default function SerialsPage() {
                   )
                 }
               ]}
-              data={filteredSerials}
-              emptyMessage="Không tìm thấy serial nào phù hợp với tiêu chí tìm kiếm."
-            />
+                data={filteredSerials}
+                emptyMessage="Không tìm thấy serial nào phù hợp với tiêu chí tìm kiếm."
+              />
+            )}
           </div>
 
           <SerialForm
             isOpen={isFormOpen}
-            onClose={() => setIsFormOpen(false)}
+            onClose={() => {
+              setIsFormOpen(false)
+              setEditingSerial(null)
+            }}
             onSubmit={handleFormSubmit}
             editingSerial={editingSerial}
-            contracts={mockData.contracts}
+            contracts={[]}
+            isLoading={createSerialMutation.isPending || updateSerialMutation.isPending}
           />
 
           {/* Delete Confirmation Modal */}
@@ -257,7 +310,7 @@ export default function SerialsPage() {
                   {selectedSerial && (
                     <div className="bg-gray-50 p-3 rounded-md">
                       <p className="text-sm"><strong>Serial Number:</strong> {selectedSerial.serialNumber}</p>
-                      <p className="text-sm"><strong>Sản phẩm:</strong> {selectedSerial.productName}</p>
+                      <p className="text-sm"><strong>Sản phẩm:</strong> {selectedSerial.name}</p>
                       <p className="text-sm"><strong>Model:</strong> {selectedSerial.model}</p>
                     </div>
                   )}

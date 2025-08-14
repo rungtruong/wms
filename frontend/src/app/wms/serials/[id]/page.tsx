@@ -4,25 +4,25 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
+  Edit,
+  Trash2,
   Calendar,
+  Package,
+  Shield,
   User,
-  AlertCircle,
-  Clock,
-  CheckCircle,
-  FileText,
   Phone,
   Mail,
   MapPin,
-  Edit,
-  Package,
-  Wrench,
-  History,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  FileText,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import SerialForm from "@/components/SerialForm";
-import { mockData } from "@/lib/data";
-import { Serial } from "@/types";
+import { Serial } from "@/types/serial";
 import { showToast } from "@/lib/toast";
+import { useSerial, useUpdateSerial } from "@/hooks/useSerials";
 
 interface SerialDetailPageProps {
   params: {
@@ -32,21 +32,15 @@ interface SerialDetailPageProps {
 
 export default function SerialDetailPage({ params }: SerialDetailPageProps) {
   const router = useRouter();
-  const [serial, setSerial] = useState<Serial | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
-
-  useEffect(() => {
-    const foundSerial = mockData.serials.find((s) => s.id === params.id);
-    setSerial(foundSerial || null);
-    setLoading(false);
-  }, [params.id]);
+  const { data: serial, isLoading: loading, error } = useSerial(params.id);
+  const updateSerialMutation = useUpdateSerial();
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
       active: "status-badge status-active",
       expired: "status-badge status-expired",
-      suspended: "status-badge status-processing",
+      claimed: "status-badge status-processing",
     };
     return (
       statusClasses[status as keyof typeof statusClasses] || "status-badge"
@@ -57,7 +51,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
     const statusTexts = {
       active: "Đang bảo hành",
       expired: "Hết bảo hành",
-      suspended: "Tạm dừng",
+      claimed: "Đã bảo hành",
     };
     return statusTexts[status as keyof typeof statusTexts] || status;
   };
@@ -77,7 +71,8 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
   };
 
   const getContract = () => {
-    return mockData.contracts.find((c) => c.id === serial?.contractId);
+    // Contract data would come from a separate API call
+    return null;
   };
 
   const handleEditSerial = () => {
@@ -132,7 +127,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                 </div>
                 <div class="info-cell">
                   <span class="info-label">Tên sản phẩm:</span> <span class="info-value">${
-                    serial!.productName
+                    serial!.name
                   }</span>
                 </div>
               </div>
@@ -144,7 +139,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                 </div>
                 <div class="info-cell">
                   <span class="info-label">Trạng thái:</span> <span class="info-value">${getStatusText(
-                    serial!.status
+                    serial!.warrantyStatus
                   )}</span>
                 </div>
               </div>
@@ -156,7 +151,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                 </div>
                 <div class="info-cell">
                   <span class="info-label">Bảo hành còn lại:</span> <span class="info-value">${
-                    serial!.warrantyRemaining
+                    serial!.warrantyMonths ? `${serial!.warrantyMonths} tháng` : '-'
                   }</span>
                 </div>
               </div>
@@ -194,8 +189,8 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
           <div class="section">
             <div class="section-title">Lịch sử sửa chữa</div>
             ${
-              serial!.repairHistory.length > 0
-                ? serial!.repairHistory
+              false
+                ? []
                     .map(
                       (repair) => `
               <div class="repair-item">
@@ -247,50 +242,90 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
   };
 
   const handleFormSubmit = (formData: any) => {
-    const updatedSerial = {
-      ...serial!,
-      serialNumber: formData.serialNumber,
-      productName: formData.productName,
-      model: formData.model,
-      manufactureDate: formData.manufactureDate,
-      warrantyRemaining: formData.warrantyRemaining,
-    };
-    setSerial(updatedSerial);
-    setIsFormOpen(false);
-    showToast.success("Cập nhật thông tin serial thành công!");
+    if (serial) {
+      updateSerialMutation.mutate(
+        { id: serial.id, data: formData },
+        {
+          onSuccess: () => {
+            setIsFormOpen(false);
+            showToast.success("Cập nhật thông tin serial thành công!");
+          },
+          onError: () => {
+            showToast.error("Có lỗi xảy ra khi cập nhật serial");
+          },
+        }
+      );
+    }
   };
 
+  const contract = getContract();
+
+  // Loading state
   if (loading) {
     return (
-      <Layout title="Chi tiết Serial sản phẩm">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <Layout title="Chi tiết Serial">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-teal-600"></div>
         </div>
       </Layout>
     );
   }
 
+  // Error state
+  if (error) {
+    return (
+      <Layout title="Lỗi">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Có lỗi xảy ra
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Không thể tải thông tin serial. Vui lòng thử lại.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="btn btn-primary mr-2"
+            >
+              Thử lại
+            </button>
+            <button
+              onClick={() => router.push("/wms/serials")}
+              className="btn btn-secondary"
+            >
+              Quay lại danh sách
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Not found state
   if (!serial) {
     return (
-      <Layout title="Chi tiết Serial sản phẩm">
-        <div className="text-center py-12">
-          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Không tìm thấy Serial
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Serial sản phẩm không tồn tại hoặc đã bị xóa.
-          </p>
-          <button onClick={() => router.back()} className="btn btn-secondary">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Quay lại
-          </button>
+      <Layout title="Không tìm thấy">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Không tìm thấy serial
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Serial với ID này không tồn tại trong hệ thống.
+            </p>
+            <button
+              onClick={() => router.push("/wms/serials")}
+              className="btn btn-primary"
+            >
+              Quay lại danh sách
+            </button>
+          </div>
         </div>
       </Layout>
     );
   }
-
-  const contract = getContract();
 
   return (
     <Layout title={`Chi tiết Serial ${serial.serialNumber}`}>
@@ -310,12 +345,12 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <span className={getStatusBadge(serial.status)}>
-              {getStatusText(serial.status)}
+            <span className={getStatusBadge(serial.warrantyStatus)}>
+              {getStatusText(serial.warrantyStatus)}
             </span>
-            {serial.warrantyRemaining && (
+            {serial.warrantyMonths && (
               <span className="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                Còn {serial.warrantyRemaining}
+                Bảo hành {serial.warrantyMonths} tháng
               </span>
             )}
           </div>
@@ -344,7 +379,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                       Tên sản phẩm
                     </label>
                     <p className="text-sm text-gray-900">
-                      {serial.productName}
+                      {serial.name}
                     </p>
                   </div>
                   <div>
@@ -357,8 +392,8 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Trạng thái
                     </label>
-                    <span className={getStatusBadge(serial.status)}>
-                      {getStatusText(serial.status)}
+                    <span className={getStatusBadge(serial.warrantyStatus)}>
+                      {getStatusText(serial.warrantyStatus)}
                     </span>
                   </div>
                   <div>
@@ -366,7 +401,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                       Ngày sản xuất
                     </label>
                     <p className="text-sm text-gray-900">
-                      {formatDateOnly(serial.manufactureDate)}
+                      {serial.createdAt ? formatDateOnly(serial.createdAt) : '-'}
                     </p>
                   </div>
                   <div>
@@ -374,7 +409,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
                       Bảo hành còn lại
                     </label>
                     <p className="text-sm text-gray-900">
-                      {serial.warrantyRemaining}
+                      {serial.warrantyMonths ? `${serial.warrantyMonths} tháng` : '-'}
                     </p>
                   </div>
                 </div>
@@ -430,45 +465,22 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
             <div className="card">
               <div className="card-header">
                 <h2 className="card-title pb-6 text-lg font-bold text-gray-900">
-                  Lịch sử sửa chữa
+                  Ghi chú
                 </h2>
               </div>
               <div className="card-content">
-                {serial.repairHistory.length > 0 ? (
-                  <div className="space-y-4">
-                    {serial.repairHistory.map((repair, index) => (
-                      <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                        <div className="flex items-start space-x-3">
-                          <Wrench className="h-5 w-5 text-teal-600 mt-0.5" />
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-2">
-                              <h3 className="font-medium text-gray-900">
-                                {repair.issue}
-                              </h3>
-                              <span className="text-sm text-gray-500">
-                                {formatDateOnly(repair.date)}
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-600 mb-2">
-                              {repair.solution}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              <strong>Kỹ thuật viên:</strong>{" "}
-                              {repair.technician}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                {serial.notes ? (
+                  <p className="text-sm text-gray-600">{serial.notes}</p>
                 ) : (
                   <div className="text-center py-8">
-                    <History className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">Chưa có lịch sử sửa chữa</p>
+                    <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">Chưa có ghi chú</p>
                   </div>
                 )}
               </div>
             </div>
+
+
           </div>
 
           <div className="space-y-6">
@@ -510,7 +522,7 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
         onClose={() => setIsFormOpen(false)}
         onSubmit={handleFormSubmit}
         editingSerial={serial}
-        contracts={mockData.contracts}
+        contracts={[]}
       />
     </Layout>
   );
