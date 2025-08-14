@@ -107,184 +107,196 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
       title={editingSerial ? 'Sửa Serial Sản phẩm' : 'Thêm Serial Sản phẩm'}
     >
       <form onSubmit={handleSubmit}>
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Serial Number *
-            </label>
-            <input
-              type="text"
-              name="serialNumber"
-              value={formData.serialNumber}
-              onChange={handleChange}
-              className="form-input"
-              placeholder="Nhập serial number..."
-              required
-            />
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Cột trái - Các trường chính */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Serial Number *
+                </label>
+                <input
+                  type="text"
+                  name="serialNumber"
+                  value={formData.serialNumber}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Nhập serial number..."
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tên sản phẩm *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Nhập tên sản phẩm..."
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Model *
+                </label>
+                <input
+                  type="text"
+                  name="model"
+                  value={formData.model}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Nhập model sản phẩm..."
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Danh mục *
+                </label>
+                <input
+                  type="text"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Nhập danh mục sản phẩm..."
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Thời gian bảo hành (tháng) *
+                </label>
+                <input
+                  type="number"
+                  name="warrantyMonths"
+                  value={formData.warrantyMonths}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Nhập số tháng bảo hành..."
+                  min="1"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mô tả
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Nhập mô tả sản phẩm..."
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            {/* Cột phải - Các trường phụ */}
+            <div className="space-y-4">
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ngày sản xuất
+                </label>
+                <input
+                  type="date"
+                  name="manufactureDate"
+                  value={formData.manufactureDate}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ngày mua
+                </label>
+                <input
+                  type="date"
+                  name="purchaseDate"
+                  value={formData.purchaseDate}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Trạng thái bảo hành
+                </label>
+                <select
+                  name="warrantyStatus"
+                  value={formData.warrantyStatus}
+                  onChange={handleChange}
+                  className="form-input"
+                >
+                  <option value="active">Đang bảo hành</option>
+                  <option value="expired">Hết bảo hành</option>
+                  <option value="claimed">Đã bảo hành</option>
+                  <option value="suspended">Tạm ngưng</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Hợp đồng bảo hành
+                </label>
+                <select
+                  name="contractId"
+                  value={formData.contractId}
+                  onChange={handleChange}
+                  className="form-input"
+                >
+                  <option value="">Chọn hợp đồng</option>
+                  {contracts.map((contract) => (
+                    <option key={contract.id} value={contract.id}>
+                      {contract.contractNumber} - {contract.customerName || 'N/A'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ghi chú
+                </label>
+                <textarea
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Nhập ghi chú..."
+                  rows={3}
+                />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tên sản phẩm *
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="form-input"
-              placeholder="Nhập tên sản phẩm..."
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Model *
-            </label>
-            <input
-              type="text"
-              name="model"
-              value={formData.model}
-              onChange={handleChange}
-              className="form-input"
-              placeholder="Nhập model sản phẩm..."
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Mô tả
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="form-input"
-              placeholder="Nhập mô tả sản phẩm..."
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Danh mục *
-            </label>
-            <input
-              type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="form-input"
-              placeholder="Nhập danh mục sản phẩm..."
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Thời gian bảo hành (tháng) *
-            </label>
-            <input
-              type="number"
-              name="warrantyMonths"
-              value={formData.warrantyMonths}
-              onChange={handleChange}
-              className="form-input"
-              placeholder="Nhập số tháng bảo hành..."
-              min="1"
-              required
-            />
-          </div>
-
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="isActive"
-              checked={formData.isActive}
-              onChange={handleChange}
-              className="mr-2"
-            />
-            <label className="text-sm font-medium text-gray-700">
-              Kích hoạt
-            </label>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ngày sản xuất
-            </label>
-            <input
-              type="date"
-              name="manufactureDate"
-              value={formData.manufactureDate}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ngày mua
-            </label>
-            <input
-              type="date"
-              name="purchaseDate"
-              value={formData.purchaseDate}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Trạng thái bảo hành
-            </label>
-            <select
-              name="warrantyStatus"
-              value={formData.warrantyStatus}
-              onChange={handleChange}
-              className="form-input"
-            >
-              <option value="active">Đang bảo hành</option>
-              <option value="expired">Hết bảo hành</option>
-              <option value="claimed">Đã bảo hành</option>
-              <option value="suspended">Tạm ngưng</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Hợp đồng bảo hành
-            </label>
-            <select
-              name="contractId"
-              value={formData.contractId}
-              onChange={handleChange}
-              className="form-input"
-            >
-              <option value="">Chọn hợp đồng</option>
-              {contracts.map((contract) => (
-                <option key={contract.id} value={contract.id}>
-                  {contract.contractNumber} - {contract.customerName || 'N/A'}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ghi chú
-            </label>
-            <textarea
-              name="notes"
-              value={formData.notes}
-              onChange={handleChange}
-              className="form-input"
-              placeholder="Nhập ghi chú..."
-              rows={3}
-            />
+          {/* Checkbox Kích hoạt ở cuối form */}
+          <div className="mt-6">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                name="isActive"
+                checked={formData.isActive}
+                onChange={handleChange}
+                className="mr-2"
+              />
+              <label className="text-sm font-medium text-gray-700">
+                Kích hoạt
+              </label>
+            </div>
           </div>
         </div>
 
