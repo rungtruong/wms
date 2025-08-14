@@ -25,7 +25,7 @@ export class CreateTicketDto {
 
   @IsEnum(TicketStatus)
   @IsOptional()
-  status?: TicketStatus = TicketStatus.open;
+  status?: TicketStatus;
 
   @IsUUID()
   productSerialId: string;

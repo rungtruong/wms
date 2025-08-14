@@ -25,7 +25,7 @@ export class DashboardService {
       }
     });
 
-    const pendingRequests = tickets.filter(t => t.status === TicketStatus.open).length;
+    const pendingRequests = tickets.filter(t => t.status === null).length;
     const processingRequests = tickets.filter(t => t.status === TicketStatus.in_progress).length;
     const completedRequests = tickets.filter(t => t.status === TicketStatus.resolved).length;
 
@@ -48,7 +48,7 @@ export class DashboardService {
   async getWarrantyRequestsChart() {
     const tickets = await this.prisma.ticket.findMany({ select: { status: true } });
     
-    const pendingRequests = tickets.filter(t => t.status === TicketStatus.open).length;
+    const pendingRequests = tickets.filter(t => t.status === null).length;
     const processingRequests = tickets.filter(t => t.status === TicketStatus.in_progress).length;
     const completedRequests = tickets.filter(t => t.status === TicketStatus.resolved).length;
 

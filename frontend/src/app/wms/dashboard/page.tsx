@@ -91,7 +91,7 @@ export default function Dashboard() {
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
-      open: "status-badge status-received",
+      received: "status-badge status-received",
       in_progress: "status-badge status-processing",
       resolved: "status-badge status-completed",
       closed: "status-badge status-closed",

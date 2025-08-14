@@ -77,7 +77,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
-      open: "status-badge status-received",
+      received: "status-badge status-received",
       in_progress: "status-badge status-processing",
       resolved: "status-badge status-completed",
       closed: "status-badge status-closed",
@@ -90,7 +90,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
   const getStatusText = (status: string) => {
     const statusTexts = {
-      open: "Tiếp nhận",
+      received: "Tiếp nhận",
       in_progress: "Đang xử lý",
       resolved: "Đã giải quyết",
       closed: "Đã đóng",
@@ -98,9 +98,21 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
     return statusTexts[status as keyof typeof statusTexts] || status;
   };
 
+  const getNextAvailableStatuses = (currentStatus: string | null) => {
+    const statusFlow = {
+      received: ['in_progress'],
+      in_progress: ['resolved'],
+      resolved: ['closed'],
+      closed: []
+    };
+    
+    if (!currentStatus) return [];
+    return statusFlow[currentStatus as keyof typeof statusFlow] || [];
+  };
+
   const getStatusDisplayValue = (value: string) => {
     const statusMapping = {
-      open: "Tiếp nhận",
+      received: "Tiếp nhận",
       in_progress: "Đang xử lý",
       resolved: "Đã giải quyết",
       closed: "Đã đóng",
@@ -573,8 +585,16 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
               <div className="card-content space-y-3">
                 <button
                   onClick={handleUpdateStatus}
-                  className="w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors"
-                  style={{ backgroundColor: "#21808D", color: "#FCFCF9" }}
+                  disabled={!request?.assignee || !request?.status}
+                  className={`w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors ${
+                    !request?.assignee || !request?.status
+                      ? 'opacity-50 cursor-not-allowed bg-gray-400'
+                      : ''
+                  }`}
+                  style={{
+                    backgroundColor: !request?.assignee || !request?.status ? '#9CA3AF' : '#21808D',
+                    color: '#FCFCF9'
+                  }}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Cập nhật trạng thái
@@ -642,10 +662,11 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                   className="form-input"
                 >
                   <option value="">-- Chọn trạng thái --</option>
-                  <option value="open">Tiếp nhận</option>
-                  <option value="in_progress">Đang xử lý</option>
-                  <option value="resolved">Đã giải quyết</option>
-                  <option value="closed">Đã đóng</option>
+                  {getNextAvailableStatuses(request?.status).map((status) => (
+                    <option key={status} value={status}>
+                      {getStatusText(status)}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -676,7 +697,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                       await ticketsService.updateStatus(
                         request.id,
                         selectedStatus as
-                          | "open"
+                          | "received"
                           | "in_progress"
                           | "resolved"
                           | "closed",

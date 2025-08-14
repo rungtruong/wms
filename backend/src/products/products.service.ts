@@ -345,7 +345,6 @@ export class ProductsService {
         ticketNumber,
         productSerialId: productSerial.id,
         issueDescription: `${createWarrantyRequestDto.issue}: ${createWarrantyRequestDto.description}`,
-        status: TicketStatus.open,
         priority: createWarrantyRequestDto.priority,
         assignedTo: createWarrantyRequestDto.assignedTo,
         customerName: createWarrantyRequestDto.customerName,

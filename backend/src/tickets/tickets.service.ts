@@ -194,6 +194,9 @@ export class TicketsService {
   ) {
     const existingTicket = await this.findById(id);
 
+    // Validate status flow
+    this.validateStatusTransition(existingTicket.status, status, existingTicket.assignedTo);
+
     const ticket = await this.prisma.ticket.update({
       where: { id },
       data: { status },
@@ -231,7 +234,10 @@ export class TicketsService {
 
     const ticket = await this.prisma.ticket.update({
       where: { id },
-      data: { assignedTo: technicianId },
+      data: { 
+        assignedTo: technicianId,
+        status: TicketStatus.received
+      },
       include: {
         productSerial: {
           include: {
@@ -350,9 +356,9 @@ export class TicketsService {
             actionType = ActionType.closed;
             description = "Ticket đã được đóng";
             break;
-          case TicketStatus.open:
+          case TicketStatus.received:
             actionType = ActionType.reopened;
-            description = "Ticket đã được mở lại";
+            description = "Ticket đã được tiếp nhận lại";
             break;
           default:
             actionType = ActionType.status_changed;
@@ -393,9 +399,9 @@ export class TicketsService {
           actionType = ActionType.closed;
           description = "Ticket đã được đóng";
           break;
-        case TicketStatus.open:
+        case TicketStatus.received:
           actionType = ActionType.reopened;
-          description = "Ticket đã được mở lại";
+          description = "Ticket đã được tiếp nhận lại";
           break;
         default:
           actionType = ActionType.status_changed;
@@ -434,6 +440,44 @@ export class TicketsService {
         existingTicket.assignedTo,
         updateDto.assignedTo,
         performedBy
+      );
+    }
+  }
+
+  private validateStatusTransition(
+    currentStatus: TicketStatus | null,
+    newStatus: TicketStatus,
+    assignedTo: string | null
+  ) {
+    // Define status hierarchy
+    const statusHierarchy = {
+      received: 1,
+      in_progress: 2,
+      resolved: 3,
+      closed: 4
+    };
+
+    // Check if ticket has assignee for status updates
+    if (!assignedTo) {
+      throw new BadRequestException(
+        'Ticket phải được phân công kỹ thuật viên trước khi cập nhật trạng thái'
+      );
+    }
+
+    // Check if current status allows updates
+    if (!currentStatus) {
+      throw new BadRequestException(
+        'Ticket chưa được tiếp nhận, không thể cập nhật trạng thái'
+      );
+    }
+
+    // Check if trying to go backwards in status
+    const currentLevel = statusHierarchy[currentStatus];
+    const newLevel = statusHierarchy[newStatus];
+
+    if (newLevel <= currentLevel) {
+      throw new BadRequestException(
+        `Không thể chuyển từ trạng thái '${currentStatus}' về '${newStatus}'. Chỉ có thể tiến lên trạng thái tiếp theo.`
       );
     }
   }

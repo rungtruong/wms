@@ -19,7 +19,7 @@ export class CustomerPortalService {
             tickets: {
               where: {
                 status: {
-                  in: [TicketStatus.open, TicketStatus.in_progress],
+                  in: [TicketStatus.received, TicketStatus.in_progress],
                 },
               },
             },
@@ -123,7 +123,7 @@ export class CustomerPortalService {
         ticketNumber,
         productSerialId: serialId,
         issueDescription: `${createSupportRequestDto.subject}: ${createSupportRequestDto.message}`,
-        status: TicketStatus.open,
+
         priority: createSupportRequestDto.priority,
         customerName: createSupportRequestDto.customerName,
         customerEmail: createSupportRequestDto.customerEmail,

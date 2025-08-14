@@ -367,7 +367,7 @@ export const mockData = {
           actionType: "created",
           description: "Tiếp nhận yêu cầu bảo hành",
           oldValue: undefined,
-          newValue: "open",
+          newValue: "received",
           performedBy: { id: "U001", fullName: "Hệ thống" },
           createdAt: "2024-12-01T10:15:00Z"
         },
@@ -375,7 +375,7 @@ export const mockData = {
           id: "H002",
           actionType: "status_update",
           description: "Đang chẩn đoán lỗi phần cứng",
-          oldValue: "open",
+          oldValue: "received",
           newValue: "in_progress",
           performedBy: { id: "U002", fullName: "Nguyễn Văn Tâm" },
           createdAt: "2024-12-02T09:30:00Z"
@@ -409,7 +409,7 @@ export const mockData = {
           actionType: "created",
           description: "Tiếp nhận yêu cầu bảo hành",
           oldValue: undefined,
-          newValue: "open",
+          newValue: "received",
           performedBy: { id: "U001", fullName: "Hệ thống" },
           createdAt: "2024-11-20T16:45:00Z"
         },
@@ -417,7 +417,7 @@ export const mockData = {
           id: "H004",
           actionType: "status_update",
           description: "Đặt hàng màn hình thay thế",
-          oldValue: "open",
+          oldValue: "received",
           newValue: "in_progress",
           performedBy: { id: "U003", fullName: "Lê Văn Đức" },
           createdAt: "2024-11-22T10:00:00Z"
@@ -440,7 +440,7 @@ export const mockData = {
       customerName: "Lê Văn Cường",
       issueTitle: "Pin chai nhanh",
       issueDescription: "Điện thoại chỉ dùng được 4-5 tiếng là hết pin, trước đây dùng cả ngày",
-      status: "open" as const,
+      status: "received" as const,
       priority: "urgent" as const,
       assignedTo: "Trần Văn Minh",
       createdAt: "2024-12-05T14:20:00Z",
@@ -460,7 +460,7 @@ export const mockData = {
           actionType: "created",
           description: "Tiếp nhận yêu cầu bảo hành",
           oldValue: undefined,
-          newValue: "open",
+          newValue: "received",
           performer: { id: "U001", fullName: "Hệ thống" },
           createdAt: "2024-12-05T14:20:00Z"
         }

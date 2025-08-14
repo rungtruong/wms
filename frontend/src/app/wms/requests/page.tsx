@@ -63,7 +63,7 @@ export default function RequestsPage() {
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
-      open: "status-badge status-received",
+      received: "status-badge status-received",
       in_progress: "status-badge status-processing",
       resolved: "status-badge status-completed",
       closed: "status-badge status-completed",
@@ -75,7 +75,7 @@ export default function RequestsPage() {
 
   const getStatusText = (status: string) => {
     const statusTexts = {
-      open: "Tiếp nhận",
+      received: "Tiếp nhận",
       in_progress: "Đang xử lý",
       resolved: "Đã giải quyết",
       closed: "Đã đóng",
@@ -278,7 +278,7 @@ export default function RequestsPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="">Tất cả trạng thái</option>
-              <option value="open">Tiếp nhận</option>
+              <option value="received">Tiếp nhận</option>
               <option value="in_progress">Đang xử lý</option>
               <option value="resolved">Đã giải quyết</option>
               <option value="closed">Đã đóng</option>

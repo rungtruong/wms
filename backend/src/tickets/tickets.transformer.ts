@@ -2,7 +2,7 @@ export class TicketsTransformer {
   static transformTicket(ticket: any) {
     if (!ticket) return ticket;
 
-    const { productSerialId, assignedTo, ...cleanTicket } = ticket;
+    const { productSerialId, ...cleanTicket } = ticket;
     
     return cleanTicket;
   }

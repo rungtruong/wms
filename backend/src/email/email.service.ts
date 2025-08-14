@@ -228,7 +228,7 @@ export class EmailService {
 
   private getStatusText(status: string): string {
     const statusMap = {
-      'open': 'Tiếp nhận',
+      'received': 'Tiếp nhận',
       'in_progress': 'Đang xử lý',
       'resolved': 'Đã giải quyết',
       'closed': 'Đã đóng'
@@ -238,7 +238,7 @@ export class EmailService {
 
   private getStatusColor(status: string): string {
     const colorMap = {
-      'open': '#3182ce',
+      'received': '#3182ce',
       'in_progress': '#d69e2e',
       'resolved': '#38a169',
       'closed': '#718096'

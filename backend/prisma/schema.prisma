@@ -34,7 +34,7 @@ enum TicketPriority {
 }
 
 enum TicketStatus {
-  open
+  received
   in_progress
   resolved
   closed
@@ -162,7 +162,7 @@ model Ticket {
   issueDescription String         @map("issue_description")
   issueTitle       String?        @map("issue_title") @db.VarChar(200)
   priority         TicketPriority @default(medium)
-  status           TicketStatus   @default(open)
+  status           TicketStatus?
   assignedTo       String?        @map("assigned_to") @db.Uuid
   createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
