@@ -295,7 +295,6 @@ export default function SerialsPage() {
             }}
             onSubmit={handleFormSubmit}
             editingSerial={editingSerial}
-            contracts={[]}
             isLoading={createSerialMutation.isPending || updateSerialMutation.isPending}
           />
 

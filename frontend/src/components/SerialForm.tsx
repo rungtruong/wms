@@ -2,17 +2,18 @@ import { useState, useEffect } from 'react'
 import Modal from './Modal'
 import { showToast } from '@/lib/toast'
 import { Serial, CreateSerialDto } from '@/types/serial'
+import { useContracts } from '@/hooks/useContracts'
 
 interface SerialFormProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (serialData: CreateSerialDto) => void
   editingSerial?: Serial
-  contracts: any[]
   isLoading?: boolean
 }
 
-export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, contracts, isLoading = false }: SerialFormProps) {
+export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, isLoading = false }: SerialFormProps) {
+  const { contracts, loading: contractsLoading } = useContracts();
   const [formData, setFormData] = useState({
     serialNumber: '',
     name: '',
@@ -265,6 +266,7 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
                   value={formData.contractId}
                   onChange={handleChange}
                   className="form-input"
+                  disabled={contractsLoading}
                 >
                   <option value="">Chọn hợp đồng</option>
                   {contracts.map((contract) => (
@@ -273,6 +275,9 @@ export default function SerialForm({ isOpen, onClose, onSubmit, editingSerial, c
                     </option>
                   ))}
                 </select>
+                {contractsLoading && (
+                  <p className="text-sm text-gray-500 mt-1">Đang tải danh sách hợp đồng...</p>
+                )}
               </div>
 
               <div>

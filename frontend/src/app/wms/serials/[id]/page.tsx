@@ -524,7 +524,6 @@ export default function SerialDetailPage({ params }: SerialDetailPageProps) {
         onClose={() => setIsFormOpen(false)}
         onSubmit={handleFormSubmit}
         editingSerial={serial}
-        contracts={[]}
       />
     </Layout>
   );
