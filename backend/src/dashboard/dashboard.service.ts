@@ -25,7 +25,7 @@ export class DashboardService {
       }
     });
 
-    const pendingRequests = tickets.filter(t => t.status === null).length;
+    const pendingRequests = tickets.filter(t => t.status === TicketStatus.new).length;
     const processingRequests = tickets.filter(t => t.status === TicketStatus.in_progress).length;
     const completedRequests = tickets.filter(t => t.status === TicketStatus.resolved).length;
 

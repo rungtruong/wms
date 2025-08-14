@@ -433,6 +433,11 @@
     background-color: rgba(98, 108, 113, 0.15);
   }
 
+  .status-primary {
+    @apply text-blue-800;
+    background-color: rgba(59, 130, 246, 0.15);
+  }
+
   .priority-urgent {
     @apply text-red-900;
     background-color: rgba(192, 21, 47, 0.25);

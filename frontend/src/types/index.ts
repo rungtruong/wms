@@ -71,7 +71,7 @@ export interface WarrantyRequest {
   customerPhone?: string;
   issueTitle: string;
   issueDescription: string;
-  status: "received" | "in_progress" | "resolved" | "closed";
+  status: "new" | "received" | "in_progress" | "resolved" | "closed";
   priority: "low" | "medium" | "high" | "urgent";
   assignedTo?: string;
   createdAt: string;

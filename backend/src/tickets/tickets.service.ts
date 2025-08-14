@@ -344,6 +344,10 @@ export class TicketsService {
         actionType = ActionType.status_changed;
       } else {
         switch (newStatus) {
+          case TicketStatus.received:
+            actionType = ActionType.status_changed;
+            description = "Ticket đã được tiếp nhận";
+            break;
           case TicketStatus.in_progress:
             actionType = ActionType.assigned;
             description = "Ticket được tiếp nhận và bắt đầu xử lý";
@@ -355,10 +359,6 @@ export class TicketsService {
           case TicketStatus.closed:
             actionType = ActionType.closed;
             description = "Ticket đã được đóng";
-            break;
-          case TicketStatus.received:
-            actionType = ActionType.reopened;
-            description = "Ticket đã được tiếp nhận lại";
             break;
           default:
             actionType = ActionType.status_changed;
@@ -387,6 +387,10 @@ export class TicketsService {
       let description: string;
 
       switch (updateDto.status) {
+        case TicketStatus.received:
+          actionType = ActionType.status_changed;
+          description = "Ticket đã được tiếp nhận";
+          break;
         case TicketStatus.in_progress:
           actionType = ActionType.assigned;
           description = "Ticket được tiếp nhận và bắt đầu xử lý";
@@ -398,10 +402,6 @@ export class TicketsService {
         case TicketStatus.closed:
           actionType = ActionType.closed;
           description = "Ticket đã được đóng";
-          break;
-        case TicketStatus.received:
-          actionType = ActionType.reopened;
-          description = "Ticket đã được tiếp nhận lại";
           break;
         default:
           actionType = ActionType.status_changed;
@@ -451,14 +451,15 @@ export class TicketsService {
   ) {
     // Define status hierarchy
     const statusHierarchy = {
+      new: 0,
       received: 1,
       in_progress: 2,
       resolved: 3,
       closed: 4
     };
 
-    // Check if ticket has assignee for status updates
-    if (!assignedTo) {
+    // Check if ticket has assignee for status updates beyond 'received'
+    if (!assignedTo && newStatus !== 'received') {
       throw new BadRequestException(
         'Ticket phải được phân công kỹ thuật viên trước khi cập nhật trạng thái'
       );
@@ -467,7 +468,7 @@ export class TicketsService {
     // Check if current status allows updates
     if (!currentStatus) {
       throw new BadRequestException(
-        'Ticket chưa được tiếp nhận, không thể cập nhật trạng thái'
+        'Trạng thái ticket không hợp lệ'
       );
     }
 

@@ -77,6 +77,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
+      new: "status-badge status-primary",
       received: "status-badge status-received",
       in_progress: "status-badge status-processing",
       resolved: "status-badge status-completed",
@@ -84,12 +85,13 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
     };
     return (
       statusClasses[status as keyof typeof statusClasses] ||
-      "status-badge status-received"
+      "status-badge status-primary"
     );
   };
 
   const getStatusText = (status: string) => {
     const statusTexts = {
+      new: "Mới",
       received: "Tiếp nhận",
       in_progress: "Đang xử lý",
       resolved: "Đã giải quyết",
@@ -100,6 +102,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
   const getNextAvailableStatuses = (currentStatus: string | null) => {
     const statusFlow = {
+      new: ['received'],
       received: ['in_progress'],
       in_progress: ['resolved'],
       resolved: ['closed'],
@@ -112,6 +115,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
   const getStatusDisplayValue = (value: string) => {
     const statusMapping = {
+      new: "Mới",
       received: "Tiếp nhận",
       in_progress: "Đang xử lý",
       resolved: "Đã giải quyết",

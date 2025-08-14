@@ -91,6 +91,7 @@ export default function Dashboard() {
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
+      new: "status-badge status-primary",
       received: "status-badge status-received",
       in_progress: "status-badge status-processing",
       resolved: "status-badge status-completed",
@@ -103,7 +104,9 @@ export default function Dashboard() {
 
   const getStatusText = (status: string) => {
     const statusTexts = {
+      new: "Mới",
       open: "Tiếp nhận",
+      received: "Tiếp nhận",
       in_progress: "Đang xử lý",
       resolved: "Đã giải quyết",
       closed: "Đã đóng",

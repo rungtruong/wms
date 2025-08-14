@@ -10,7 +10,7 @@ interface CreateTicketRequest {
 }
 
 interface UpdateTicketRequest {
-  status?: 'received' | 'in_progress' | 'resolved' | 'closed';
+  status?: 'new' | 'received' | 'in_progress' | 'resolved' | 'closed';
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   assignedTo?: string;
   issue?: string;
@@ -59,7 +59,7 @@ class TicketsService {
     return apiClient.get<TicketHistory[]>(`/tickets/${id}/history`);
   }
 
-  async getByStatus(status: 'received' | 'in_progress' | 'resolved' | 'closed'): Promise<WarrantyRequest[]> {
+  async getByStatus(status: 'new' | 'received' | 'in_progress' | 'resolved' | 'closed'): Promise<WarrantyRequest[]> {
     return this.getAll(status);
   }
 
@@ -67,7 +67,7 @@ class TicketsService {
     return this.getAll(undefined, priority);
   }
 
-  async updateStatus(id: string, status: 'received' | 'in_progress' | 'resolved' | 'closed', note?: string): Promise<WarrantyRequest> {
+  async updateStatus(id: string, status: 'new' | 'received' | 'in_progress' | 'resolved' | 'closed', note?: string): Promise<WarrantyRequest> {
     const updateData: any = { status };
     if (note) {
       updateData.note = note;
