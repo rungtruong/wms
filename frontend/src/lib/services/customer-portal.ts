@@ -13,11 +13,6 @@ export interface WarrantyDetails {
   }
   contract: {
     contractNumber: string
-    customer: {
-      name: string
-      email: string
-      phone: string
-    }
     startDate: string
     endDate: string
     terms: string

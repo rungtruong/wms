@@ -305,12 +305,6 @@ export class ProductsService {
       },
       contract: productSerial.contract ? {
         contractNumber: productSerial.contract.contractNumber,
-        customer: {
-          name: productSerial.contract.customerName,
-          address: productSerial.contract.customerAddress,
-          phone: productSerial.contract.customerPhone,
-          email: productSerial.contract.customerEmail,
-        },
         startDate: productSerial.contract.startDate,
         endDate: productSerial.contract.endDate,
         terms: productSerial.contract.termsConditions,
