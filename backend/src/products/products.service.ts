@@ -203,7 +203,6 @@ export class ProductsService {
             },
           },
         },
-        warrantyHistory: true,
       },
     });
 
@@ -244,26 +243,7 @@ export class ProductsService {
     const productSerial = await this.prisma.productSerial.findUnique({
       where: { serialNumber },
       include: {
-        contract: {
-          include: {
-            contractProducts: true,
-          },
-        },
-        tickets: {
-          include: {
-            history: {
-              include: {
-                performer: true,
-              },
-              orderBy: {
-                createdAt: 'desc',
-              },
-            },
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-        },
+        contract: true,
         warrantyHistory: {
           orderBy: {
             performedAt: 'desc',
@@ -291,24 +271,17 @@ export class ProductsService {
         serialNumber: productSerial.serialNumber,
         productName: productSerial.name,
         model: productSerial.model,
-        manufactureDate: productSerial.manufactureDate,
+        manufacturingDate: productSerial.manufactureDate,
         purchaseDate: productSerial.purchaseDate,
         warrantyRemaining: `${daysRemaining} days`,
         status: productSerial.warrantyStatus,
-        repairHistory: productSerial.warrantyHistory.map(history => ({
-          id: history.id,
-          actionType: history.actionType,
-          description: history.description,
-          performedAt: history.performedAt,
-          performedBy: history.performedBy,
-        })),
+
       },
       contract: productSerial.contract ? {
         contractNumber: productSerial.contract.contractNumber,
         startDate: productSerial.contract.startDate,
         endDate: productSerial.contract.endDate,
         terms: productSerial.contract.termsConditions,
-        status: productSerial.contract.status,
       } : null,
       warranty: {
         isValid,
@@ -323,9 +296,6 @@ export class ProductsService {
   async createWarrantyRequest(createWarrantyRequestDto: CreateWarrantyRequestDto) {
     const productSerial = await this.prisma.productSerial.findUnique({
       where: { serialNumber: createWarrantyRequestDto.serialNumber },
-      include: {
-        contract: true,
-      },
     });
 
     if (!productSerial) {
@@ -347,11 +317,7 @@ export class ProductsService {
         customerPhone: createWarrantyRequestDto.customerPhone,
       },
       include: {
-        productSerial: {
-          include: {
-            contract: true,
-          },
-        },
+        productSerial: true,
         history: {
           include: {
             performer: true,
@@ -373,11 +339,7 @@ export class ProductsService {
     const updatedTicket = await this.prisma.ticket.findUnique({
       where: { id: ticket.id },
       include: {
-        productSerial: {
-          include: {
-            contract: true,
-          },
-        },
+        productSerial: true,
         history: {
           include: {
             performer: true,
@@ -393,7 +355,6 @@ export class ProductsService {
     return {
       success: true,
       message: 'Warranty request created successfully',
-      ticket: updatedTicket,
     };
   }
 
