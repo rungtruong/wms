@@ -21,8 +21,8 @@ export class CreateSupportRequestDto {
   customerPhone?: string;
 
   @IsString()
-  @IsOptional()
-  serialNumber?: string;
+  @IsNotEmpty()
+  serialNumber: string;
 
   @IsString()
   @IsNotEmpty()

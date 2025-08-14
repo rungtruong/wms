@@ -104,16 +104,12 @@ export class CustomerPortalService {
   }
 
   async createSupportRequest(createSupportRequestDto: CreateSupportRequestDto) {
-    let serialId = null;
-
-    if (createSupportRequestDto.serialNumber) {
-      const productSerial = await this.prisma.productSerial.findUnique({
-        where: { serialNumber: createSupportRequestDto.serialNumber },
-      });
-      
-      if (productSerial) {
-        serialId = productSerial.id;
-      }
+    const productSerial = await this.prisma.productSerial.findUnique({
+      where: { serialNumber: createSupportRequestDto.serialNumber },
+    });
+    
+    if (!productSerial) {
+      throw new NotFoundException(`Serial number ${createSupportRequestDto.serialNumber} not found`);
     }
 
     const ticketNumber = `SR-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
@@ -121,7 +117,7 @@ export class CustomerPortalService {
     const ticket = await this.prisma.ticket.create({
       data: {
         ticketNumber,
-        productSerialId: serialId,
+        productSerialId: productSerial.id,
         issueDescription: `${createSupportRequestDto.subject}: ${createSupportRequestDto.message}`,
 
         priority: createSupportRequestDto.priority,
