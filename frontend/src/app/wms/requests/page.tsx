@@ -439,7 +439,6 @@ export default function RequestsPage() {
                     }
                     className="form-input"
                     placeholder="Nhập tên khách hàng"
-                    disabled
                   />
                 </div>
 
@@ -455,7 +454,6 @@ export default function RequestsPage() {
                     }
                     className="form-input"
                     placeholder="Nhập serial number sản phẩm"
-                    disabled
                   />
                 </div>
               </div>
@@ -557,6 +555,7 @@ export default function RequestsPage() {
                     }
                     className="form-input"
                     placeholder="Nhập tên khách hàng"
+                    disabled
                   />
                 </div>
 
@@ -572,6 +571,7 @@ export default function RequestsPage() {
                     }
                     className="form-input"
                     placeholder="Nhập serial number sản phẩm"
+                    disabled
                   />
                 </div>
               </div>
