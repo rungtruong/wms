@@ -26,11 +26,11 @@ export class CreateWarrantyRequestDto {
 
   @IsString()
   @IsNotEmpty()
-  issue: string;
+  issueTitle: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  issueDescription: string;
 
   @IsEnum(TicketPriority)
   @IsOptional()

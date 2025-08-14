@@ -74,6 +74,7 @@ export class ProductsController {
     return this.productsService.findSerialsByCustomerEmail(customerEmail);
   }
 
+  @Public()
   @Post('serials/warranty-request')
   createWarrantyRequest(@Body() createWarrantyRequestDto: CreateWarrantyRequestDto) {
     return this.productsService.createWarrantyRequest(createWarrantyRequestDto);

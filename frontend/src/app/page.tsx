@@ -18,8 +18,8 @@ export default function CustomerPortalPage() {
     customerName: '',
     customerPhone: '',
     customerEmail: '',
-    issue: '',
-    description: ''
+    issueTitle: '',
+    issueDescription: ''
   })
   const [ticketError, setTicketError] = useState<string | null>(null)
   const [ticketSuccess, setTicketSuccess] = useState<string | null>(null)
@@ -54,7 +54,7 @@ export default function CustomerPortalPage() {
   const handleTicketSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!ticketForm.serialNumber || !ticketForm.customerName || !ticketForm.customerPhone || !ticketForm.issue) {
+    if (!ticketForm.serialNumber || !ticketForm.customerName || !ticketForm.customerPhone || !ticketForm.issueTitle) {
       setTicketError('Vui lòng điền đầy đủ thông tin bắt buộc')
       setTicketSuccess(null)
       return
@@ -70,8 +70,8 @@ export default function CustomerPortalPage() {
         customerName: ticketForm.customerName,
         customerPhone: ticketForm.customerPhone,
         customerEmail: ticketForm.customerEmail || undefined,
-        issue: ticketForm.issue,
-        description: ticketForm.description,
+        issueTitle: ticketForm.issueTitle,
+        issueDescription: ticketForm.issueDescription,
         priority: 'medium'
       })
       
@@ -82,14 +82,12 @@ export default function CustomerPortalPage() {
         customerName: '',
         customerPhone: '',
         customerEmail: '',
-        issue: '',
-        description: ''
+        issueTitle: '',
+        issueDescription: ''
       })
     } catch (error: any) {
       if (error.status === 404) {
         setTicketError('Không tìm thấy serial number này trong hệ thống')
-      } else if (error.status === 401) {
-        setTicketError('Bạn cần đăng nhập để gửi yêu cầu bảo hành')
       } else {
         setTicketError(error.message || 'Có lỗi xảy ra khi gửi yêu cầu bảo hành')
       }
@@ -348,23 +346,17 @@ export default function CustomerPortalPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Vấn đề gặp phải <span className="text-red-500">*</span>
                     </label>
-                    <select
+                    <input
+                      type="text"
                       required
-                      value={ticketForm.issue}
+                      value={ticketForm.issueTitle}
                       onChange={(e) => {
-                        setTicketForm({...ticketForm, issue: e.target.value})
+                        setTicketForm({...ticketForm, issueTitle: e.target.value})
                         if (ticketError) setTicketError(null)
                       }}
                       className="form-input w-full"
-                    >
-                      <option value="">Chọn loại vấn đề</option>
-                      <option value="hardware">Lỗi phần cứng</option>
-                      <option value="software">Lỗi phần mềm</option>
-                      <option value="performance">Hiệu suất kém</option>
-                      <option value="display">Lỗi màn hình</option>
-                      <option value="battery">Lỗi pin</option>
-                      <option value="other">Khác</option>
-                    </select>
+                      placeholder="Mô tả vấn đề bạn gặp phải (VD: Lỗi phần cứng, Lỗi phần mềm, Hiệu suất kém...)"
+                    />
                   </div>
 
                   <div>
@@ -373,8 +365,8 @@ export default function CustomerPortalPage() {
                     </label>
                     <textarea
                       rows={4}
-                      value={ticketForm.description}
-                      onChange={(e) => setTicketForm({...ticketForm, description: e.target.value})}
+                      value={ticketForm.issueDescription}
+                      onChange={(e) => setTicketForm({...ticketForm, issueDescription: e.target.value})}
                       className="form-input w-full"
                       placeholder="Mô tả chi tiết về vấn đề bạn gặp phải..."
                     />

@@ -29,10 +29,10 @@ export interface WarrantyDetails {
 export interface WarrantyRequestData {
   serialNumber: string
   customerName: string
-  customerEmail: string
+  customerEmail?: string
   customerPhone?: string
-  issue: string
-  description: string
+  issueTitle: string
+  issueDescription: string
   priority?: 'low' | 'medium' | 'high'
   assignedTo?: string
 }

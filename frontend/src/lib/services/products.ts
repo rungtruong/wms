@@ -14,8 +14,10 @@ interface UpdateProductSerialRequest extends Partial<CreateProductSerialRequest>
 interface CreateWarrantyRequestRequest {
   serialNumber: string;
   customerName: string;
-  issue: string;
-  description: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  issueTitle: string;
+  issueDescription: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
 }
 
