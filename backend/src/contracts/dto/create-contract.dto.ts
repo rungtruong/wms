@@ -63,5 +63,5 @@ export class CreateContractDto {
   @ValidateNested({ each: true })
   @Type(() => ContractProductDto)
   @IsOptional()
-  products?: ContractProductDto[];
+  contractProducts?: ContractProductDto[];
 }

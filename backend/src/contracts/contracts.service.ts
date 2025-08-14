@@ -8,16 +8,24 @@ export class ContractsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createContractDto: CreateContractDto) {
-    const { products, ...contractData } = createContractDto;
+    const { contractProducts, startDate, endDate, ...contractData } = createContractDto;
     
-    return this.prisma.contract.create({
+    // Convert date strings to Date objects
+    const processedData = {
+      ...contractData,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+    };
+    
+    return await this.prisma.contract.create({
       data: {
-        ...contractData,
+        ...processedData,
         contractProducts: {
-          create: products?.map(product => ({
+          create: contractProducts?.map(product => ({
             productSerialId: product.productSerialId,
             quantity: product.quantity,
             unitPrice: product.unitPrice,
+            notes: product.notes,
           })) || [],
         },
       },
@@ -87,16 +95,23 @@ export class ContractsService {
   async update(id: string, updateContractDto: UpdateContractDto) {
     await this.findById(id);
     
-    const { products, ...contractData } = updateContractDto;
+    const { contractProducts, startDate, endDate, ...contractData } = updateContractDto;
+    
+    // Convert date strings to Date objects if they exist
+    const processedData = {
+      ...contractData,
+      ...(startDate && { startDate: new Date(startDate) }),
+      ...(endDate && { endDate: new Date(endDate) }),
+    };
 
     return this.prisma.contract.update({
-      where: { id },
-      data: {
-        ...contractData,
-        ...(products && {
+       where: { id },
+       data: {
+         ...processedData,
+        ...(contractProducts && {
           contractProducts: {
             deleteMany: {},
-            create: products.map(product => ({
+            create: contractProducts.map(product => ({
               productSerialId: product.productSerialId,
               quantity: product.quantity,
               unitPrice: product.unitPrice,
