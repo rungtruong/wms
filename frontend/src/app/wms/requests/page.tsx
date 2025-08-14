@@ -163,8 +163,8 @@ export default function RequestsPage() {
       try {
         setSubmitting(true);
         const updateData = {
-          issue: formData.issue,
-          description: formData.description,
+          issueTitle: formData.issue,
+          issueDescription: formData.description,
           priority: formData.priority,
         };
 
@@ -212,8 +212,8 @@ export default function RequestsPage() {
         const createData = {
           serialNumber: formData.serialNumber,
           customerName: formData.customerName,
-          issue: formData.issue,
-          description: formData.description,
+          issueTitle: formData.issue,
+          issueDescription: formData.description,
           priority: formData.priority,
         };
 
@@ -439,6 +439,7 @@ export default function RequestsPage() {
                     }
                     className="form-input"
                     placeholder="Nhập tên khách hàng"
+                    disabled
                   />
                 </div>
 
@@ -454,6 +455,7 @@ export default function RequestsPage() {
                     }
                     className="form-input"
                     placeholder="Nhập serial number sản phẩm"
+                    disabled
                   />
                 </div>
               </div>

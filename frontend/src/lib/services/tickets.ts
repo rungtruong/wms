@@ -4,8 +4,8 @@ import type { WarrantyRequest } from '@/types';
 interface CreateTicketRequest {
   serialNumber: string;
   customerName: string;
-  issue: string;
-  description: string;
+  issueTitle: string;
+  issueDescription: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
 }
 
@@ -13,8 +13,8 @@ interface UpdateTicketRequest {
   status?: 'new' | 'received' | 'in_progress' | 'resolved' | 'closed';
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   assignedTo?: string;
-  issue?: string;
-  description?: string;
+  issueTitle?: string;
+  issueDescription?: string;
 }
 
 interface TicketHistory {
