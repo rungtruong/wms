@@ -7,21 +7,16 @@ interface LoginRequest {
 }
 
 interface LoginResponse {
-  success: boolean;
   token: string;
   user: User;
 }
 
 class AuthService {
-  async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await apiClient.post<LoginResponse>('/auth/login', credentials);
+  async login(email: string, password: string): Promise<LoginResponse> {
+    const response = await apiClient.post<LoginResponse>('/auth/login', { email, password });
     
-    if (response.token) {
-      apiClient.setToken(response.token);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('auth_token', response.token);
-      }
-    }
+    apiClient.setToken(response.token);
+    this.setCurrentUser(response.user);
     
     return response;
   }

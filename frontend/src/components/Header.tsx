@@ -88,10 +88,18 @@ export default function Header({
                 </span>
               </div>
               <div className="hidden sm:block text-left">
-                <p className="text-sm font-medium text-slate-800">{currentUser.fullName}</p>
-                <p className="text-xs text-slate-500">{getRoleText(currentUser.role)}</p>
+                <p className="text-sm font-medium text-slate-800">
+                  {currentUser.fullName}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {getRoleText(currentUser.role)}
+                </p>
               </div>
-              <ChevronDown className={`h-4 w-4 text-slate-600 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`h-4 w-4 text-slate-600 transition-transform ${
+                  isProfileOpen ? "rotate-180" : ""
+                }`}
+              />
             </button>
 
             {/* Dropdown Menu */}
@@ -106,11 +114,17 @@ export default function Header({
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{currentUser.fullName}</p>
-                      <p className="text-sm text-gray-500">{currentUser.email}</p>
+                      <p className="font-medium text-gray-900">
+                        {currentUser.fullName}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {currentUser.email}
+                      </p>
                       <div className="flex items-center gap-1 mt-1">
                         {getRoleIcon(currentUser.role)}
-                        <span className="text-xs text-gray-600">{getRoleText(currentUser.role)}</span>
+                        <span className="text-xs text-gray-600">
+                          {getRoleText(currentUser.role)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -125,13 +139,13 @@ export default function Header({
                     <UserCircle className="h-4 w-4" />
                     Thông tin cá nhân
                   </button>
-                  <button
+                  {/* <button
                     onClick={handleSettings}
                     className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <Settings className="h-4 w-4" />
                     Cài đặt
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* Logout */}

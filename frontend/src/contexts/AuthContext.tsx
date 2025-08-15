@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { authService } from '@/lib/services/auth'
+import { authService, type LoginResponse } from '@/lib/services/auth'
+import { showToast } from '@/lib/toast'
 import type { User } from '@/types'
 
 interface AuthContextType {
@@ -54,19 +55,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await authService.login({ email, password })
-      
-      if (response.token && response.user) {
-        authService.setCurrentUser(response.user)
-        setUser(response.user)
-        return true
+      const response: LoginResponse = await authService.login(email, password);
+      setUser(response.user);
+      return true;
+    } catch (error: any) {
+      console.error('Login failed:', error);
+      if (error.status === 400) {
+        showToast.error('Email hoặc mật khẩu không chính xác');
+      } else {
+        showToast.error('Có lỗi xảy ra khi đăng nhập');
       }
-      return false
-    } catch (error) {
-      console.error('Login error:', error)
-      return false
+      return false;
     }
-  }
+  };
 
   const logout = () => {
     authService.logout()

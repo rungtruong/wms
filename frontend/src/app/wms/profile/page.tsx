@@ -1,35 +1,40 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Camera, Edit, Save, X, Shield, Users, UserCheck, Mail, Phone, MapPin, Calendar, Clock, Key } from 'lucide-react'
 import Layout from '@/components/Layout'
 import { showToast } from '@/lib/toast'
+import { useProfile, useUpdateProfile, useChangePassword } from '@/hooks/useProfile'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const { user: authUser } = useAuth()
   
-  // Mock current user data
-  const [userProfile, setUserProfile] = useState({
-    id: 'U001',
-    fullName: 'Nguyễn Văn Admin',
-    email: 'admin@wms.com',
-    phone: '0123456789',
-    address: '123 Đường ABC, Quận 1, TP.HCM',
-    role: 'admin',
-    isActive: true,
-    createdAt: '2024-01-15T10:00:00Z',
-    updatedAt: '2024-12-13T17:22:00Z',
-    lastLogin: '2024-12-13T16:30:00Z',
-    avatar: null
-  })
+  // API hooks
+  const { data: userProfile, isLoading: profileLoading, error: profileError } = useProfile()
+  const updateProfileMutation = useUpdateProfile()
+  const changePasswordMutation = useChangePassword()
 
   const [editForm, setEditForm] = useState({
-    fullName: userProfile.fullName,
-    email: userProfile.email,
-    phone: userProfile.phone,
-    address: userProfile.address
+    fullName: '',
+    email: '',
+    phone: '',
+    address: ''
   })
+
+  // Initialize form when profile data is loaded
+  useEffect(() => {
+    if (userProfile) {
+      setEditForm({
+        fullName: userProfile.fullName || '',
+        email: userProfile.email || '',
+        phone: userProfile.phone || '',
+        address: userProfile.address || ''
+      })
+    }
+  }, [userProfile])
 
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -80,25 +85,26 @@ export default function ProfilePage() {
 
   const handleCancelEdit = () => {
     setIsEditing(false)
-    setEditForm({
-      fullName: userProfile.fullName,
-      email: userProfile.email,
-      phone: userProfile.phone,
-      address: userProfile.address
-    })
+    if (userProfile) {
+      setEditForm({
+        fullName: userProfile.fullName || '',
+        email: userProfile.email || '',
+        phone: userProfile.phone || '',
+        address: userProfile.address || ''
+      })
+    }
   }
 
-  const handleSaveProfile = () => {
-    setUserProfile({
-      ...userProfile,
-      ...editForm,
-      updatedAt: new Date().toISOString()
-    })
-    setIsEditing(false)
-    showToast.success('Cập nhật thông tin thành công!')
+  const handleSaveProfile = async () => {
+    try {
+      await updateProfileMutation.mutateAsync(editForm)
+      setIsEditing(false)
+    } catch (error) {
+      console.error('Profile update failed:', error)
+    }
   }
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       showToast.error('Mật khẩu xác nhận không khớp!')
       return
@@ -107,19 +113,71 @@ export default function ProfilePage() {
       showToast.error('Mật khẩu mới phải có ít nhất 6 ký tự!')
       return
     }
-    // TODO: Implement password change API call
-    setPasswordForm({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    })
-    setIsChangingPassword(false)
-    showToast.success('Đổi mật khẩu thành công!')
+    
+    try {
+      await changePasswordMutation.mutateAsync({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword
+      })
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      })
+      setIsChangingPassword(false)
+    } catch (error) {
+      console.error('Password change failed:', error)
+    }
   }
 
   const handleAvatarChange = () => {
     // TODO: Implement avatar upload
     showToast.info('Tính năng upload ảnh đang được phát triển!')
+  }
+
+  // Show loading state
+  if (profileLoading) {
+    return (
+      <Layout title="Thông tin cá nhân">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
+  // Show error state
+  if (profileError) {
+    return (
+      <Layout title="Thông tin cá nhân">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center py-12">
+            <p className="text-red-600 mb-4">Không thể tải thông tin profile</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Thử lại
+            </button>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
+  // Show message if no profile data
+  if (!userProfile) {
+    return (
+      <Layout title="Thông tin cá nhân">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center py-12">
+            <p className="text-gray-600">Không tìm thấy thông tin profile</p>
+          </div>
+        </div>
+      </Layout>
+    )
   }
 
   return (
@@ -149,10 +207,15 @@ export default function ProfilePage() {
                   <div className="flex space-x-2">
                     <button
                       onClick={handleSaveProfile}
-                      className="btn btn-primary"
+                      disabled={updateProfileMutation.isPending}
+                      className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Save className="h-4 w-4" />
-                      Lưu
+                      {updateProfileMutation.isPending ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {updateProfileMutation.isPending ? 'Đang lưu...' : 'Lưu'}
                     </button>
                     <button
                       onClick={handleCancelEdit}
@@ -290,10 +353,15 @@ export default function ProfilePage() {
                   <div className="flex space-x-2">
                     <button
                       onClick={handleChangePassword}
-                      className="btn btn-primary"
+                      disabled={changePasswordMutation.isPending}
+                      className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Save className="h-4 w-4" />
-                      Cập nhật
+                      {changePasswordMutation.isPending ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {changePasswordMutation.isPending ? 'Đang cập nhật...' : 'Cập nhật'}
                     </button>
                     <button
                       onClick={() => {

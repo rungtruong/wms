@@ -86,6 +86,9 @@ export interface User {
   fullName: string;
   role: "admin" | "manager" | "technician";
   isActive: boolean;
+  phone?: string;
+  address?: string;
+  lastLogin?: string;
   createdAt: string;
   updatedAt: string;
 }
