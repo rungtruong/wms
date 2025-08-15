@@ -128,7 +128,7 @@ export default function NotificationDropdown({ notificationCount }: Notification
                       </p>
                       <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
                         <Clock className="h-3 w-3" />
-                        {formatDate(notification.date)}
+                        {formatDate(notification.createdAt)}
                       </div>
                     </div>
                   </div>

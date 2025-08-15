@@ -6,7 +6,7 @@ import { useNotifications } from '@/contexts/NotificationContext'
 import { Bell, AlertTriangle, Info, CheckCircle, X, Check, ExternalLink } from 'lucide-react'
 
 export default function NotificationsPage() {
-  const { notifications, markAsRead, markAllAsRead, deleteNotification } = useNotifications()
+  const { notifications, markAsRead, markAllAsRead, deleteNotification, loading } = useNotifications()
   const router = useRouter()
 
   const getNotificationIcon = (type: string) => {
@@ -41,8 +41,8 @@ export default function NotificationsPage() {
 
 
 
-  const handleNotificationClick = (notification: any) => {
-    markAsRead(notification.id)
+  const handleNotificationClick = async (notification: any) => {
+    await markAsRead(notification.id)
   }
 
   const handleDetailClick = (notification: any) => {
@@ -71,17 +71,23 @@ export default function NotificationsPage() {
                 <h2 className="text-2xl font-bold text-gray-900">Thông báo</h2>
               </div>
               <button 
-                onClick={() => {
-                  markAllAsRead()
+                onClick={async () => {
+                  await markAllAsRead()
                 }}
                 className="btn btn-outline"
+                disabled={loading}
               >
-                Đánh dấu tất cả đã đọc
+                {loading ? 'Đang xử lý...' : 'Đánh dấu tất cả đã đọc'}
               </button>
             </div>
 
             <div className="space-y-4">
-              {notifications.length === 0 ? (
+              {loading ? (
+                <div className="card p-8 text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+                  <p className="text-gray-500">Đang tải thông báo...</p>
+                </div>
+              ) : notifications.length === 0 ? (
                 <div className="card p-8 text-center">
                   <Bell className="h-12 w-12 mx-auto text-gray-300 mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Không có thông báo</h3>
@@ -112,7 +118,7 @@ export default function NotificationsPage() {
                                 {notification.message}
                               </p>
                               <p className="mt-2 text-sm text-gray-400">
-                                {formatDate(notification.date)}
+                                {formatDate(notification.createdAt)}
                               </p>
                             </div>
                             <div className="flex items-center space-x-2 ml-4">
@@ -128,23 +134,25 @@ export default function NotificationsPage() {
                               </button>
                               {!notification.read && (
                                 <button
-                                  onClick={(e) => {
+                                  onClick={async (e) => {
                                     e.stopPropagation()
-                                    markAsRead(notification.id)
+                                    await markAsRead(notification.id)
                                   }}
                                   className="btn btn-outline p-2 text-green-600 hover:text-green-700"
                                   title="Đánh dấu đã đọc"
+                                  disabled={loading}
                                 >
                                   <Check className="h-4 w-4" />
                                 </button>
                               )}
                               <button
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation()
-                                  deleteNotification(notification.id)
+                                  await deleteNotification(notification.id)
                                 }}
                                 className="btn btn-outline p-2 text-red-600 hover:text-red-700"
                                 title="Xóa thông báo"
+                                disabled={loading}
                               >
                                 <X className="h-4 w-4" />
                               </button>

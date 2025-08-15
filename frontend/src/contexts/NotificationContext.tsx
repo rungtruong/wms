@@ -1,46 +1,87 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
-import { mockData } from '@/lib/data'
-
-interface Notification {
-  id: string
-  type: 'warning' | 'info' | 'success' | 'error'
-  title: string
-  message: string
-  date: string
-  read: boolean
-}
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { notificationService, Notification } from '@/lib/services/notification'
+import { useAuth } from './AuthContext'
+import { showToast } from '@/lib/utils/toast'
 
 interface NotificationContextType {
   notifications: Notification[]
-  markAsRead: (id: string) => void
-  markAllAsRead: () => void
-  deleteNotification: (id: string) => void
+  markAsRead: (id: string) => Promise<void>
+  markAllAsRead: () => Promise<void>
+  deleteNotification: (id: string) => Promise<void>
   unreadCount: number
+  loading: boolean
+  refreshNotifications: () => Promise<void>
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined)
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const [notifications, setNotifications] = useState<Notification[]>(mockData.notifications)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [loading, setLoading] = useState(false)
+  const { user } = useAuth()
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === id ? { ...notif, read: true } : notif
+  const refreshNotifications = async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    if (!user || !token) return
+    
+    try {
+      setLoading(true)
+      const data = await notificationService.getNotifications()
+      setNotifications(data)
+    } catch (error) {
+      console.error('Error fetching notifications:', error)
+      showToast.error('Không thể tải thông báo')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (user) {
+      refreshNotifications()
+    }
+  }, [user])
+
+  const markAsRead = async (id: string) => {
+    try {
+      await notificationService.markAsRead(id)
+      setNotifications(prev => 
+        prev.map(notif => 
+          notif.id === id ? { ...notif, read: true } : notif
+        )
       )
-    )
+    } catch (error) {
+      console.error('Error marking notification as read:', error)
+      showToast.error('Không thể đánh dấu thông báo đã đọc')
+    }
   }
 
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notif => ({ ...notif, read: true }))
-    )
+  const markAllAsRead = async () => {
+    if (!user) return
+    
+    try {
+      await notificationService.markAllAsRead(user.id)
+      setNotifications(prev => 
+        prev.map(notif => ({ ...notif, read: true }))
+      )
+      showToast.success('Đã đánh dấu tất cả thông báo đã đọc')
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error)
+      showToast.error('Không thể đánh dấu tất cả thông báo đã đọc')
+    }
   }
 
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== id))
+  const deleteNotification = async (id: string) => {
+    try {
+      await notificationService.deleteNotification(id)
+      setNotifications(prev => prev.filter(notif => notif.id !== id))
+      showToast.success('Đã xóa thông báo')
+    } catch (error) {
+      console.error('Error deleting notification:', error)
+      showToast.error('Không thể xóa thông báo')
+    }
   }
 
   const unreadCount = notifications.filter(n => !n.read).length
@@ -51,7 +92,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       markAsRead,
       markAllAsRead,
       deleteNotification,
-      unreadCount
+      unreadCount,
+      loading,
+      refreshNotifications
     }}>
       {children}
     </NotificationContext.Provider>
