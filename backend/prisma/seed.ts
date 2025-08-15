@@ -4,7 +4,7 @@ import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 const SEED_PASSWORD = 'password123';
-const SALT_ROUNDS = 12;
+const SALT_ROUNDS = 10;
 
 async function main() {
   console.log('🌱 Starting database seeding...');
