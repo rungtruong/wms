@@ -53,7 +53,7 @@ services:
       STMP_PORT: 1025
       STMP_USER: testuser
       STMP_PASSWORD: testpass
-      FROM_EMAIL: your-email@example.com
+      SMTP_FROM: "WMS <service@wms.com>"
       PORT: 3001
     ports:
       - "3001:3001"
