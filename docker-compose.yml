@@ -48,7 +48,7 @@ services:
       DATABASE_URL: postgresql://postgres:forest_dev@postgres:5432/wms_db
       REDIS_URL: redis://redis:6379
       JWT_SECRET: 62c6c6b459c797b701237057cf8e9b7f89874d6b73aca097edf0c31b65bad49c
-      JWT_EXPIRES_IN: 7d,
+      JWT_EXPIRES_IN: 7d
       STMP_HOST: localhost
       STMP_PORT: 1025
       STMP_USER: testuser
