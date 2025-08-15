@@ -1,4 +1,4 @@
-import { apiClient } from './api'
+import { apiClient } from '@/lib/api'
 
 export interface Notification {
   id: string
@@ -22,15 +22,13 @@ export interface UpdateNotificationDto {
 }
 
 class NotificationService {
-  async getNotifications(userId?: string): Promise<Notification[]> {
-    const params = userId ? `?userId=${userId}` : ''
-    const response = await apiClient.get<Notification[]>(`/notifications${params}`)
+  async getNotifications(): Promise<Notification[]> {
+    const response = await apiClient.get<Notification[]>('/notifications')
     return response
   }
 
-  async getUnreadCount(userId?: string): Promise<{ count: number }> {
-    const params = userId ? `?userId=${userId}` : ''
-    const response = await apiClient.get<{ count: number }>(`/notifications/unread-count${params}`)
+  async getUnreadCount(): Promise<{ count: number }> {
+    const response = await apiClient.get<{ count: number }>('/notifications/unread-count')
     return response
   }
 
@@ -49,9 +47,8 @@ class NotificationService {
     return response
   }
 
-  async markAllAsRead(userId?: string): Promise<void> {
-    const params = userId ? `?userId=${userId}` : ''
-    await apiClient.post(`/notifications/mark-all-read${params}`)
+  async markAllAsRead(): Promise<void> {
+    await apiClient.post('/notifications/mark-all-read')
   }
 
   async updateNotification(id: string, data: UpdateNotificationDto): Promise<Notification> {

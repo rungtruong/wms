@@ -23,15 +23,24 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
 
   const refreshNotifications = async () => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-    if (!user || !token) return
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+    console.log('🔍 [NotificationContext] refreshNotifications called')
+    console.log('🔍 [NotificationContext] user:', user)
+    console.log('🔍 [NotificationContext] token:', token)
+    
+    if (!user || !token) {
+      console.log('🔍 [NotificationContext] No user or token, returning early')
+      return
+    }
     
     try {
       setLoading(true)
+      console.log('🔍 [NotificationContext] Calling notificationService.getNotifications()')
       const data = await notificationService.getNotifications()
+      console.log('🔍 [NotificationContext] API response:', data)
       setNotifications(data)
     } catch (error) {
-      console.error('Error fetching notifications:', error)
+      console.error('❌ [NotificationContext] Error fetching notifications:', error)
       showToast.error('Không thể tải thông báo')
     } finally {
       setLoading(false)
@@ -46,14 +55,16 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const markAsRead = async (id: string) => {
     try {
+      console.log('🔍 [NotificationContext] markAsRead called with id:', id)
       await notificationService.markAsRead(id)
       setNotifications(prev => 
         prev.map(notif => 
           notif.id === id ? { ...notif, read: true } : notif
         )
       )
+      console.log('✅ [NotificationContext] markAsRead successful')
     } catch (error) {
-      console.error('Error marking notification as read:', error)
+      console.error('❌ [NotificationContext] Error marking notification as read:', error)
       showToast.error('Không thể đánh dấu thông báo đã đọc')
     }
   }
@@ -62,13 +73,15 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     if (!user) return
     
     try {
-      await notificationService.markAllAsRead(user.id)
+      console.log('🔍 [NotificationContext] markAllAsRead called')
+      await notificationService.markAllAsRead()
       setNotifications(prev => 
         prev.map(notif => ({ ...notif, read: true }))
       )
       showToast.success('Đã đánh dấu tất cả thông báo đã đọc')
+      console.log('✅ [NotificationContext] markAllAsRead successful')
     } catch (error) {
-      console.error('Error marking all notifications as read:', error)
+      console.error('❌ [NotificationContext] Error marking all notifications as read:', error)
       showToast.error('Không thể đánh dấu tất cả thông báo đã đọc')
     }
   }

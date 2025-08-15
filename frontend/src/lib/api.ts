@@ -21,9 +21,9 @@ class ApiClient {
 
   private getStoredToken(): string | null {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('auth_token') || 'mock-token-for-testing';
+      return localStorage.getItem('auth_token');
     }
-    return 'mock-token-for-testing';
+    return null;
   }
 
   setToken(token: string | null) {
@@ -50,7 +50,9 @@ class ApiClient {
   }
 
   private async handleResponse<T>(response: Response): Promise<T> {
+    console.log('🔍 [ApiClient] handleResponse - status:', response.status);
     if (!response.ok) {
+      console.log('❌ [ApiClient] Response not ok, status:', response.status);
       const errorData = await response.json().catch(() => ({}));
       const error: ApiError = {
         message: errorData.message || 'An error occurred',
@@ -59,6 +61,7 @@ class ApiClient {
       };
       
       if (response.status === 401) {
+        console.log('❌ [ApiClient] Unauthorized, redirecting to login');
         this.setToken(null);
         window.location.href = '/login';
       }
@@ -68,10 +71,14 @@ class ApiClient {
 
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
-      return response.json();
+      const jsonData = await response.json();
+      console.log('🔍 [ApiClient] JSON response:', jsonData);
+      return jsonData;
     }
     
-    return response.text() as any;
+    const textData = await response.text();
+    console.log('🔍 [ApiClient] Text response:', textData);
+    return textData as any;
   }
 
   async get<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
@@ -82,22 +89,29 @@ class ApiClient {
       });
     }
 
+    console.log('🔍 [ApiClient] GET request to:', url.toString());
+    console.log('🔍 [ApiClient] Headers:', this.getHeaders());
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: this.getHeaders(),
       credentials: 'include',
     });
+    console.log('🔍 [ApiClient] Response status:', response.status);
 
     return this.handleResponse<T>(response);
   }
 
   async post<T>(endpoint: string, data?: any): Promise<T> {
+    console.log('🔍 [ApiClient] POST request to:', `${this.baseURL}${endpoint}`);
+    console.log('🔍 [ApiClient] Headers:', this.getHeaders());
+    console.log('🔍 [ApiClient] Data:', data);
     const response = await fetch(`${this.baseURL}${endpoint}`, {
       method: 'POST',
       headers: this.getHeaders(),
       credentials: 'include',
       body: data ? JSON.stringify(data) : undefined,
     });
+    console.log('🔍 [ApiClient] Response status:', response.status);
 
     return this.handleResponse<T>(response);
   }

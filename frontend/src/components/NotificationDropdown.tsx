@@ -11,7 +11,7 @@ interface NotificationDropdownProps {
 
 export default function NotificationDropdown({ notificationCount }: NotificationDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const { notifications, markAsRead, markAllAsRead } = useNotifications()
+  const { notifications, markAsRead, markAllAsRead, unreadCount } = useNotifications()
   const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
@@ -60,7 +60,7 @@ export default function NotificationDropdown({ notificationCount }: Notification
     return `${diffInDays} ngày trước`
   }
 
-  const unreadCount = notifications.filter(n => !n.read).length
+
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -141,7 +141,7 @@ export default function NotificationDropdown({ notificationCount }: Notification
             <div className="p-3 border-t border-gray-200 text-center">
               <button 
                 onClick={() => {
-                  router.push('/notifications')
+                  router.push('/wms/notifications')
                   setIsOpen(false)
                 }}
                 className="text-sm text-teal-600 hover:text-teal-700 font-medium"

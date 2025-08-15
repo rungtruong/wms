@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -25,12 +26,14 @@ export class NotificationsController {
   }
 
   @Get()
-  findAll(@Query('userId') userId?: string) {
+  findAll(@Request() req) {
+    const userId = req.user.id;
     return this.notificationsService.findAll(userId);
   }
 
   @Get('unread-count')
-  getUnreadCount(@Query('userId') userId?: string) {
+  getUnreadCount(@Request() req) {
+    const userId = req.user.id;
     return this.notificationsService.getUnreadCount(userId);
   }
 
@@ -45,7 +48,8 @@ export class NotificationsController {
   }
 
   @Post('mark-all-read')
-  markAllAsRead(@Query('userId') userId?: string) {
+  markAllAsRead(@Request() req) {
+    const userId = req.user.id;
     return this.notificationsService.markAllAsRead(userId);
   }
 

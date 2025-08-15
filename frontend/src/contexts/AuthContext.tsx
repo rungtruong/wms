@@ -42,11 +42,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = authService.getToken()
       const userData = authService.getCurrentUser()
       
+      console.log('🔍 [AuthContext] checkAuth called')
+      console.log('🔍 [AuthContext] token:', token)
+      console.log('🔍 [AuthContext] userData:', userData)
+      
       if (token && userData) {
         setUser(userData)
+        console.log('✅ [AuthContext] User set successfully')
+      } else {
+        console.log('❌ [AuthContext] No token or userData found')
       }
     } catch (error) {
-      console.error('Error checking auth:', error)
+      console.error('❌ [AuthContext] Error checking auth:', error)
       authService.setCurrentUser(null)
     } finally {
       setIsLoading(false)
