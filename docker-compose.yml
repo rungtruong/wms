@@ -4,19 +4,19 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: warranty-postgres
+    container_name: wms-postgres
     environment:
-      POSTGRES_DB: warranty_db
-      POSTGRES_USER: warranty_user
-      POSTGRES_PASSWORD: warranty_password
+      POSTGRES_DB: wms_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: forest_dev
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
-      - warranty-network
+      - wms-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U warranty_user -d warranty_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d wms_db"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -24,13 +24,13 @@ services:
   # Redis Cache
   redis:
     image: redis:7-alpine
-    container_name: warranty-redis
+    container_name: wms-redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - warranty-network
+      - wms-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -42,12 +42,18 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: warranty-backend
+    container_name: wms-backend
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://warranty_user:warranty_password@postgres:5432/warranty_db
+      DATABASE_URL: postgresql://postgres:forest_dev@postgres:5432/wms_db
       REDIS_URL: redis://redis:6379
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_SECRET: 62c6c6b459c797b701237057cf8e9b7f89874d6b73aca097edf0c31b65bad49c
+      JWT_EXPIRES_IN: 7d,
+      STMP_HOST: localhost
+      STMP_PORT: 1025
+      STMP_USER: testuser
+      STMP_PASSWORD: testpass
+      FROM_EMAIL: your-email@example.com
       PORT: 3001
     ports:
       - "3001:3001"
@@ -57,7 +63,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - warranty-network
+      - wms-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
@@ -76,7 +82,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: warranty-frontend
+    container_name: wms-frontend
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: http://localhost:3001
@@ -87,7 +93,7 @@ services:
       backend:
         condition: service_healthy
     networks:
-      - warranty-network
+      - wms-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
@@ -106,5 +112,5 @@ volumes:
   redis_data:
 
 networks:
-  warranty-network:
+  wms-network:
     driver: bridge
