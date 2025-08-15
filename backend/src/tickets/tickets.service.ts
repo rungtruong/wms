@@ -9,12 +9,14 @@ import { UpdateTicketDto } from "./dto/update-ticket.dto";
 import { TicketStatus, TicketPriority, ActionType } from "@prisma/client";
 import { TicketsTransformer } from "./tickets.transformer";
 import { EmailService } from "../email/email.service";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class TicketsService {
   constructor(
     private prisma: PrismaService,
-    private emailService: EmailService
+    private emailService: EmailService,
+    private notificationsService: NotificationsService
   ) {}
 
   async create(createTicketDto: CreateTicketDto) {
@@ -75,6 +77,33 @@ export class TicketsService {
       } catch (error) {
         console.error('Lỗi khi gửi email thông báo:', error);
       }
+    }
+
+    // Tự động tạo notification cho admin/manager về ticket mới
+    try {
+      const adminManagers = await this.prisma.user.findMany({
+        where: {
+          role: {
+            in: ['admin', 'manager']
+          },
+          isActive: true
+        },
+        select: {
+          id: true
+        }
+      });
+
+      // Tạo notification cho từng admin/manager
+      for (const user of adminManagers) {
+        await this.notificationsService.create({
+          userId: user.id,
+          type: 'info',
+          title: 'Ticket mới được tạo',
+          message: `Ticket #${ticket.ticketNumber} đã được tạo bởi khách hàng ${ticket.customerName}`
+        });
+      }
+    } catch (error) {
+      console.error('Lỗi khi tạo notification:', error);
     }
 
     return TicketsTransformer.transformTicket(ticket);
