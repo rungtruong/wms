@@ -14,30 +14,43 @@ import {
   Phone,
   MapPin,
   Clock,
+  Loader2,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import UserForm from "@/components/UserForm";
-import { mockData } from "@/lib/data";
 import { showToast } from "@/lib/toast";
 import { User } from "@/types";
+import { useUser, useUpdateUser, useDeleteUser } from "@/hooks/useUsers";
 
 export default function UserDetailPage() {
   const router = useRouter();
   const params = useParams();
   const userId = params.id as string;
 
-  const [users, setUsers] = useState(mockData.users);
+  const { user, loading, error, refetch } = useUser(userId);
+  const { updateUser, loading: updateLoading } = useUpdateUser();
+  const { deleteUser, loading: deleteLoading } = useDeleteUser();
+  
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const user = users.find((u) => u.id === userId);
-
-  if (!user) {
+  if (loading) {
     return (
-      <Layout title="Người dùng không tồn tại">
+      <Layout title="Đang tải...">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <span className="ml-2 text-gray-600">Đang tải thông tin người dùng...</span>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error || !user) {
+    return (
+      <Layout title="Lỗi">
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Người dùng không tồn tại
+            {error || "Người dùng không tồn tại"}
           </h2>
           <button
             onClick={() => router.push("/wms/users")}
@@ -108,37 +121,33 @@ export default function UserDetailPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDeleteUser = () => {
-    setUsers(users.filter((u) => u.id !== user.id));
-    setIsDeleteModalOpen(false);
-    showToast.success("Xóa người dùng thành công!");
-    router.push("/users");
+  const confirmDeleteUser = async () => {
+    const success = await deleteUser(user.id);
+    if (success) {
+      setIsDeleteModalOpen(false);
+      router.push("/wms/users");
+    }
   };
 
-  const handleFormSubmit = (formData: any) => {
-    setUsers(
-      users.map((u) =>
-        u.id === user.id
-          ? {
-              ...u,
-              email: formData.email,
-              fullName: formData.fullName,
-              role: formData.role,
-              isActive: formData.isActive,
-              updatedAt: new Date().toISOString(),
-            }
-          : u
-      )
-    );
-    setIsEditModalOpen(false);
-    showToast.success("Cập nhật người dùng thành công!");
+  const handleFormSubmit = async (formData: any) => {
+    const updatedUser = await updateUser(user.id, {
+      email: formData.email,
+      fullName: formData.fullName,
+      role: formData.role,
+      isActive: formData.isActive,
+    });
+    
+    if (updatedUser) {
+      setIsEditModalOpen(false);
+      refetch();
+    }
   };
 
   return (
     <Layout title={`Chi tiết người dùng - ${user.fullName}`}>
       <div className="mb-6">
         <button
-          onClick={() => router.push("/users")}
+          onClick={() => router.push("/wms/users")}
           className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -342,6 +351,7 @@ export default function UserDetailPage() {
         onClose={() => setIsEditModalOpen(false)}
         onSubmit={handleFormSubmit}
         editingUser={user}
+        loading={updateLoading}
       />
 
       {/* Delete Confirmation Modal */}
@@ -381,9 +391,17 @@ export default function UserDetailPage() {
               </button>
               <button
                 onClick={confirmDeleteUser}
-                className="flex-1 px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                disabled={deleteLoading}
+                className="flex-1 px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
               >
-                Xóa người dùng
+                {deleteLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Đang xóa...
+                  </>
+                ) : (
+                  "Xóa người dùng"
+                )}
               </button>
             </div>
           </div>

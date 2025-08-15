@@ -90,6 +90,13 @@ export interface User {
   updatedAt: string;
 }
 
+export interface UpdateUserRequest {
+  email?: string;
+  fullName?: string;
+  role?: "admin" | "manager" | "technician";
+  isActive?: boolean;
+}
+
 export interface WarrantyRequest {
   id: string;
   ticketNumber: string;
