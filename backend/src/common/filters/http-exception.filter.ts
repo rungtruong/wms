@@ -16,7 +16,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
 
     const origin = request.headers.origin;
-    const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:3000'];
+    const allowedOrigins = process.env.FRONTEND_URLS 
+      ? process.env.FRONTEND_URLS.split(',').map(url => url.trim())
+      : ['http://localhost:3000'];
     
     if (origin && allowedOrigins.includes(origin)) {
       response.header('Access-Control-Allow-Origin', origin);
@@ -48,7 +50,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const origin = request.headers.origin;
-    const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:3000'];
+    const allowedOrigins = process.env.FRONTEND_URLS 
+      ? process.env.FRONTEND_URLS.split(',').map(url => url.trim())
+      : ['http://localhost:3000'];
     
     if (origin && allowedOrigins.includes(origin)) {
       response.header('Access-Control-Allow-Origin', origin);
