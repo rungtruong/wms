@@ -156,7 +156,7 @@ export default function RequestsPage() {
   };
 
   const handleUpdateRequest = async () => {
-    if (!formData.customerName || !formData.serialNumber || !formData.issue) {
+    if (!formData.customerName || !formData.customerEmail || !formData.serialNumber || !formData.issue) {
       showToast.error("Vui lòng điền đầy đủ thông tin bắt buộc!");
       return;
     }
@@ -165,6 +165,7 @@ export default function RequestsPage() {
       try {
         setSubmitting(true);
         const updateData = {
+          customerEmail: formData.customerEmail,
           issueTitle: formData.issue,
           issueDescription: formData.description,
           priority: formData.priority,
@@ -580,6 +581,24 @@ export default function RequestsPage() {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email khách hàng <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.customerEmail}
+                    onChange={(e) =>
+                      handleInputChange("customerEmail", e.target.value)
+                    }
+                    className="form-input"
+                    placeholder="Nhập email khách hàng"
+                    disabled
+                  />
+                </div>
+              </div>
+
+              <div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Serial Number <span className="text-red-500">*</span>
