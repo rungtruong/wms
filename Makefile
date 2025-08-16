@@ -145,8 +145,8 @@ prod-build-test:
 show-urls:
 	@echo "$(BLUE)Application URLs:$(NC)"
 	@echo "Frontend: $(GREEN)https://wms.foresttruong.info$(NC)"
-	@echo "Backend API: $(GREEN)https://api.foresttruong.info$(NC)"
-	@echo "API Documentation: $(GREEN)https://api.foresttruong.info/api$(NC)"
+	@echo "Backend API: $(GREEN)https://api-wms.foresttruong.info$(NC)"
+	@echo "API Documentation: $(GREEN)https://api-wms.foresttruong.info/api$(NC)"
 
 # Emergency stop
 emergency-stop:

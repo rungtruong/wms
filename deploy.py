@@ -82,7 +82,7 @@ SMTP_FROM="WMS <noreply.forestsolution@gmail.com>"
         
         frontend_env = f"""
 # API Configuration
-NEXT_PUBLIC_API_BASE_URL=https://api.foresttruong.info/api
+NEXT_PUBLIC_API_BASE_URL=https://api-wms.foresttruong.info/api
 
 # Application Configuration
 NEXT_PUBLIC_APP_NAME=Warranty Management System

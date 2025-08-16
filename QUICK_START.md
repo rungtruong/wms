@@ -48,7 +48,7 @@ make logs
 ## URLs sau khi deploy
 
 - Frontend: https://wms.foresttruong.info
-- Backend API: https://api.foresttruong.info
+- Backend API: https://api-wms.foresttruong.info
 
 ## Lệnh hữu ích khác
 
