@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSupportRequestDto } from './dto/create-support-request.dto';
 import { TicketStatus, ActionType } from '@prisma/client';
+import { TicketsService } from '../tickets/tickets.service';
 
 @Injectable()
 export class CustomerPortalService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private ticketsService: TicketsService
+  ) {}
 
   async getCustomerOverview(customerEmail: string) {
     const contracts = await this.prisma.contract.findMany({
@@ -104,66 +108,22 @@ export class CustomerPortalService {
   }
 
   async createSupportRequest(createSupportRequestDto: CreateSupportRequestDto) {
-    const productSerial = await this.prisma.productSerial.findUnique({
-      where: { serialNumber: createSupportRequestDto.serialNumber },
-    });
-    
-    if (!productSerial) {
-      throw new NotFoundException(`Serial number ${createSupportRequestDto.serialNumber} not found`);
-    }
+    const createTicketDto = {
+      serialNumber: createSupportRequestDto.serialNumber,
+      issueDescription: `${createSupportRequestDto.subject}: ${createSupportRequestDto.message}`,
+      issueTitle: createSupportRequestDto.subject,
+      priority: createSupportRequestDto.priority || 'medium',
+      customerName: createSupportRequestDto.customerName,
+      customerEmail: createSupportRequestDto.customerEmail,
+      customerPhone: createSupportRequestDto.customerPhone,
+    };
 
-    const ticketNumber = `SR-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
-
-    const ticket = await this.prisma.ticket.create({
-      data: {
-        ticketNumber,
-        productSerialId: productSerial.id,
-        issueDescription: `${createSupportRequestDto.subject}: ${createSupportRequestDto.message}`,
-
-        priority: createSupportRequestDto.priority,
-        customerName: createSupportRequestDto.customerName,
-        customerEmail: createSupportRequestDto.customerEmail,
-        customerPhone: createSupportRequestDto.customerPhone,
-      },
-      include: {
-        productSerial: true,
-      },
-    });
-
-    await this.prisma.ticketHistory.create({
-      data: {
-        ticketId: ticket.id,
-        actionType: ActionType.created,
-        description: `Yêu cầu hỗ trợ được tạo bởi khách hàng ${createSupportRequestDto.customerName}`,
-        newValue: 'created',
-        performedBy: null,
-      },
-    });
-
-    const updatedTicket = await this.prisma.ticket.findUnique({
-      where: { id: ticket.id },
-      include: {
-        productSerial: {
-          include: {
-            contract: true,
-          },
-        },
-        history: {
-          include: {
-            performer: true,
-          },
-          orderBy: {
-            createdAt: 'asc',
-          },
-        },
-        assignee: true,
-      },
-    });
+    const ticket = await this.ticketsService.create(createTicketDto);
 
     return {
       success: true,
       message: 'Support request created successfully',
-      ticket: updatedTicket,
+      ticket,
     };
   }
 }

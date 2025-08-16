@@ -116,20 +116,21 @@ export class TicketsService {
             in: ['admin', 'manager']
           },
           isActive: true
-        },
-        select: {
-          id: true
         }
       });
 
       // Tạo notification cho từng admin/manager
       for (const user of adminManagers) {
-        await this.notificationsService.create({
-          userId: user.id,
-          type: 'info',
-          title: 'Ticket mới được tạo',
-          message: `Ticket #${ticket.ticketNumber} đã được tạo bởi khách hàng ${ticket.customerName}`
-        });
+        try {
+          await this.notificationsService.create({
+           type: 'info',
+           title: 'Yêu cầu hỗ trợ mới',
+           message: `Có yêu cầu hỗ trợ mới từ ${createTicketDto.customerName} - ${ticket.ticketNumber}`,
+           userId: user.id,
+         });
+        } catch (error) {
+          console.error('Lỗi khi tạo notification:', error);
+        }
       }
     } catch (error) {
       console.error('Lỗi khi tạo notification:', error);
