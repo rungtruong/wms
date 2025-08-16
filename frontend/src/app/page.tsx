@@ -330,12 +330,16 @@ export default function CustomerPortalPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email
+                        Email <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="email"
+                        required
                         value={ticketForm.customerEmail}
-                        onChange={(e) => setTicketForm({...ticketForm, customerEmail: e.target.value})}
+                        onChange={(e) => {
+                          setTicketForm({...ticketForm, customerEmail: e.target.value})
+                          if (ticketError) setTicketError(null)
+                        }}
                         className="form-input w-full"
                         placeholder="email@example.com"
                       />

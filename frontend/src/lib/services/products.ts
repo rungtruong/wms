@@ -15,7 +15,7 @@ interface CreateWarrantyRequestRequest {
   serialNumber: string;
   customerName: string;
   customerPhone?: string;
-  customerEmail?: string;
+  customerEmail: string;
   issueTitle: string;
   issueDescription: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
