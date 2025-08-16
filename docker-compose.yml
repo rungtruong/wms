@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # PostgreSQL Database
@@ -49,11 +49,11 @@ services:
       REDIS_URL: redis://redis:6379
       JWT_SECRET: 62c6c6b459c797b701237057cf8e9b7f89874d6b73aca097edf0c31b65bad49c
       JWT_EXPIRES_IN: 7d
-      STMP_HOST: localhost
-      STMP_PORT: 1025
-      STMP_USER: testuser
-      STMP_PASSWORD: testpass
-      SMTP_FROM: "WMS <service@wms.com>"
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: "noreply.forestsolution@gmail.com"
+      SMTP_PASS: "cgdr tprq zcuf ovru"
+      SMTP_FROM: "WMS <noreply.forestsolution@gmail.com>"
       PORT: 3001
     ports:
       - "3001:3001"
@@ -66,7 +66,15 @@ services:
       - wms-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3001/api/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
