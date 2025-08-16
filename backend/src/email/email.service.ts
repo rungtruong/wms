@@ -195,7 +195,7 @@ export class EmailService {
 
           <!-- Footer -->
           <div style="background-color: #2d3748; color: #a0aec0; text-align: center; padding: 20px;">
-            <p style="margin: 0 0 10px 0; font-size: 14px;">© 2024 WMS - Hệ thống quản lý bảo hành</p>
+            <p style="margin: 0 0 10px 0; font-size: 14px;">© 2025 WMS - Hệ thống quản lý bảo hành</p>
             <p style="margin: 0; font-size: 12px; opacity: 0.8;">Email này được gửi tự động, vui lòng không trả lời trực tiếp.</p>
           </div>
         </div>
