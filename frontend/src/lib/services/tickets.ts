@@ -4,6 +4,7 @@ import type { WarrantyRequest } from '@/types';
 interface CreateTicketRequest {
   serialNumber: string;
   customerName: string;
+  customerEmail?: string;
   issueTitle: string;
   issueDescription: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';

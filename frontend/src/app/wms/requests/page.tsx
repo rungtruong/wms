@@ -23,6 +23,7 @@ export default function RequestsPage() {
     useState<WarrantyRequest | null>(null);
   const [formData, setFormData] = useState({
     customerName: "",
+    customerEmail: "",
     serialNumber: "",
     issue: "",
     description: "",
@@ -118,6 +119,7 @@ export default function RequestsPage() {
       setSelectedRequest(request);
       setFormData({
         customerName: request.customerName,
+        customerEmail: request.customerEmail || "",
         serialNumber: request.productSerial?.serialNumber || "",
         issue: request.issueTitle || "",
         description: request.issueDescription,
@@ -181,6 +183,7 @@ export default function RequestsPage() {
         setSelectedRequest(null);
         setFormData({
           customerName: "",
+          customerEmail: "",
           serialNumber: "",
           issue: "",
           description: "",
@@ -201,7 +204,7 @@ export default function RequestsPage() {
   };
 
   const handleCreateRequest = async () => {
-    if (!formData.customerName || !formData.serialNumber || !formData.issue) {
+    if (!formData.customerName || !formData.customerEmail || !formData.serialNumber || !formData.issue) {
       showToast.error("Vui lòng điền đầy đủ thông tin bắt buộc!");
       return;
     }
@@ -212,6 +215,7 @@ export default function RequestsPage() {
         const createData = {
           serialNumber: formData.serialNumber,
           customerName: formData.customerName,
+          customerEmail: formData.customerEmail,
           issueTitle: formData.issue,
           issueDescription: formData.description,
           priority: formData.priority,
@@ -222,6 +226,7 @@ export default function RequestsPage() {
         setIsCreateModalOpen(false);
         setFormData({
           customerName: "",
+          customerEmail: "",
           serialNumber: "",
           issue: "",
           description: "",
@@ -444,18 +449,33 @@ export default function RequestsPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Serial Number <span className="text-red-500">*</span>
+                    Email khách hàng <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="text"
-                    value={formData.serialNumber}
+                    type="email"
+                    value={formData.customerEmail}
                     onChange={(e) =>
-                      handleInputChange("serialNumber", e.target.value)
+                      handleInputChange("customerEmail", e.target.value)
                     }
                     className="form-input"
-                    placeholder="Nhập serial number sản phẩm"
+                    placeholder="Nhập email khách hàng"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Serial Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.serialNumber}
+                  onChange={(e) =>
+                    handleInputChange("serialNumber", e.target.value)
+                  }
+                  className="form-input"
+                  placeholder="Nhập serial number sản phẩm"
+                />
               </div>
 
               <div>
@@ -510,12 +530,13 @@ export default function RequestsPage() {
                 onClick={() => {
                   setIsCreateModalOpen(false);
                   setFormData({
-                    customerName: "",
-                    serialNumber: "",
-                    issue: "",
-                    description: "",
-                    priority: "medium",
-                  });
+              customerName: "",
+              customerEmail: "",
+              serialNumber: "",
+              issue: "",
+              description: "",
+              priority: "medium",
+            });
                 }}
                 className="btn btn-outline"
               >
@@ -629,12 +650,13 @@ export default function RequestsPage() {
                   setIsEditModalOpen(false);
                   setSelectedRequest(null);
                   setFormData({
-                    customerName: "",
-                    serialNumber: "",
-                    issue: "",
-                    description: "",
-                    priority: "medium",
-                  });
+                customerName: "",
+                customerEmail: "",
+                serialNumber: "",
+                issue: "",
+                description: "",
+                priority: "medium",
+              });
                 }}
                 className="btn btn-outline"
               >

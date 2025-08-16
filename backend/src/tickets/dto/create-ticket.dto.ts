@@ -9,8 +9,8 @@ import { TicketPriority, TicketStatus } from '@prisma/client';
 
 export class CreateTicketDto {
   @IsString()
-  @IsNotEmpty()
-  ticketNumber: string;
+  @IsOptional()
+  ticketNumber?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -28,7 +28,12 @@ export class CreateTicketDto {
   status?: TicketStatus;
 
   @IsUUID()
-  productSerialId: string;
+  @IsOptional()
+  productSerialId?: string;
+
+  @IsString()
+  @IsOptional()
+  serialNumber?: string;
 
   @IsString()
   @IsNotEmpty()

@@ -20,8 +20,37 @@ export class TicketsService {
   ) {}
 
   async create(createTicketDto: CreateTicketDto) {
+    let productSerialId = createTicketDto.productSerialId;
+    
+    // Nếu có serialNumber thay vì productSerialId, tìm productSerial từ serialNumber
+    if (createTicketDto.serialNumber && !productSerialId) {
+      const productSerial = await this.prisma.productSerial.findUnique({
+        where: { serialNumber: createTicketDto.serialNumber }
+      });
+      
+      if (!productSerial) {
+        throw new BadRequestException(`Không tìm thấy sản phẩm với serial number: ${createTicketDto.serialNumber}`);
+      }
+      
+      productSerialId = productSerial.id;
+    }
+    
+    // Tự động tạo ticketNumber nếu không có
+    let ticketNumber = createTicketDto.ticketNumber;
+    if (!ticketNumber) {
+      const ticketCount = await this.prisma.ticket.count();
+      ticketNumber = `TK${String(ticketCount + 1).padStart(6, '0')}`;
+    }
+    
+    const ticketData = {
+      ...createTicketDto,
+      ticketNumber,
+      productSerialId,
+      serialNumber: undefined, // Loại bỏ serialNumber khỏi data
+    };
+    
     const ticket = await this.prisma.ticket.create({
-      data: createTicketDto,
+      data: ticketData,
       include: {
         productSerial: {
           include: {
