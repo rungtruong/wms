@@ -440,6 +440,16 @@ async function main() {
   await Promise.all([
     prisma.notification.create({
       data: {
+        type: 'info',
+        title: 'Yêu cầu hỗ trợ mới',
+        message: 'Khách hàng Nguyễn Minh Đức đã tạo yêu cầu hỗ trợ mới với mã số TK-2024-001. Vấn đề: Lỗi toner và chất lượng in kém.',
+        userId: users[1].id,
+        ticketId: tickets[0].id,
+        read: false,
+      },
+    }),
+    prisma.notification.create({
+      data: {
         type: 'warning',
         title: 'Bảo hành sắp hết hạn - HP LaserJet Pro 4015n',
         message: 'Thiết bị HP LaserJet Pro 4015n (S/N: HP4015N240115001) thuộc hợp đồng HD-2024-001 sẽ hết hạn bảo hành vào ngày 15/01/2026. Vui lòng liên hệ khách hàng để gia hạn.',
@@ -450,9 +460,10 @@ async function main() {
     prisma.notification.create({
       data: {
         type: 'info',
-        title: 'Ticket khẩn cấp mới - Dell Latitude 7520',
-        message: 'Ticket #TK-2024-002 (Độ ưu tiên: Cao) đã được tạo cho laptop Dell Latitude 7520. Khách hàng báo cáo không boot được sau update Windows. Cần xử lý ngay.',
+        title: 'Yêu cầu hỗ trợ mới',
+        message: 'Khách hàng Phạm Thị Lan Anh đã tạo yêu cầu hỗ trợ mới với mã số TK-2024-002. Vấn đề: Laptop không boot sau update Windows.',
         userId: users[2].id,
+        ticketId: tickets[1].id,
         read: true,
       },
     }),
@@ -462,6 +473,7 @@ async function main() {
         title: 'Hoàn thành bảo hành - Canon imageRUNNER 2630i',
         message: 'Ticket #TK-2024-003 đã được giải quyết thành công. Đã thay thế drum unit và cleaning blade cho máy Canon imageRUNNER 2630i. Khách hàng xác nhận máy hoạt động bình thường.',
         userId: users[0].id,
+        ticketId: tickets[2].id,
         read: false,
       },
     }),
@@ -471,15 +483,17 @@ async function main() {
         title: 'Lỗi gửi email thông báo',
         message: 'Không thể gửi email thông báo hoàn thành ticket #TK-2024-003 đến khách hàng hung.le@viettel.com.vn. Vui lòng kiểm tra cấu hình SMTP server.',
         userId: users[0].id,
+        ticketId: tickets[2].id,
         read: false,
       },
     }),
     prisma.notification.create({
       data: {
         type: 'warning',
-        title: 'Server cần bảo trì khẩn cấp',
-        message: 'Server Dell PowerEdge R750 (S/N: SV2U240301001) báo lỗi RAM ECC tại slot 4. Cần thay thế RAM ngay để tránh downtime. Đã đặt hàng linh kiện thay thế.',
+        title: 'Yêu cầu hỗ trợ mới',
+        message: 'Khách hàng Trần Quốc Việt đã tạo yêu cầu hỗ trợ mới với mã số TK-2024-004. Vấn đề: Server báo lỗi memory - cần thay RAM.',
         userId: users[2].id,
+        ticketId: tickets[3].id,
         read: false,
       },
     }),

@@ -2,19 +2,30 @@ import { apiClient } from '@/lib/api'
 
 export interface Notification {
   id: string
-  type: 'warning' | 'info' | 'success' | 'error'
+  type: 'info' | 'warning' | 'error' | 'success'
   title: string
   message: string
-  createdAt: string
+  userId?: string
+  ticketId?: string
   read: boolean
-  userId: string
+  createdAt: string
+  user?: {
+    id: string
+    fullName: string
+    email: string
+  }
+  ticket?: {
+    id: string
+    ticketNumber: string
+  }
 }
 
 export interface CreateNotificationDto {
-  type: 'warning' | 'info' | 'success' | 'error'
+  type: 'info' | 'warning' | 'error' | 'success'
   title: string
   message: string
-  userId: string
+  userId?: string
+  ticketId?: string
 }
 
 export interface UpdateNotificationDto {

@@ -48,8 +48,12 @@ export default function NotificationsPage() {
   const handleDetailClick = (notification: any) => {
     if (notification.title.includes('Hợp đồng')) {
       router.push('/wms/contracts')
-    } else if (notification.title.includes('Yêu cầu bảo hành')) {
-      router.push('/wms/requests')
+    } else if (notification.title.includes('Yêu cầu bảo hành') || notification.title.includes('Yêu cầu hỗ trợ') || notification.title.includes('Hoàn thành bảo hành')) {
+      if (notification.ticketId) {
+        router.push(`/wms/requests/${notification.ticketId}`)
+      } else {
+        router.push('/wms/requests')
+      }
     }
   }
 

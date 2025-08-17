@@ -127,6 +127,7 @@ export class TicketsService {
            title: 'Yêu cầu hỗ trợ mới',
            message: `Có yêu cầu hỗ trợ mới từ ${createTicketDto.customerName} - ${ticket.ticketNumber}`,
            userId: user.id,
+           ticketId: ticket.id,
          });
         } catch (error) {
           console.error('Lỗi khi tạo notification:', error);

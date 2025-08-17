@@ -18,6 +18,12 @@ export class NotificationsService {
             email: true,
           },
         },
+        ticket: {
+          select: {
+            id: true,
+            ticketNumber: true,
+          },
+        },
       },
     });
   }
@@ -31,6 +37,12 @@ export class NotificationsService {
             id: true,
             fullName: true,
             email: true,
+          },
+        },
+        ticket: {
+          select: {
+            id: true,
+            ticketNumber: true,
           },
         },
       },

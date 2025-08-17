@@ -437,6 +437,7 @@ export class ProductsService {
             title: 'Yêu cầu bảo hành mới',
             message: `Có yêu cầu bảo hành mới từ ${createWarrantyRequestDto.customerName} - ${ticketNumber}`,
             userId: user.id,
+            ticketId: ticket.id,
           });
         } catch (error) {
           console.error('Lỗi khi tạo notification cho user:', user.id, error);
