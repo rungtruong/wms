@@ -321,7 +321,7 @@ export class ProductsService {
       throw new NotFoundException(`Serial number ${createWarrantyRequestDto.serialNumber} not found`);
     }
 
-    const ticketNumber = `WR-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+    const ticketNumber = `TK${Date.now()}`;
 
     const ticket = await this.prisma.ticket.create({
       data: {
