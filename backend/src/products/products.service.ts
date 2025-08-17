@@ -1,16 +1,18 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateProductSerialDto } from './dto/create-product-serial.dto';
 import { UpdateProductSerialDto } from './dto/update-product-serial.dto';
 import { CreateWarrantyRequestDto } from './dto/create-warranty-request.dto';
-import { WarrantyStatus, TicketStatus, TicketPriority, ActionType } from '@prisma/client';
+import { WarrantyStatus, TicketStatus, TicketPriority, ActionType, NotificationType } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
   constructor(
     private prisma: PrismaService,
     private emailService: EmailService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(createProductSerialDto: CreateProductSerialDto) {
@@ -416,6 +418,32 @@ export class ProductsService {
           performedBy: null,
         },
       });
+    }
+
+    // Tạo notification cho admin/manager
+    try {
+      const adminManagers = await this.prisma.user.findMany({
+        where: {
+          role: {
+            in: ['admin', 'manager'],
+          },
+        },
+      });
+
+      for (const user of adminManagers) {
+        try {
+          await this.notificationsService.create({
+            type: NotificationType.info,
+            title: 'Yêu cầu bảo hành mới',
+            message: `Có yêu cầu bảo hành mới từ ${createWarrantyRequestDto.customerName} - ${ticketNumber}`,
+            userId: user.id,
+          });
+        } catch (error) {
+          console.error('Lỗi khi tạo notification cho user:', user.id, error);
+        }
+      }
+    } catch (error) {
+      console.error('Lỗi khi tạo notification:', error);
     }
 
     return {
