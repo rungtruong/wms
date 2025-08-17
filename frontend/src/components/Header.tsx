@@ -57,7 +57,6 @@ export default function Header({
 
   const handleSettings = () => {
     // TODO: Navigate to settings page
-    console.log('Settings clicked');
     setIsProfileOpen(false);
   };
 

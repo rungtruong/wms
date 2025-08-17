@@ -46,9 +46,6 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       try {
         setLoading(true);
         const requestData = await ticketsService.getById(params.id);
-        console.log("Request data:", requestData);
-        console.log("Product Serial:", requestData.productSerial);
-        console.log("Serial Number:", requestData.productSerial?.serialNumber);
         setRequest(requestData);
       } catch (error) {
         console.error("Error fetching request:", error);
